@@ -16,6 +16,8 @@ import API_LIST from './API';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, TableBody, CircularProgress } from '@mui/material';
 import Moment from 'react-moment';
+import Calendar from './components/calendar';
+import PruebaTarea from './components/PruebaTarea';
 
 /* In this application we're using Function Components with the State Hooks
  * to manage the states. See the doc: https://reactjs.org/docs/hooks-state.html
@@ -212,6 +214,7 @@ function App() {
         </table>
         <h2 id="donelist">
           Done items
+          HOLAAAA 8=======D
         </h2>
         <table id="itemlistDone" className="itemlist">
           <TableBody>
@@ -231,9 +234,12 @@ function App() {
           )))}
           </TableBody>
         </table>
+
         </div>
         }
 
+        <Calendar />
+        <PruebaTarea />
       </div>
     );
 }
