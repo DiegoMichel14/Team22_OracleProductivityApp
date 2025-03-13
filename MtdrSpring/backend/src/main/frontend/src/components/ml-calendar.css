@@ -164,3 +164,49 @@ body.ml-calendar-demo {
 .ml-calendar .clear {
   clear: both;
 }
+
+/* Marcador de tareas (cuadrado rojo centrado) */
+.due-marker {
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  /* Sin border-radius para que sea cuadrado */
+  border-radius: 0;
+  /* Para permitir que el tooltip se muestre dentro */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tooltip personalizado que se muestra al hacer hover */
+.tooltip-content {
+  display: none;
+  position: absolute;
+  /* Ajusta estos valores para ubicar mejor el tooltip */
+  top: -10px; 
+  left: 30px;
+  transform: translate(-50%, -100%);
+  
+  /* Estilos visuales del tooltip */
+  background-color: #fff;
+  color: #000;
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  z-index: 999; /* Asegúrate de que quede por encima */
+}
+
+/* Cada tarea dentro del tooltip */
+.tooltip-item {
+  margin: 4px 0;
+}
+
+/* Al pasar el ratón sobre .due-marker, mostramos el tooltip */
+.due-marker:hover .tooltip-content {
+  display: block;
+}

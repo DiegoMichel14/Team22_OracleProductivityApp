@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ml-calendar.css'; // Asegúrate de que la ruta sea correcta
+import API_TAREA from '../API_Tarea';
 
 function Calendar() {
-  // Estado inicial: 1 de enero de 2025
+  // Estado para la fecha actual del calendario
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1));
+  // Estado para almacenar las tareas pendientes (no completadas)
+  const [tareas, setTareas] = useState([]);
 
   // Array con nombres de los meses
   const monthNames = [
@@ -53,7 +56,7 @@ function Calendar() {
     const month = date.getMonth();
     const firstDayOfMonth = new Date(year, month, 1);
     let startDay = firstDayOfMonth.getDay(); // 0 (Dom) a 6 (Sáb)
-    // Ajuste: si es domingo, lo tratamos como día 7 para que la semana inicie en lunes
+    // Ajustar para que la semana inicie en lunes (si domingo, se trata como 7)
     startDay = startDay === 0 ? 7 : startDay;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthLastDate = new Date(year, month, 0).getDate();
@@ -63,11 +66,10 @@ function Calendar() {
     let dayCounter = 1;
     let nextMonthDayCounter = 1;
 
-    // 42 celdas (6 semanas x 7 días)
     for (let i = 0; i < 42; i++) {
       let cell = {};
       if (i < (startDay - 1)) {
-        // Días del mes anterior: se corrige la fórmula sumando +1
+        // Días del mes anterior
         cell.day = prevMonthLastDate - (startDay - 1) + i + 1;
         cell.currentMonth = false;
         cell.date = new Date(year, month - 1, cell.day);
@@ -95,55 +97,46 @@ function Calendar() {
 
   const weeks = generateCalendar(currentDate);
 
+  // useEffect para obtener las tareas pendientes del backend
+  useEffect(() => {
+    fetch(API_TAREA)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Error al obtener las tareas');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Filtrar las tareas que NO tengan el estado "Completada"
+        const pendientes = data.filter(tarea => tarea.estado !== "Completada");
+        setTareas(pendientes);
+      })
+      .catch(error => {
+        console.error("Error en la petición:", error);
+      });
+  }, []);
+
   return (
     <div className="ml-calendar">
       <section className="calendar-left">
         <div className="sidebar">
-          <p className="subheading">Today</p>
-          <h1>
-            Tuesday, <br />January 1st
-          </h1>
-          <h3 className="primary-color">4 Items</h3>
-          <ul className="calendar-events">
-            <li>
-              <p>
-                <strong>8:00 AM</strong>
-                <br />
-                Team Meeting
-              </p>
-            </li>
-            <li>
-              <p>
-                <strong>10:00 AM</strong>
-                <br />
-                Call Jane
-              </p>
-            </li>
-            <li>
-              <p>
-                <strong>12:00 PM</strong>
-                <br />
-                Lunch with John
-              </p>
-            </li>
-            <li>
-              <p>
-                <strong>7:00 PM</strong>
-                <br />
-                Dinner with Jane
-              </p>
-            </li>
-          </ul>
-          <p>
-            <a href="#" className="calendar-btn">
-              <i className="fas fa-plus"></i> Add new item
-            </a>
-          </p>
+          <h2>Tareas Pendientes</h2>
+          {tareas.length > 0 ? (
+            <ul className="tareas-list">
+              {tareas.map(tarea => (
+                <li key={tarea.idTarea}>
+                  <strong>{tarea.nombreTarea}</strong> - Estado: {tarea.estado} - Prioridad: {tarea.prioridad}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No hay tareas pendientes.</p>
+          )}
         </div>
       </section>
+
       <section className="calendar-right">
         <div className="calendar">
-          {/* Encabezado dinámico */}
           <section className="calendar-header">
             <h2>
               <strong>{monthNames[currentDate.getMonth()]}</strong> {currentDate.getFullYear()}
@@ -158,7 +151,7 @@ function Calendar() {
               </a>
             </div>
           </section>
-          {/* Fila de encabezado con los nombres de los días */}
+
           <section className="calendar-row">
             {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((dayName, index) => (
               <div key={index} className="calendar-day day-name">
@@ -166,17 +159,37 @@ function Calendar() {
               </div>
             ))}
           </section>
-          {/* Renderizado dinámico de las semanas y días */}
+
           {weeks.map((week, index) => (
             <section key={index} className="calendar-row">
-              {week.map((cell, idx) => (
-                <div
-                  key={idx}
-                  className={`calendar-day ${cell.currentMonth ? "" : "inactive"}`}
-                >
-                  <span className="calendar-date">{cell.day}</span>
-                </div>
-              ))}
+              {week.map((cell, idx) => {
+                // Convertir la fecha de la celda al formato YYYY-MM-DD
+                const cellDateStr = cell.date.toISOString().split('T')[0];
+                // Filtrar las tareas que vencen en esta fecha
+                const dueTasks = tareas.filter(tarea => tarea.fechaFin === cellDateStr);
+
+                return (
+                  <div
+                    key={idx}
+                    className={`calendar-day ${cell.currentMonth ? "" : "inactive"}`}
+                    style={{ position: 'relative' }}
+                  >
+                    <span className="calendar-date">{cell.day}</span>
+                    {dueTasks.length > 0 && (
+                      <div className="due-marker">
+                        {/* Tooltip personalizado */}
+                        <div className="tooltip-content">
+                          {dueTasks.map(t => (
+                            <div key={t.idTarea} className="tooltip-item">
+                              {t.nombreTarea}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </section>
           ))}
         </div>
