@@ -19,6 +19,7 @@ public class ToDoItemService {
         List<ToDoItem> todoItems = toDoItemRepository.findAll();
         return todoItems;
     }
+    
     public ResponseEntity<ToDoItem> getItemById(int id){
         Optional<ToDoItem> todoData = toDoItemRepository.findById(id);
         if (todoData.isPresent()){
@@ -26,7 +27,8 @@ public class ToDoItemService {
         }else{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
+    } 
+    
     public ToDoItem addToDoItem(ToDoItem toDoItem){
         return toDoItemRepository.save(toDoItem);
     }
