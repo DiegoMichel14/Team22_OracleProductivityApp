@@ -5,7 +5,7 @@ import javax.persistence.*;
 import java.time.OffsetDateTime;
 
 /*
-    representation of the TODOITEM table that exists already
+    representation of the TODOITEM table that exists already 
     in the autonomous database
  */
 @Entity
