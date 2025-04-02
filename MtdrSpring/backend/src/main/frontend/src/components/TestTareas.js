@@ -14,7 +14,7 @@ function TestTareas() {
         console.log("Datos de TAREA:", data);
       })
       .catch(error => {
-        console.error("Error en la petición:", error);
+        console.error("Error en la petición de tareas:", error);
       });
   }, []);
 

@@ -1,6 +1,9 @@
 package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import java.time.LocalDate;
 
 @Entity
@@ -29,6 +32,7 @@ public class Tarea {
 
     @ManyToOne
     @JoinColumn(name = "ID_SPRINT", nullable = false)
+    @JsonBackReference
     private Sprint sprint;
 
     // Constructor vacío

@@ -17,10 +17,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, TableBody, CircularProgress } from '@mui/material';
 import Moment from 'react-moment';
 import Calendar from './components/calendar';
-import PruebaTarea from './components/PruebaTarea';
+import TestTareas from './components/TestTareas';
 import TestEquipos from './components/TestEquipos';
 import TestDevelopers from './components/TestDevelopers';
 import TestTareaDeveloper from './components/TestTareaDeveloper';
+import TestManager from './components/TestManager';
+import TestPrioridades from './components/TestPrioridades';
+import TestSprints from './components/TestSprints';
+import TestEstados from './components/TestEstados';
 
 /* In this application we're using Function Components with the State Hooks 
  * to manage the states. See the doc: https://reactjs.org/docs/hooks-state.html
@@ -188,64 +192,77 @@ function App() {
         }
       );
     }
+
+
+    
     return (
       <div className="App">
         <h1>MY TODO LIST</h1>
-        <NewItem addItem={addItem} isInserting={isInserting}/>
-        { error &&
-          <p>Error: {error.message}</p>
-        }
-        { isLoading &&
-          <CircularProgress />
-        }
+        <NewItem addItem={addItem} isInserting={isInserting} />
+        { error && <p>Error: {error.message}</p> }
+        { isLoading && <CircularProgress /> }
         { !isLoading &&
-        <div id="maincontent">
-        <table id="itemlistNotDone" className="itemlist">
-          <TableBody>
-          {items.map(item => (
-            !item.done && (
-            <tr key={item.id}>
-              <td className="description">{item.description}</td>
-              { /*<td>{JSON.stringify(item, null, 2) }</td>*/ }
-              <td className="date"><Moment format="MMM Do hh:mm:ss">{item.createdAt}</Moment></td>
-              <td><Button variant="contained" className="DoneButton" onClick={(event) => toggleDone(event, item.id, item.description, !item.done)} size="small">
-                    Done
-                  </Button></td>
-            </tr>
-          )))}
-          </TableBody>
-        </table>
-        <h2 id="donelist">
-          Done items
-        </h2>
-        <table id="itemlistDone" className="itemlist">
-          <TableBody>
-          {items.map(item => (
-            item.done && (
-
-            <tr key={item.id}>
-              <td className="description">{item.description}</td>
-              <td className="date"><Moment format="MMM Do hh:mm:ss">{item.createdAt}</Moment></td>
-              <td><Button variant="contained" className="DoneButton" onClick={(event) => toggleDone(event, item.id, item.description, !item.done)} size="small">
-                    Undo
-                  </Button></td>
-              <td><Button startIcon={<DeleteIcon />} variant="contained" className="DeleteButton" onClick={() => deleteItem(item.id)} size="small">
-                    Delete
-                  </Button></td>
-            </tr>
-          )))}
-          </TableBody>
-        </table>
-
-        </div>
+          <div id="maincontent">
+            <table id="itemlistNotDone" className="itemlist">
+              <TableBody>
+                {items.map(item => (
+                  !item.done && (
+                    <tr key={item.id}>
+                      <td className="description">{item.description}</td>
+                      <td className="date">
+                        <Moment format="MMM Do hh:mm:ss">{item.createdAt}</Moment>
+                      </td>
+                      <td>
+                        <Button variant="contained" className="DoneButton" onClick={(event) => toggleDone(event, item.id, item.description, !item.done)} size="small">
+                          Done
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                ))}
+              </TableBody>
+            </table>
+            <h2 id="donelist">Done items</h2>
+            <table id="itemlistDone" className="itemlist">
+              <TableBody>
+                {items.map(item => (
+                  item.done && (
+                    <tr key={item.id}>
+                      <td className="description">{item.description}</td>
+                      <td className="date">
+                        <Moment format="MMM Do hh:mm:ss">{item.createdAt}</Moment>
+                      </td>
+                      <td>
+                        <Button variant="contained" className="DoneButton" onClick={(event) => toggleDone(event, item.id, item.description, !item.done)} size="small">
+                          Undo
+                        </Button>
+                      </td>
+                      <td>
+                        <Button startIcon={<DeleteIcon />} variant="contained" className="DeleteButton" onClick={() => deleteItem(item.id)} size="small">
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                ))}
+              </TableBody>
+            </table>
+          </div>
         }
-
+  
+        {/* Agregamos los nuevos componentes de prueba */}
         <Calendar />
-        <PruebaTarea />
+        <TestTareas />
         <TestEquipos />
         <TestDevelopers />
         <TestTareaDeveloper />
+        <TestManager />
+        <TestPrioridades />
+        <TestSprints />
+        <TestEstados />
+  
       </div>
     );
-}
-export default App;
+  }
+  
+  export default App;

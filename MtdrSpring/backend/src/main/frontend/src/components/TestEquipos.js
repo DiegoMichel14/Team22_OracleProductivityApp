@@ -1,6 +1,5 @@
-// TestEquipos.js
 import React, { useEffect } from 'react';
-import API_EQUIPO from '../API_Equipo';
+import API_EQUIPO from '../API_EQUIPO';
 
 function TestEquipos() {
   useEffect(() => {
