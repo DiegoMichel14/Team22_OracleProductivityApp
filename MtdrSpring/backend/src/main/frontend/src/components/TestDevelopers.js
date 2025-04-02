@@ -19,7 +19,7 @@ function TestDevelopers() {
       });
   }, []);
 
-  return <div>Revisa la consola para ver los datos de DEVELOPER.</div>;
+  return <div></div>;
 }
 
 export default TestDevelopers;

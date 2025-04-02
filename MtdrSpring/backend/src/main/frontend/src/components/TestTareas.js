@@ -14,11 +14,11 @@ function TestTareas() {
         console.log("Datos de TAREA:", data);
       })
       .catch(error => {
-        console.error("Error en la petición:", error);
+        console.error("Error en la petición de tareas:", error);
       });
   }, []);
 
-  return <div>Revisa la consola para ver los datos de TAREA.</div>;
+  return <div></div>;
 }
 
 export default TestTareas;

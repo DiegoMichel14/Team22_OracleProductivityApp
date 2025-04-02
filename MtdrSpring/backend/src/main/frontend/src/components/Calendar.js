@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import './ml-calendar.css'; // Asegúrate de que la ruta sea correcta
+import './ml-calendar.css'; 
 import API_TAREA from '../API_Tarea';
+import API_ESTADO from '../API_ESTADO';
+import API_PRIORIDAD from '../API_Prioridad';
 
 function Calendar() {
-  // Estado para la fecha actual del calendario
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1));
-  // Estado para almacenar las tareas pendientes (no completadas)
   const [tareas, setTareas] = useState([]);
 
-  // Array con nombres de los meses
   const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
 
-  // Funciones para cambiar de mes
+  // Funciones para cambiar de mes (prev, next, today)
   const handlePrevMonth = (e) => {
     e.preventDefault();
     setCurrentDate(prevDate => {
@@ -56,7 +55,6 @@ function Calendar() {
     const month = date.getMonth();
     const firstDayOfMonth = new Date(year, month, 1);
     let startDay = firstDayOfMonth.getDay(); // 0 (Dom) a 6 (Sáb)
-    // Ajustar para que la semana inicie en lunes (si domingo, se trata como 7)
     startDay = startDay === 0 ? 7 : startDay;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthLastDate = new Date(year, month, 0).getDate();
@@ -69,18 +67,15 @@ function Calendar() {
     for (let i = 0; i < 42; i++) {
       let cell = {};
       if (i < (startDay - 1)) {
-        // Días del mes anterior
         cell.day = prevMonthLastDate - (startDay - 1) + i + 1;
         cell.currentMonth = false;
         cell.date = new Date(year, month - 1, cell.day);
       } else if (i >= (startDay - 1) && dayCounter <= daysInMonth) {
-        // Días del mes actual
         cell.day = dayCounter;
         cell.currentMonth = true;
         cell.date = new Date(year, month, dayCounter);
         dayCounter++;
       } else {
-        // Días del siguiente mes
         cell.day = nextMonthDayCounter;
         cell.currentMonth = false;
         cell.date = new Date(year, month + 1, nextMonthDayCounter);
@@ -97,23 +92,52 @@ function Calendar() {
 
   const weeks = generateCalendar(currentDate);
 
-  // useEffect para obtener las tareas pendientes del backend
+  // useEffect para obtener las tareas, estados y prioridades
   useEffect(() => {
-    fetch(API_TAREA)
-      .then(response => {
+    Promise.all([
+      fetch(API_TAREA).then(response => {
         if (!response.ok) {
           throw new Error('Error al obtener las tareas');
         }
         return response.json();
+      }),
+      fetch(API_ESTADO).then(response => {
+        if (!response.ok) {
+          throw new Error('Error al obtener los estados');
+        }
+        return response.json();
+      }),
+      fetch(API_PRIORIDAD).then(response => {
+        if (!response.ok) {
+          throw new Error('Error al obtener las prioridades');
+        }
+        return response.json();
       })
-      .then(data => {
-        // Filtrar las tareas que NO tengan el estado "Completada"
-        const pendientes = data.filter(tarea => tarea.estado !== "Completada");
-        setTareas(pendientes);
-      })
-      .catch(error => {
-        console.error("Error en la petición:", error);
+    ])
+    .then(([tareasData, estadosData, prioridadesData]) => {
+      // Crear mapas por ID de tarea
+      const estadoMap = {};
+      estadosData.forEach(estado => {
+        // Suponemos que la propiedad "id" corresponde al id de la tarea
+        estadoMap[estado.id] = estado.estado;
       });
+      const prioridadMap = {};
+      prioridadesData.forEach(prioridad => {
+        prioridadMap[prioridad.id] = prioridad.prioridad;
+      });
+      // Combinar la información: agregar estado y prioridad a cada tarea
+      const tareasCombinadas = tareasData.map(tarea => ({
+        ...tarea,
+        estado: estadoMap[tarea.idTarea],       // Nota: tarea.idTarea
+        prioridad: prioridadMap[tarea.idTarea]
+      }));
+      // Filtrar tareas que no estén completadas
+      const pendientes = tareasCombinadas.filter(tarea => tarea.estado !== "Completada");
+      setTareas(pendientes);
+    })
+    .catch(error => {
+      console.error("Error en la petición:", error);
+    });
   }, []);
 
   return (
@@ -163,10 +187,12 @@ function Calendar() {
           {weeks.map((week, index) => (
             <section key={index} className="calendar-row">
               {week.map((cell, idx) => {
-                // Convertir la fecha de la celda al formato YYYY-MM-DD
                 const cellDateStr = cell.date.toISOString().split('T')[0];
-                // Filtrar las tareas que vencen en esta fecha
-                const dueTasks = tareas.filter(tarea => tarea.fechaFin === cellDateStr);
+                // Filtrar las tareas que vencen en esta fecha, comparando con fechaFin
+                const dueTasks = tareas.filter(tarea => {
+                  // Suponiendo que tarea.fechaFin se recibe como string en formato "YYYY-MM-DD"
+                  return tarea.fechaFin === cellDateStr;
+                });
 
                 return (
                   <div
@@ -177,7 +203,6 @@ function Calendar() {
                     <span className="calendar-date">{cell.day}</span>
                     {dueTasks.length > 0 && (
                       <div className="due-marker">
-                        {/* Tooltip personalizado */}
                         <div className="tooltip-content">
                           {dueTasks.map(t => (
                             <div key={t.idTarea} className="tooltip-item">

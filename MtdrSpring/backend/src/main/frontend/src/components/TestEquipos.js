@@ -1,6 +1,5 @@
-// TestEquipos.js
 import React, { useEffect } from 'react';
-import API_EQUIPO from '../API_Equipo';
+import API_EQUIPO from '../API_EQUIPO';
 
 function TestEquipos() {
   useEffect(() => {
@@ -19,7 +18,7 @@ function TestEquipos() {
       });
   }, []);
 
-  return <div>Revisa la consola para ver los datos de EQUIPO.</div>;
+  return <div></div>;
 }
 
 export default TestEquipos;

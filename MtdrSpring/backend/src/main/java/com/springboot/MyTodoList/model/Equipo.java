@@ -8,17 +8,17 @@ public class Equipo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_EQUIPO")
+    @Column(name = "ID_EQUIPO", nullable = false)
     private Integer idEquipo;
 
-    @Column(name = "NOMBRE_EQUIPO")
+    @Column(name = "NOMBRE_EQUIPO", length = 100, nullable = false)
     private String nombreEquipo;
 
     // Constructor vacío
     public Equipo() {
     }
 
-    // Constructor completo (opcional)
+    // Constructor completo 
     public Equipo(Integer idEquipo, String nombreEquipo) {
         this.idEquipo = idEquipo;
         this.nombreEquipo = nombreEquipo;
