@@ -217,7 +217,6 @@ function App() {
         </table>
         <h2 id="donelist">
           Done items
-          HOLAAAAA
         </h2>
         <table id="itemlistDone" className="itemlist">
           <TableBody>

@@ -1,2 +1,2 @@
 const API_DEVELOPER = '/developers';
-export default API_DEVELOPER;
+export default API_DEVELOPER; 

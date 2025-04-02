@@ -8,39 +8,46 @@ public class Developer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_DEVELOPER")
+    @Column(name = "ID_DEVELOPER", nullable = false)
     private Integer idDeveloper;
 
-    @Column(name = "NOMBRE")
+    @Column(name = "NOMBRE", length = 100, nullable = false)
     private String nombre;
 
-    @Column(name = "APELLIDO_PATERNO")
+    @Column(name = "APELLIDO_PATERNO", length = 100, nullable = false)
     private String apellidoPaterno;
 
-    @Column(name = "APELLIDO_MATERNO")
+    @Column(name = "APELLIDO_MATERNO", length = 100, nullable = false)
     private String apellidoMaterno;
 
-    // Relación ManyToOne con Equipo.
-    // la columna que contiene la FK se llama "ID_EQUIPO" en la tabla DEVELOPER.
+    // Relación ManyToOne con Equipo. Se marca el FK como no nulo.
     @ManyToOne
-    @JoinColumn(name = "ID_EQUIPO", referencedColumnName = "ID_EQUIPO")
+    @JoinColumn(name = "ID_EQUIPO", referencedColumnName = "ID_EQUIPO", nullable = false)
     private Equipo equipo;
 
     @Column(name = "ES_MANAGER")
     private boolean esManager;
 
-    // Constructor vacío (requerido por JPA)
+    @Column(name = "TELEFONO", length = 10)
+    private String telefono;
+
+    @Column(name = "CONTRASENA", length = 100, nullable = false)
+    private String contrasena;
+
+    // Constructor vacío 
     public Developer() {
     }
 
-    // Constructor completo 
-    public Developer(Integer idDeveloper, String nombre, String apellidoPaterno, String apellidoMaterno, Equipo equipo, boolean esManager) {
+    // Constructor completo
+    public Developer(Integer idDeveloper, String nombre, String apellidoPaterno, String apellidoMaterno, Equipo equipo, boolean esManager, String telefono, String contrasena) {
         this.idDeveloper = idDeveloper;
         this.nombre = nombre;
         this.apellidoPaterno = apellidoPaterno;
         this.apellidoMaterno = apellidoMaterno;
         this.equipo = equipo;
         this.esManager = esManager;
+        this.telefono = telefono;
+        this.contrasena = contrasena;
     }
 
     // Getters y setters
@@ -92,6 +99,22 @@ public class Developer {
         this.esManager = esManager;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
+    }
+
     @Override
     public String toString() {
         return "Developer{" +
@@ -101,6 +124,8 @@ public class Developer {
                 ", apellidoMaterno='" + apellidoMaterno + '\'' +
                 ", equipo=" + (equipo != null ? equipo.getIdEquipo() : null) +
                 ", esManager=" + esManager +
+                ", telefono='" + telefono + '\'' +
+                ", contrasena='" + contrasena + '\'' +
                 '}';
     }
 }

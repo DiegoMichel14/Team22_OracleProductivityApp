@@ -19,7 +19,7 @@ function TestTareaDeveloper() {
       });
   }, []);
 
-  return <div>Revisa la consola para ver los datos de TAREA_DEVELOPER.</div>;
+  return <div></div>;
 }
 
 export default TestTareaDeveloper;

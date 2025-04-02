@@ -18,7 +18,7 @@ function TestTareas() {
       });
   }, []);
 
-  return <div>Revisa la consola para ver los datos de TAREA.</div>;
+  return <div></div>;
 }
 
 export default TestTareas;

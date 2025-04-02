@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Service 
 public class TareaService {
 
     @Autowired
@@ -40,9 +40,9 @@ public class TareaService {
             tarea.setNombreTarea(t.getNombreTarea());
             tarea.setFechaRegistro(t.getFechaRegistro());
             tarea.setFechaFin(t.getFechaFin());
-            tarea.setEstado(t.getEstado());
-            tarea.setPrioridad(t.getPrioridad());
             tarea.setHorasEstimadas(t.getHorasEstimadas());
+            tarea.setHorasReales(t.getHorasReales());
+            tarea.setSprint(t.getSprint());
             return tareaRepository.save(tarea);
         } else {
             return null;

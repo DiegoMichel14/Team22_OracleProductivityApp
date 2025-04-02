@@ -41,8 +41,6 @@ public class TareaDeveloperService {
         TareaDeveloperId compositeId = new TareaDeveloperId(tareaId, developerId);
         Optional<TareaDeveloper> existing = tareaDeveloperRepository.findById(compositeId);
         if(existing.isPresent()){
-            // Normalmente la relación es inmutable, pero de ser necesario actualizar,
-            // se podría cambiar las referencias a Tarea o Developer y posteriormente guardarlo.
             TareaDeveloper td = existing.get();
             td.setTarea(updatedTd.getTarea());
             td.setDeveloper(updatedTd.getDeveloper());

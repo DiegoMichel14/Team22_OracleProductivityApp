@@ -19,7 +19,7 @@ function TestEquipos() {
       });
   }, []);
 
-  return <div>Revisa la consola para ver los datos de EQUIPO.</div>;
+  return <div></div>;
 }
 
 export default TestEquipos;

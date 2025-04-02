@@ -40,8 +40,10 @@ public class DeveloperService {
             developer.setNombre(dev.getNombre());
             developer.setApellidoPaterno(dev.getApellidoPaterno());
             developer.setApellidoMaterno(dev.getApellidoMaterno());
-            developer.setEquipo(dev.getEquipo()); // Se actualiza la relación con Equipo
+            developer.setEquipo(dev.getEquipo());
             developer.setEsManager(dev.isEsManager());
+            developer.setTelefono(dev.getTelefono());
+            developer.setContrasena(dev.getContrasena());
             return developerRepository.save(developer);
         } else {
             return null;
