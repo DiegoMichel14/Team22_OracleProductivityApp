@@ -16,7 +16,7 @@ import API_LIST from './API';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, TableBody, CircularProgress } from '@mui/material';
 import Moment from 'react-moment';
-import Calendar from './components/calendar';
+import Calendar from './components/Calendar';
 import TestTareas from './components/TestTareas';
 import TestEquipos from './components/TestEquipos';
 import TestDevelopers from './components/TestDevelopers';

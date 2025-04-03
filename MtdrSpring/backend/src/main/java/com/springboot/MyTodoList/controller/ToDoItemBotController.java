@@ -21,6 +21,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import com.springboot.MyTodoList.model.ToDoItem;
+import com.springboot.MyTodoList.model.Tarea;
+import com.springboot.MyTodoList.service.TareaService;
 import com.springboot.MyTodoList.service.ToDoItemService;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
@@ -32,12 +34,23 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	private static final Logger logger = LoggerFactory.getLogger(ToDoItemBotController.class);
 	private ToDoItemService toDoItemService;
 	private String botName;
+	
+	private TareaService tareaService;
 
-	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
+	// public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
+	// 	super(botToken);
+	// 	logger.info("Bot Token: " + botToken);
+	// 	logger.info("Bot name: " + botName);
+	// 	this.toDoItemService = toDoItemService;
+	// 	this.botName = botName;
+	// }
+
+	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, TareaService tareaService) {
 		super(botToken);
 		logger.info("Bot Token: " + botToken);
 		logger.info("Bot name: " + botName);
 		this.toDoItemService = toDoItemService;
+		this.tareaService = tareaService;
 		this.botName = botName;
 	}
 
@@ -142,55 +155,53 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					|| messageTextFromTelegram.equals(BotLabels.LIST_ALL_ITEMS.getLabel())
 					|| messageTextFromTelegram.equals(BotLabels.MY_TODO_LIST.getLabel())) {
 
-				List<ToDoItem> allItems = getAllToDoItems();
+				// Obtener todas las tareas de la tabla TAREA
+				List<Tarea> allTareas = getAllTareas();
+
+				// Configurar el teclado interactivo
 				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 				List<KeyboardRow> keyboard = new ArrayList<>();
 
-				// command back to main screen
+				// Primera fila: Botón para volver a la pantalla principal
 				KeyboardRow mainScreenRowTop = new KeyboardRow();
 				mainScreenRowTop.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				keyboard.add(mainScreenRowTop);
 
-				KeyboardRow firstRow = new KeyboardRow();
-				firstRow.add(BotLabels.ADD_NEW_ITEM.getLabel());
-				keyboard.add(firstRow);
+				// Segunda fila: Botón para agregar una nueva tarea
+				KeyboardRow addNewRow = new KeyboardRow();
+				addNewRow.add(BotLabels.ADD_NEW_ITEM.getLabel());
+				keyboard.add(addNewRow);
 
-				KeyboardRow myTodoListTitleRow = new KeyboardRow();
-				myTodoListTitleRow.add(BotLabels.MY_TODO_LIST.getLabel());
-				keyboard.add(myTodoListTitleRow);
+				// Tercera fila: Título de la lista
+				KeyboardRow titleRow = new KeyboardRow();
+				titleRow.add("Lista de Tareas");
+				keyboard.add(titleRow);
 
-				List<ToDoItem> activeItems = allItems.stream().filter(item -> item.isDone() == false)
-						.collect(Collectors.toList());
-
-				for (ToDoItem item : activeItems) {
-
+				// Por cada tarea, se agrega una fila con botones para acciones (por ejemplo,
+				// editar y borrar)
+				for (Tarea tarea : allTareas) {
 					KeyboardRow currentRow = new KeyboardRow();
-					currentRow.add(item.getDescription());
-					currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
+					// Mostrar el nombre de la tarea
+					currentRow.add(tarea.getNombreTarea());
+					// Botón para editar la tarea (se envía el ID seguido de la etiqueta "Editar")
+					currentRow.add(tarea.getIdTarea() + "-Editar");
+					// Botón para borrar la tarea (se envía el ID seguido de la etiqueta "Borrar")
+					currentRow.add(tarea.getIdTarea() + "-Borrar");
 					keyboard.add(currentRow);
 				}
 
-				List<ToDoItem> doneItems = allItems.stream().filter(item -> item.isDone() == true)
-						.collect(Collectors.toList());
-
-				for (ToDoItem item : doneItems) {
-					KeyboardRow currentRow = new KeyboardRow();
-					currentRow.add(item.getDescription());
-					currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.UNDO.getLabel());
-					currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.DELETE.getLabel());
-					keyboard.add(currentRow);
-				}
-
-				// command back to main screen
+				// Última fila: Otra opción para volver a la pantalla principal
 				KeyboardRow mainScreenRowBottom = new KeyboardRow();
 				mainScreenRowBottom.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				keyboard.add(mainScreenRowBottom);
 
+				// Asignar el teclado configurado al markup
 				keyboardMarkup.setKeyboard(keyboard);
 
+				// Construir el mensaje a enviar a Telegram
 				SendMessage messageToTelegram = new SendMessage();
 				messageToTelegram.setChatId(chatId);
-				messageToTelegram.setText(BotLabels.MY_TODO_LIST.getLabel());
+				messageToTelegram.setText("Lista de Tareas");
 				messageToTelegram.setReplyMarkup(keyboardMarkup);
 
 				try {
@@ -248,6 +259,10 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		return toDoItemService.findAll();
 	}
 
+	public List<Tarea> getAllTareas() {
+		return tareaService.findAll();
+	}
+
 	// GET BY ID /todolist/{id}
 	public ResponseEntity<ToDoItem> getToDoItemById(@PathVariable int id) {
 		try {
@@ -295,3 +310,74 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	}
 
 }
+
+
+
+
+
+
+
+
+
+// else if (messageTextFromTelegram.equals(BotCommands.TODO_LIST.getCommand())
+// 					|| messageTextFromTelegram.equals(BotLabels.LIST_ALL_ITEMS.getLabel())
+// 					|| messageTextFromTelegram.equals(BotLabels.MY_TODO_LIST.getLabel())) {
+
+// 				List<ToDoItem> allItems = getAllToDoItems();
+// 				List<Tarea> allTareas = getAllTareas();
+				
+// 				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+// 				List<KeyboardRow> keyboard = new ArrayList<>();
+
+// 				// command back to main screen
+// 				KeyboardRow mainScreenRowTop = new KeyboardRow();
+// 				mainScreenRowTop.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+// 				keyboard.add(mainScreenRowTop);
+
+// 				KeyboardRow firstRow = new KeyboardRow();
+// 				firstRow.add(BotLabels.ADD_NEW_ITEM.getLabel());
+// 				keyboard.add(firstRow);
+
+// 				KeyboardRow myTodoListTitleRow = new KeyboardRow();
+// 				myTodoListTitleRow.add(BotLabels.MY_TODO_LIST.getLabel());
+// 				keyboard.add(myTodoListTitleRow);
+
+// 				List<ToDoItem> activeItems = allItems.stream().filter(item -> item.isDone() == false)
+// 						.collect(Collectors.toList());
+
+// 				for (ToDoItem item : activeItems) {
+
+// 					KeyboardRow currentRow = new KeyboardRow();
+// 					currentRow.add(item.getDescription());
+// 					currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.DONE.getLabel());
+// 					keyboard.add(currentRow);
+// 				}
+
+// 				List<ToDoItem> doneItems = allItems.stream().filter(item -> item.isDone() == true)
+// 						.collect(Collectors.toList());
+
+// 				for (ToDoItem item : doneItems) {
+// 					KeyboardRow currentRow = new KeyboardRow();
+// 					currentRow.add(item.getDescription());
+// 					currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.UNDO.getLabel());
+// 					currentRow.add(item.getID() + BotLabels.DASH.getLabel() + BotLabels.DELETE.getLabel());
+// 					keyboard.add(currentRow);
+// 				}
+
+// 				// command back to main screen
+// 				KeyboardRow mainScreenRowBottom = new KeyboardRow();
+// 				mainScreenRowBottom.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+// 				keyboard.add(mainScreenRowBottom);
+
+// 				keyboardMarkup.setKeyboard(keyboard);
+
+// 				SendMessage messageToTelegram = new SendMessage();
+// 				messageToTelegram.setChatId(chatId);
+// 				messageToTelegram.setText(BotLabels.MY_TODO_LIST.getLabel());
+// 				messageToTelegram.setReplyMarkup(keyboardMarkup);
+
+// 				try {
+// 					execute(messageToTelegram);
+// 				} catch (TelegramApiException e) {
+// 					logger.error(e.getLocalizedMessage(), e);
+// 				}
