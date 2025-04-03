@@ -2,7 +2,7 @@ package com.springboot.MyTodoList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Autowired; 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -23,7 +23,9 @@ public class MyTodoListApplication implements CommandLineRunner {
 
 	@Autowired
 	private ToDoItemService toDoItemService;
-	private TareaService tareaService;
+
+	@Autowired
+	private TareaService tareaService; 
 
 	@Value("${telegram.bot.token}")
 	private String telegramBotToken;
