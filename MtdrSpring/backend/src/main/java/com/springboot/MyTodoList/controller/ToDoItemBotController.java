@@ -120,6 +120,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
 				row.add(BotLabels.ADD_NEW_ITEM.getLabel());
 				row.add(BotLabels.LIST_ALL_TAREAS.getLabel());
+				row.add(BotLabels.INICIAR_TAREA.getLabel());
 
 				// Add the first row to the keyboard
 				keyboard.add(row);
@@ -210,6 +211,80 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 							"Error al procesar la tarea. Por favor, intenta nuevamente.", this);
 				}
 			
+			} else if (messageTextFromTelegram.equals(BotLabels.INICIAR_TAREA.getLabel())) {
+				// Obtener la lista de todas las tareas y filtrar solo las que están "Pendiente"
+				List<Tarea> todasTareas = getAllTareas();
+				List<Tarea> tareasPendientes = new ArrayList<>();
+				for (Tarea tarea : todasTareas) {
+					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(tarea.getIdTarea());
+					if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
+						String estado = estadoResponse.getBody().getEstado();
+						if (estado.equals("Pendiente")) {
+							tareasPendientes.add(tarea);
+						}
+					}
+				}
+			
+				if (tareasPendientes.isEmpty()) {
+					BotHelper.sendMessageToTelegram(chatId, "No hay tareas pendientes para iniciar.", this);
+				} else {
+					// Crear teclado en 2 columnas: una columna con información de la tarea y otra con el botón para iniciar.
+					ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+					List<KeyboardRow> keyboard = new ArrayList<>();
+			
+					for (Tarea tarea : tareasPendientes) {
+						KeyboardRow row = new KeyboardRow();
+						String infoButton = "[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea();
+						String iniciarButton = tarea.getIdTarea() + BotLabels.DASH.getLabel() + BotLabels.INICIAR_TAREA.getLabel();
+						row.add(infoButton);
+						row.add(iniciarButton);
+						keyboard.add(row);
+					}
+					// Botón para regresar a la pantalla principal
+					KeyboardRow mainScreenRow = new KeyboardRow();
+					mainScreenRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+					keyboard.add(mainScreenRow);
+			
+					keyboardMarkup.setKeyboard(keyboard);
+					SendMessage messageToTelegram = new SendMessage();
+					messageToTelegram.setChatId(chatId);
+					messageToTelegram.setText("Selecciona la tarea pendiente a iniciar:");
+					messageToTelegram.setReplyMarkup(keyboardMarkup);
+					try {
+						execute(messageToTelegram);
+					} catch (TelegramApiException e) {
+						logger.error(e.getLocalizedMessage(), e);
+					}
+				}
+			}
+			// Bloque para procesar la acción de iniciar una tarea
+			else if (messageTextFromTelegram.contains(BotLabels.INICIAR_TAREA.getLabel())
+					&& messageTextFromTelegram.contains(BotLabels.DASH.getLabel())) {
+				try {
+					int dashIndex = messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel());
+					String idStr = messageTextFromTelegram.substring(0, dashIndex);
+					int taskId = Integer.parseInt(idStr);
+			
+					// Obtener el estado de la tarea
+					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(taskId);
+					if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
+						Estado estado = estadoResponse.getBody();
+						if (estado.getEstado().equals("Pendiente")) {
+							// Actualizar el estado a "En progreso"
+							estado.setEstado("En progreso");
+							estadoService.updateEstado(taskId, estado);
+							BotHelper.sendMessageToTelegram(chatId, "Tarea " + taskId + " iniciada y ahora en progreso.", this);
+						} else {
+							BotHelper.sendMessageToTelegram(chatId, "La tarea " + taskId + " no se encuentra en estado Pendiente.", this);
+						}
+					} else {
+						BotHelper.sendMessageToTelegram(chatId, "No se encontró la tarea con id " + taskId, this);
+					}
+				} catch (Exception e) {
+					logger.error("Error al procesar Iniciar Tarea", e);
+					BotHelper.sendMessageToTelegram(chatId, "Error al procesar la tarea. Por favor, intenta nuevamente.", this);
+				}
+
 			} else if (messageTextFromTelegram.indexOf(BotLabels.DONE.getLabel()) != -1) {
 
 				String done = messageTextFromTelegram.substring(0,
