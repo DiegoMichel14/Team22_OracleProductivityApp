@@ -20,8 +20,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.service.ToDoItemService;
+import com.springboot.MyTodoList.service.TareaService;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
@@ -33,13 +35,24 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	private ToDoItemService toDoItemService;
 	private String botName;
 
-	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
-		super(botToken);
-		logger.info("Bot Token: " + botToken);
-		logger.info("Bot name: " + botName);
-		this.toDoItemService = toDoItemService;
-		this.botName = botName;
-	}
+	// ------------------------------------
+	private TareaService tareaService;
+	// --------------------
+
+	// public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
+	// 	super(botToken);
+	// 	logger.info("Bot Token: " + botToken);
+	// 	logger.info("Bot name: " + botName);
+	// 	this.toDoItemService = toDoItemService;
+	// 	this.botName = botName;
+	// }
+
+	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, TareaService tareaService) {
+        super(botToken);
+        this.toDoItemService = toDoItemService;
+        this.tareaService = tareaService;
+        this.botName = botName;
+    }
 
 	@Override
 	public void onUpdateReceived(Update update) {
@@ -63,6 +76,8 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				KeyboardRow row = new KeyboardRow();
 				row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
 				row.add(BotLabels.ADD_NEW_ITEM.getLabel());
+				row.add(BotLabels.LIST_ALL_TAREAS.getLabel());
+
 				// Add the first row to the keyboard
 				keyboard.add(row);
 
@@ -199,6 +214,46 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					logger.error(e.getLocalizedMessage(), e);
 				}
 
+			} else if (messageTextFromTelegram.equals(BotLabels.LIST_ALL_TAREAS.getLabel())) {
+				// Recuperar la lista de Tareas desde la base de datos
+				List<Tarea> tareas = getAllTareas();
+
+				// Construir el teclado para mostrar las Tareas
+				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+				List<KeyboardRow> keyboard = new ArrayList<>();
+
+				// Botón para volver a la pantalla principal
+				KeyboardRow topRow = new KeyboardRow();
+				topRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+				keyboard.add(topRow);
+
+				// Agregar una fila por cada tarea (por ejemplo, mostrando el nombre y el id)
+				for (Tarea tarea : tareas) {
+					KeyboardRow row = new KeyboardRow();
+					// Puedes personalizar la información que se muestra. Por ejemplo:
+					row.add("[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea());
+					keyboard.add(row);
+				}
+
+				// Botón inferior para regresar a la pantalla principal
+				KeyboardRow bottomRow = new KeyboardRow();
+				bottomRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+				keyboard.add(bottomRow);
+
+				keyboardMarkup.setKeyboard(keyboard);
+
+				// Enviar el mensaje al usuario con la lista de Tareas
+				SendMessage messageToTelegram = new SendMessage();
+				messageToTelegram.setChatId(chatId);
+				messageToTelegram.setText("Lista de Tareas:");
+				messageToTelegram.setReplyMarkup(keyboardMarkup);
+
+				try {
+					execute(messageToTelegram);
+				} catch (TelegramApiException e) {
+					logger.error(e.getLocalizedMessage(), e);
+				}
+			
 			} else if (messageTextFromTelegram.equals(BotCommands.ADD_ITEM.getCommand())
 					|| messageTextFromTelegram.equals(BotLabels.ADD_NEW_ITEM.getLabel())) {
 				try {
@@ -246,6 +301,10 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	// GET /todolist
 	public List<ToDoItem> getAllToDoItems() { 
 		return toDoItemService.findAll();
+	}
+
+	public List<Tarea> getAllTareas() {
+		return tareaService.findAll();
 	}
 
 	// GET BY ID /todolist/{id}
