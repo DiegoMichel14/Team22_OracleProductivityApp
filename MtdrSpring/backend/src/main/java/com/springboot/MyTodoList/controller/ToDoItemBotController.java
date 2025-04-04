@@ -149,7 +149,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				List<Tarea> todasTareas = getAllTareas();
 				List<Tarea> tareasFiltradas = new ArrayList<>();
 				
-				// Filtrar solo las tareas cuyo estado sea "Pendiente" o "En progreso"
+				// Filtrar solo las tareas cuyo estado sea Pendiente o En progreso
 				for (Tarea tarea : todasTareas) {
 					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(tarea.getIdTarea());
 					if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
