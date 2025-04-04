@@ -20,14 +20,19 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import com.springboot.MyTodoList.model.Estado;
 import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.model.ToDoItem;
+import com.springboot.MyTodoList.service.EstadoService;
 import com.springboot.MyTodoList.service.TareaService;
 import com.springboot.MyTodoList.service.ToDoItemService;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
 import com.springboot.MyTodoList.util.BotLabels;
 import com.springboot.MyTodoList.util.BotMessages;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class ToDoItemBotController extends TelegramLongPollingBot {
 
@@ -37,6 +42,9 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 
 	// ---------------------------------------
 	private TareaService tareaService;
+	private EstadoService estadoService;
+
+	private Map<Long, Integer> pendingCompletionTasks = new HashMap<>();
 	// ----------------------------------------
 
 	// public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
@@ -47,10 +55,11 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	// 	this.botName = botName;
 	// }
 
-    public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, TareaService tareaService) {
+    public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, TareaService tareaService, EstadoService estadoService) {
         super(botToken);
         this.toDoItemService = toDoItemService;
         this.tareaService = tareaService;
+		this.estadoService = estadoService;
         this.botName = botName;
     }
 
@@ -61,6 +70,42 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 
 			String messageTextFromTelegram = update.getMessage().getText();
 			long chatId = update.getMessage().getChatId();
+
+			// 1. Verificar si hay una tarea pendiente de completar
+			if (pendingCompletionTasks.containsKey(chatId)) {
+				try {
+					double horasReales = Double.parseDouble(messageTextFromTelegram);
+					int taskId = pendingCompletionTasks.get(chatId);
+
+					// Obtener la tarea a través del servicio
+					ResponseEntity<Tarea> tareaResponse = tareaService.getTareaById(taskId);
+					if (tareaResponse.getStatusCode() == HttpStatus.OK) {
+						Tarea tarea = tareaResponse.getBody();
+						// Actualizar las horas reales
+						tarea.setHorasReales(horasReales);
+						tareaService.updateTarea(taskId, tarea);
+
+						// Actualizar el estado a "Completada"
+						ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(taskId);
+						if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
+							Estado estado = estadoResponse.getBody();
+							estado.setEstado("Completada");
+							estadoService.updateEstado(taskId, estado);
+						}
+
+						BotHelper.sendMessageToTelegram(chatId,
+								"Tarea " + taskId + " completada con " + horasReales + " horas reales.", this);
+					} else {
+						BotHelper.sendMessageToTelegram(chatId, "No se encontró la tarea con id " + taskId, this);
+					}
+				} catch (NumberFormatException e) {
+					BotHelper.sendMessageToTelegram(chatId,
+							"Por favor, ingresa un número válido para las horas reales.", this);
+				}
+				// Una vez procesado, se elimina la tarea pendiente para este chat
+				pendingCompletionTasks.remove(chatId);
+				return;
+			}
 
 			if (messageTextFromTelegram.equals(BotCommands.START_COMMAND.getCommand())
 					|| messageTextFromTelegram.equals(BotLabels.SHOW_MAIN_SCREEN.getLabel())) {
@@ -75,8 +120,9 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				// first row
 				KeyboardRow row = new KeyboardRow();
 				row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
-				row.add(BotLabels.ADD_NEW_ITEM.getLabel());
 				row.add(BotLabels.LIST_ALL_TAREAS.getLabel());
+				row.add(BotLabels.ADD_NEW_ITEM.getLabel());
+				
 				// Add the first row to the keyboard
 				keyboard.add(row);
 
@@ -96,6 +142,22 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					execute(messageToTelegram);
 				} catch (TelegramApiException e) {
 					logger.error(e.getLocalizedMessage(), e);
+				}
+
+			} else if (messageTextFromTelegram.contains(BotLabels.COMPLETE_TASK.getLabel())) {
+				try {
+					// Se asume que el mensaje tiene el formato "ID-DASH-Complete Task", por ejemplo: "123-Complete Task"
+					int dashIndex = messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel());
+					String idStr = messageTextFromTelegram.substring(0, dashIndex);
+					int taskId = Integer.parseInt(idStr);
+	
+					// Se marca la tarea como pendiente de completar para este chat
+					pendingCompletionTasks.put(chatId, taskId);
+	
+					// Se solicita al usuario el tiempo real en horas
+					BotHelper.sendMessageToTelegram(chatId, "Ingresa el tiempo real en horas para la tarea " + taskId + ":", this);
+				} catch (Exception e) {
+					logger.error("Error al procesar Complete Task", e);
 				}
 
 			} else if (messageTextFromTelegram.indexOf(BotLabels.DONE.getLabel()) != -1) {
@@ -236,20 +298,30 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				// Recuperar la lista de Tareas desde la base de datos
 				List<Tarea> tareas = getAllTareas();
 
-				// Construir el teclado para mostrar las Tareas
+				// Construir el teclado para mostrar las Tareas con estado
 				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 				List<KeyboardRow> keyboard = new ArrayList<>();
 
-				// Botón para volver a la pantalla principal
+				// Botón superior para volver a la pantalla principal
 				KeyboardRow topRow = new KeyboardRow();
 				topRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				keyboard.add(topRow);
 
-				// Agregar una fila por cada tarea (por ejemplo, mostrando el nombre y el id)
+				// Por cada tarea, agregar una fila con dos botones: uno para el nombre y otro
+				// para el estado
 				for (Tarea tarea : tareas) {
 					KeyboardRow row = new KeyboardRow();
-					// Puedes personalizar la información que se muestra. Por ejemplo:
+					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(tarea.getIdTarea());
+					String estadoTexto = "";
+					if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
+						estadoTexto = estadoResponse.getBody().getEstado();
+					}
 					row.add("[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea());
+					row.add(estadoTexto);
+					// Agregar botón de "Complete Task" si la tarea no está ya completada
+					if (!"Completada".equalsIgnoreCase(estadoTexto)) {
+						row.add(tarea.getIdTarea() + BotLabels.DASH.getLabel() + BotLabels.COMPLETE_TASK.getLabel());
+					}
 					keyboard.add(row);
 				}
 
@@ -260,7 +332,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 
 				keyboardMarkup.setKeyboard(keyboard);
 
-				// Enviar el mensaje al usuario con la lista de Tareas
+				// Enviar el mensaje al usuario con la lista de Tareas actualizada
 				SendMessage messageToTelegram = new SendMessage();
 				messageToTelegram.setChatId(chatId);
 				messageToTelegram.setText("Lista de Tareas:");
