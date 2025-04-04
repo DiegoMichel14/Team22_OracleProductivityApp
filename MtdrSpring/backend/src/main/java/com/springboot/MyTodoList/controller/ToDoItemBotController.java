@@ -130,6 +130,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				row = new KeyboardRow();
 				row.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				row.add(BotLabels.HIDE_MAIN_SCREEN.getLabel());
+				row.add(BotLabels.INICIAR_TAREAS.getLabel());
 				keyboard.add(row);
 
 				// Set the keyboard
@@ -277,6 +278,72 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					logger.error(e.getLocalizedMessage(), e);
 				}
 
+			} else if (messageTextFromTelegram.equals(BotLabels.INICIAR_TAREAS.getLabel())) {
+				// Recuperar todas las tareas y filtrar las pendientes
+				List<Tarea> tareas = getAllTareas();
+				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
+				List<KeyboardRow> keyboard = new ArrayList<>();
+			
+				// Botón superior para volver a la pantalla principal
+				KeyboardRow topRow = new KeyboardRow();
+				topRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+				keyboard.add(topRow);
+			
+				for (Tarea tarea : tareas) {
+					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(tarea.getIdTarea());
+					if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
+						// Se filtran solo las tareas con estado "Pendiente"
+						if ("Pendiente".equalsIgnoreCase(estadoResponse.getBody().getEstado())) {
+							KeyboardRow row = new KeyboardRow();
+							// Muestra el ID y nombre de la tarea
+							row.add("[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea());
+							// Botón para iniciar la tarea, se envía en formato: "ID-DASH-Iniciar Tarea"
+							row.add(tarea.getIdTarea() + BotLabels.DASH.getLabel() + BotLabels.INICIAR_TAREA.getLabel());
+							keyboard.add(row);
+						}
+					}
+				}
+			
+				// Botón inferior para regresar a la pantalla principal
+				KeyboardRow bottomRow = new KeyboardRow();
+				bottomRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
+				keyboard.add(bottomRow);
+			
+				keyboardMarkup.setKeyboard(keyboard);
+			
+				SendMessage messageToTelegram = new SendMessage();
+				messageToTelegram.setChatId(chatId);
+				messageToTelegram.setText("Tareas Pendientes para Iniciar:");
+				messageToTelegram.setReplyMarkup(keyboardMarkup);
+			
+				try {
+					execute(messageToTelegram);
+				} catch (TelegramApiException e) {
+					logger.error(e.getLocalizedMessage(), e);
+				}
+			
+			} else if (messageTextFromTelegram.contains(BotLabels.INICIAR_TAREA.getLabel())) {
+				try {
+					 // Se asume que el mensaje tiene el formato "ID-DASH-Iniciar Tarea", por ejemplo: "123-Iniciar Tarea"
+					 int dashIndex = messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel());
+					 String idStr = messageTextFromTelegram.substring(0, dashIndex);
+					 int taskId = Integer.parseInt(idStr);
+			
+					 // Obtener el estado actual de la tarea y actualizarlo a "En progreso"
+					 ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(taskId);
+					 if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
+						 Estado estado = estadoResponse.getBody();
+						 estado.setEstado("En progreso");
+						 estadoService.updateEstado(taskId, estado);
+						 BotHelper.sendMessageToTelegram(chatId, "Tarea " + taskId + " marcada como 'En progreso'.", this);
+					 } else {
+						 BotHelper.sendMessageToTelegram(chatId, "No se encontró la tarea " + taskId, this);
+					 }
+				} catch (Exception e) {
+					 logger.error("Error al iniciar tarea", e);
+					 BotHelper.sendMessageToTelegram(chatId, "Error al iniciar la tarea.", this);
+				}
+			
 			} else if (messageTextFromTelegram.equals(BotCommands.ADD_ITEM.getCommand())
 					|| messageTextFromTelegram.equals(BotLabels.ADD_NEW_ITEM.getLabel())) {
 				try {

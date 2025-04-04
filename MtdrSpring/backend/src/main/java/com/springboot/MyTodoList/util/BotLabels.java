@@ -7,10 +7,12 @@ public enum BotLabels {
     LIST_ALL_ITEMS("List All Items"), 
     ADD_NEW_ITEM("Add New Item"),
     LIST_ALL_TAREAS("List All Tareas"),  // <-- Nueva etiqueta
+    INICIAR_TAREAS("Iniciar Tareas"), 
     COMPLETE_TASK("Complete Task"),
     DONE("DONE"),
     UNDO("UNDO"),
     DELETE("DELETE"),
+    INICIAR_TAREA("Iniciar Tarea"),
     MY_TODO_LIST("MY TODO LIST"), 
     DASH("-");
 	
