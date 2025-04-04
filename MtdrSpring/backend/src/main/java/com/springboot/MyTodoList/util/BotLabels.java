@@ -10,6 +10,7 @@ public enum BotLabels {
     INICIAR_TAREAS("Iniciar Tareas"), 
     COMPLETE_TASK("Complete Task"),
     DONE("DONE"),
+    CANCELAR("CANCELAR"),   
     UNDO("UNDO"),
     DELETE("DELETE"),
     INICIAR_TAREA("Iniciar Tarea"),

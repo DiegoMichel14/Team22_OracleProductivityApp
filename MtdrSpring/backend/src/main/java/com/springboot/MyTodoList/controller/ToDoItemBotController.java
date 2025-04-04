@@ -71,6 +71,16 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 			String messageTextFromTelegram = update.getMessage().getText();
 			long chatId = update.getMessage().getChatId();
 
+			    // Comprobar si se envía el comando de cancelación
+			if (messageTextFromTelegram.equalsIgnoreCase("/cancel") ||
+					messageTextFromTelegram.equalsIgnoreCase(BotLabels.CANCELAR.getLabel())) {
+				 // Limpia el mapa de creación de tareas (si se usa)
+				pendingCompletionTasks.clear(); // Limpia el mapa de tareas pendientes de completar
+				BotHelper.sendMessageToTelegram(chatId, "Proceso cancelado. Se han limpiado las sesiones pendientes.",
+						this);
+				return;
+			}
+
 			// 1. Verificar si hay una tarea pendiente de completar
 			if (pendingCompletionTasks.containsKey(chatId)) {
 				try {
@@ -122,6 +132,8 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				row.add(BotLabels.LIST_ALL_ITEMS.getLabel());
 				row.add(BotLabels.LIST_ALL_TAREAS.getLabel());
 				row.add(BotLabels.ADD_NEW_ITEM.getLabel());
+				row.add(BotLabels.CANCELAR.getLabel());
+				
 				
 				// Add the first row to the keyboard
 				keyboard.add(row);
@@ -145,23 +157,16 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					logger.error(e.getLocalizedMessage(), e);
 				}
 
-			} else if (messageTextFromTelegram.contains(BotLabels.COMPLETE_TASK.getLabel())) {
-				try {
-					// Se asume que el mensaje tiene el formato "ID-DASH-Complete Task", por ejemplo: "123-Complete Task"
-					int dashIndex = messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel());
-					String idStr = messageTextFromTelegram.substring(0, dashIndex);
-					int taskId = Integer.parseInt(idStr);
-	
-					// Se marca la tarea como pendiente de completar para este chat
-					pendingCompletionTasks.put(chatId, taskId);
-	
-					// Se solicita al usuario el tiempo real en horas
-					BotHelper.sendMessageToTelegram(chatId, "Ingresa el tiempo real en horas para la tarea " + taskId + ":", this);
-				} catch (Exception e) {
-					logger.error("Error al procesar Complete Task", e);
-				}
-
-			} else if (messageTextFromTelegram.indexOf(BotLabels.DONE.getLabel()) != -1) {
+			} else if (messageTextFromTelegram.equalsIgnoreCase("/cancel") ||
+					messageTextFromTelegram.equalsIgnoreCase(BotLabels.CANCELAR.getLabel())) {
+				// Limpia todos los mapas de sesiones pendientes
+				
+				pendingCompletionTasks.clear();
+				BotHelper.sendMessageToTelegram(chatId, "Proceso cancelado. Se han limpiado las sesiones pendientes.",
+						this);
+				return;
+			
+			}  else if (messageTextFromTelegram.indexOf(BotLabels.DONE.getLabel()) != -1) {
 
 				String done = messageTextFromTelegram.substring(0,
 						messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel()));
