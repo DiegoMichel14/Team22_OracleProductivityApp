@@ -21,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import com.springboot.MyTodoList.model.Estado;
+import com.springboot.MyTodoList.model.Sprint;
 import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.service.ToDoItemService;
@@ -44,8 +45,40 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	private TareaService tareaService;
 	private EstadoService estadoService;
 
+	private Map<Long, TaskCreationState> pendingTaskCreations = new HashMap<>();
 	private Map<Long, Integer> pendingCompletionTasks = new HashMap<>();
 	// --------------------
+
+	// Definimos una clase interna para manejar el estado de creación de tareas
+	private static class TaskCreationState {
+		private int step; // 1: esperando nombre, 2: esperando horas estimadas
+		private String taskName;
+		private Double hoursEstimated;
+
+		public int getStep() {
+			return step;
+		}
+
+		public void setStep(int step) {
+			this.step = step;
+		}
+
+		public String getTaskName() {
+			return taskName;
+		}
+
+		public void setTaskName(String taskName) {
+			this.taskName = taskName;
+		}
+
+		public Double getHoursEstimated() {
+			return hoursEstimated;
+		}
+
+		public void setHoursEstimated(Double hoursEstimated) {
+			this.hoursEstimated = hoursEstimated;
+		}
+	}
 
 	// public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
 	// 	super(botToken);
@@ -70,6 +103,54 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 
 			String messageTextFromTelegram = update.getMessage().getText();
 			long chatId = update.getMessage().getChatId();
+
+			// Verificar si el chat tiene un proceso de creación de tarea pendiente
+			if (pendingTaskCreations.containsKey(chatId)) {
+				TaskCreationState state = pendingTaskCreations.get(chatId);
+				// Paso 1: Se espera el nombre de la tarea
+				if (state.getStep() == 1) {
+					state.setTaskName(messageTextFromTelegram);
+					state.setStep(2);
+					BotHelper.sendMessageToTelegram(chatId, "Ingrese las horas estimadas (máximo 4 horas):", this);
+					return;
+				}
+				// Paso 2: Se espera el ingreso de las horas estimadas
+				else if (state.getStep() == 2) {
+					try {
+						double horas = Double.parseDouble(messageTextFromTelegram);
+						if (horas > 4) {
+							BotHelper.sendMessageToTelegram(chatId,
+									"El máximo permitido es 4 horas. Por favor, ingrese un valor válido:", this);
+							return;
+						}
+						state.setHoursEstimated(horas);
+
+						// Construir la tarea
+						Tarea newTarea = new Tarea();
+						newTarea.setNombreTarea(state.getTaskName());
+						newTarea.setFechaRegistro(java.time.LocalDate.now());
+						newTarea.setFechaFin(java.time.LocalDate.now().plusDays(2));
+						newTarea.setHorasEstimadas(horas);
+						newTarea.setHorasReales(null);
+
+						// Asignar un sprint por defecto (asegúrate de que exista un sprint con este ID)
+						// Nota: Ajusta esta parte según la lógica de tu aplicación
+						Sprint defaultSprint = new Sprint();
+						defaultSprint.setIdSprint(1);
+						newTarea.setSprint(defaultSprint);
+
+						tareaService.addTarea(newTarea);
+						BotHelper.sendMessageToTelegram(chatId, "Tarea agregada correctamente.", this);
+					} catch (NumberFormatException e) {
+						BotHelper.sendMessageToTelegram(chatId,
+								"Por favor, ingrese un número válido para las horas estimadas:", this);
+						return;
+					}
+					// Eliminar el estado una vez completado el flujo
+					pendingTaskCreations.remove(chatId);
+					return;
+				}
+			}
 
 			if (pendingCompletionTasks.containsKey(chatId)) {
 				try {
@@ -130,6 +211,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				row.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				row.add(BotLabels.HIDE_MAIN_SCREEN.getLabel());
 				row.add(BotLabels.COMPLETE_TASK.getLabel());
+				row.add(BotLabels.AGREGAR_TAREA.getLabel());
 				keyboard.add(row);
 
 				// Set the keyboard
@@ -194,6 +276,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 						logger.error(e.getLocalizedMessage(), e);
 					}
 				}
+
 			}  else if (messageTextFromTelegram.contains(BotLabels.COMPLETE_TASK.getLabel())
 					&& messageTextFromTelegram.contains(BotLabels.DASH.getLabel())) {
 				try {
@@ -211,6 +294,13 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 							"Error al procesar la tarea. Por favor, intenta nuevamente.", this);
 				}
 			
+			} if (messageTextFromTelegram.equals(BotLabels.AGREGAR_TAREA.getLabel())) {
+				TaskCreationState state = new TaskCreationState();
+				state.setStep(1); // Comenzar pidiendo el nombre de la tarea
+				pendingTaskCreations.put(chatId, state);
+				BotHelper.sendMessageToTelegram(chatId, "Ingrese el nombre de la tarea:", this);
+				return;
+
 			} else if (messageTextFromTelegram.equals(BotLabels.INICIAR_TAREA.getLabel())) {
 				// Obtener la lista de todas las tareas y filtrar solo las que están "Pendiente"
 				List<Tarea> todasTareas = getAllTareas();

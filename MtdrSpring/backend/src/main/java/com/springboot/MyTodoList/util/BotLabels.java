@@ -8,6 +8,7 @@ public enum BotLabels {
 	LIST_ALL_TAREAS("Lista Mis Tareas"),
 	INICIAR_TAREA("Iniciar tarea"),
 	COMPLETE_TASK("Completar tarea"),
+	AGREGAR_TAREA("Agregar tarea"),
 	ADD_NEW_ITEM("Add New Item"),
 	DONE("DONE"),
 	UNDO("UNDO"),
