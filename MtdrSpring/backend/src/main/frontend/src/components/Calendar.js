@@ -166,7 +166,7 @@ function Calendar() {
               <strong>{monthNames[currentDate.getMonth()]}</strong> {currentDate.getFullYear()}
             </h2>
             <div className="calendar-nav">
-              <a href="#" onClick={handlePrevMonth}>
+              <a aria-label="Previous Month" href="#" onClick={handlePrevMonth}>
                 <i className="fas fa-arrow-left"></i>
               </a>
               <a href="#" onClick={handleToday}>Today</a>

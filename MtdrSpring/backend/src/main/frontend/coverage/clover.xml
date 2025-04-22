@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1744328711695" clover="3.2.0">
+  <project timestamp="1744328711695" name="All files">
+    <metrics statements="64" coveredstatements="0" conditionals="22" coveredconditionals="0" methods="29" coveredmethods="0" elements="115" coveredelements="0" complexity="0" loc="64" ncloc="64" packages="1" files="3" classes="3"/>
+    <file name="API_Developer.js" path="/Users/omar/Desktop/Proyecto/Team22_OracleProductivityApp/MtdrSpring/backend/src/main/frontend/src/API_Developer.js">
+      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <line num="1" count="0" type="stmt"/>
+    </file>
+    <file name="App.js" path="/Users/omar/Desktop/Proyecto/Team22_OracleProductivityApp/MtdrSpring/backend/src/main/frontend/src/App.js">
+      <metrics statements="62" coveredstatements="0" conditionals="22" coveredconditionals="0" methods="29" coveredmethods="0"/>
+      <line num="38" count="0" type="stmt"/>
+      <line num="41" count="0" type="stmt"/>
+      <line num="44" count="0" type="stmt"/>
+      <line num="46" count="0" type="stmt"/>
+      <line num="50" count="0" type="stmt"/>
+      <line num="56" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="58" count="0" type="stmt"/>
+      <line num="60" count="0" type="stmt"/>
+      <line num="65" count="0" type="stmt"/>
+      <line num="66" count="0" type="stmt"/>
+      <line num="69" count="0" type="stmt"/>
+      <line num="74" count="0" type="stmt"/>
+      <line num="75" count="0" type="stmt"/>
+      <line num="76" count="0" type="stmt"/>
+      <line num="77" count="0" type="stmt"/>
+      <line num="81" count="0" type="stmt"/>
+      <line num="83" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="84" count="0" type="stmt"/>
+      <line num="86" count="0" type="stmt"/>
+      <line num="91" count="0" type="stmt"/>
+      <line num="92" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="97" count="0" type="stmt"/>
+      <line num="100" count="0" type="stmt"/>
+      <line num="105" count="0" type="stmt"/>
+      <line num="106" count="0" type="stmt"/>
+      <line num="116" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="118" count="0" type="stmt"/>
+      <line num="120" count="0" type="stmt"/>
+      <line num="130" count="0" type="stmt"/>
+      <line num="131" count="0" type="stmt"/>
+      <line num="133" count="0" type="stmt"/>
+      <line num="135" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="136" count="0" type="stmt"/>
+      <line num="138" count="0" type="stmt"/>
+      <line num="143" count="0" type="stmt"/>
+      <line num="144" count="0" type="stmt"/>
+      <line num="147" count="0" type="stmt"/>
+      <line num="148" count="0" type="stmt"/>
+      <line num="159" count="0" type="stmt"/>
+      <line num="160" count="0" type="stmt"/>
+      <line num="161" count="0" type="stmt"/>
+      <line num="162" count="0" type="stmt"/>
+      <line num="163" count="0" type="stmt"/>
+      <line num="164" count="0" type="stmt"/>
+      <line num="173" count="0" type="stmt"/>
+      <line num="174" count="0" type="stmt"/>
+      <line num="175" count="0" type="stmt"/>
+      <line num="177" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="178" count="0" type="stmt"/>
+      <line num="180" count="0" type="stmt"/>
+      <line num="184" count="0" type="stmt"/>
+      <line num="185" count="0" type="stmt"/>
+      <line num="186" count="0" type="stmt"/>
+      <line num="187" count="0" type="stmt"/>
+      <line num="190" count="0" type="stmt"/>
+      <line num="191" count="0" type="stmt"/>
+      <line num="198" count="0" type="stmt"/>
+      <line num="209" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="216" count="0" type="stmt"/>
+      <line num="229" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="236" count="0" type="stmt"/>
+      <line num="241" count="0" type="stmt"/>
+    </file>
+    <file name="jest.config.js" path="/Users/omar/Desktop/Proyecto/Team22_OracleProductivityApp/MtdrSpring/backend/src/main/frontend/src/jest.config.js">
+      <metrics statements="1" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <line num="1" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>

@@ -16,7 +16,7 @@ import API_LIST from './API';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, TableBody, CircularProgress } from '@mui/material';
 import Moment from 'react-moment';
-import Calendar from './components/calendar';
+import Calendar from './components/Calendar';
 import TestTareas from './components/TestTareas';
 import TestEquipos from './components/TestEquipos';
 import TestDevelopers from './components/TestDevelopers';
@@ -44,6 +44,19 @@ function App() {
     const [items, setItems] = useState([]);
     // In case of an error during the API call:
     const [error, setError] = useState();
+
+
+      // Estado para almacenar los datos del usuario
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Intentar obtener los datos del usuario desde localStorage
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
+
 
     function deleteItem(deleteId) {
       // console.log("deleteItem("+deleteId+")")
@@ -198,6 +211,7 @@ function App() {
     return (
       <div className="App">
         <h1>MY TODO LIST</h1>
+        {user && <p>Bienvenido, {user.nombre}</p>}
         <NewItem addItem={addItem} isInserting={isInserting} />
         { error && <p>Error: {error.message}</p> }
         { isLoading && <CircularProgress /> }

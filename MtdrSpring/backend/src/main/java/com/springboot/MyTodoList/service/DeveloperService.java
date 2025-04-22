@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.springboot.MyTodoList.service.DeveloperService;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,5 +58,11 @@ public class DeveloperService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+
+    public Developer findByTelefonoAndContrasena(String telefono, String contrasena) {
+        // Buscar el developer por teléfono y contraseña
+        return developerRepository.findByTelefonoAndContrasena(telefono, contrasena);
     }
 }
