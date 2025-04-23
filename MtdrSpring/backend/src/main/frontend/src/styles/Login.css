@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
+    background-color: #b30000 ;
   }
   
   .login-container {
@@ -9,6 +9,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-color: #b30000;
   }
   
   .login-box {

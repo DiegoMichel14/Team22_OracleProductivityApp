@@ -25,6 +25,8 @@ import TestManager from './components/TestManager';
 import TestPrioridades from './components/TestPrioridades';
 import TestSprints from './components/TestSprints';
 import TestEstados from './components/TestEstados';
+import './index.css'
+
 
 /* In this application we're using Function Components with the State Hooks 
  * to manage the states. See the doc: https://reactjs.org/docs/hooks-state.html

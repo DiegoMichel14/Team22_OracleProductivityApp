@@ -24,16 +24,11 @@ test("API_DEVELOPER contiene el endpoint correcto", () => {
 it("verificar API DEVELOPERS", async () => {
   const response = await request("http://localhost:8080").get("/developers");
 
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
 });
 
 // Pruebas para verificar las rutas de la API
 it("verificar API EQUIPOS", async () => {
   const response = await request("http://localhost:8080").get(API_EQUIPO);
-
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
@@ -43,18 +38,12 @@ it("verificar API EQUIPOS", async () => {
 it("verificar API MANAGERS", async () => {
   const response = await request("http://localhost:8080").get(API_MANAGER);
 
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
-
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
 
 it("verificar API PRIORIDADES", async () => {
   const response = await request("http://localhost:8080").get(API_PRIORIDAD);
-
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
@@ -63,9 +52,6 @@ it("verificar API PRIORIDADES", async () => {
 it("verificar API SPRINTS", async () => {
   const response = await request("http://localhost:8080").get(API_SPRINT);
 
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
-
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
@@ -73,18 +59,12 @@ it("verificar API SPRINTS", async () => {
 it("verificar API TAREAS", async () => {
   const response = await request("http://localhost:8080").get(API_TAREATest);
 
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
-
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
 
 it("verificar API TODOLIST", async () => {
   const response = await request("http://localhost:8080").get(API_LIST);
-
-  // Imprime el cuerpo de la respuesta JSON
-  console.log(response.body);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
