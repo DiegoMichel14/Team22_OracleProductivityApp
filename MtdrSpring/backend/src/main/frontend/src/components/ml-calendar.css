@@ -63,17 +63,17 @@ body.ml-calendar-demo {
   border-top-left-radius: 1em;
   border-bottom-left-radius: 1em;
   min-height: 520px;
+  display: flex;
+  flex-direction: column;
 }
-@media screen and (max-width: 760px) {
-  .ml-calendar section.calendar-left {
-    width: 100%;
-    border-bottom-left-radius: 0;
-    border-top-right-radius: 1em;
-  }
-}
+
 .ml-calendar section.calendar-left .sidebar {
   padding: 20px 30px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
+
 .ml-calendar section.calendar-left .sidebar ul.calendar-events {
   list-style: none;
   padding: 0;
@@ -98,22 +98,31 @@ body.ml-calendar-demo {
 .ml-calendar section.calendar-right .calendar .calendar-nav {
   text-align: right;
   position: absolute;
-  top: 52px;
+  top: 35px; /* Adjusted to be more at the top */
   right: 30px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  z-index: 5;
 }
+
 .ml-calendar section.calendar-right .calendar .calendar-nav a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
   border: 1px solid #ececec;
-  padding: 0.5rem 0.75rem;
-  margin-left: -1px;
+  margin-left: 5px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  background-color: #fff;
 }
-@media screen and (max-width: 760px) {
-  .ml-calendar section.calendar-right .calendar .calendar-nav {
-    position: static;
-    text-align: left;
-    margin: -10px 0 20px 0;
-  }
+
+.ml-calendar section.calendar-right .calendar .calendar-nav a:hover {
+  background-color: #f5f5f5;
+  color: #ee3c48;
 }
+
 .ml-calendar section.calendar-right .calendar .calendar-row {
   display: flex;
   flex: 1 1 0;
@@ -165,49 +174,171 @@ body.ml-calendar-demo {
   clear: both;
 }
 
-/* Marcador de tareas (cuadrado rojo centrado) */
+/* Updated styles for the task list container */
+.tareas-container {
+  height: 450px; /* Adjust to match calendar height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: hidden; /* Disable horizontal scrolling */
+  padding-right: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  flex-grow: 1; /* Make it take up remaining space */
+}
+
+.tareas-list {
+  padding: 0; /* Remove default padding */
+  margin: 0;
+  list-style-type: none; /* Remove bullet points */
+}
+
+.tareas-list li {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e0e0e0;
+  list-style-type: none; /* Ensure no bullets */
+}
+
+/* Calendar icons */
+.calendar-icon {
+  margin-right: 8px;
+  color: #ee3c48;
+}
+
+/* Highlight today's date */
+.calendar-day.today {
+  background-color: #ffefef;
+  border: 1px solid #ee3c48;
+  box-shadow: inset 0 0 8px rgba(238, 60, 72, 0.2);
+}
+
+.calendar-day.today .calendar-date {
+  color: #ee3c48;
+  font-weight: 700;
+}
+
+/* Improved task marker styling */
 .due-marker {
-  width: 20px;
-  height: 20px;
-  background-color: red;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   cursor: pointer;
-  /* Sin border-radius para que sea cuadrado */
-  border-radius: 0;
-  /* Para permitir que el tooltip se muestre dentro */
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  background-color: #4a90e2;
+  color: white;
 }
 
-/* Tooltip personalizado que se muestra al hacer hover */
+.due-marker:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.due-marker.high-priority {
+  background-color: #e74c3c;
+}
+
+.due-marker.normal-priority {
+  background-color: #3498db;
+}
+
+.task-count {
+  font-weight: bold;
+  font-size: 11px;
+}
+
+/* Fix tooltip hover and click functionality */
+.due-marker:hover .tooltip-content,
+.tooltip-content.show {
+  display: block;
+  z-index: 10000; /* Ensure tooltips appear above everything on hover too */
+  pointer-events: auto; /* Enable mouse interactions with tooltip content */
+}
+
+/* Active marker styling */
+.due-marker.active {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+  z-index: 9000;
+}
+
+/* Improved tooltip styling */
 .tooltip-content {
   display: none;
   position: absolute;
-  /* Ajusta estos valores para ubicar mejor el tooltip */
-  top: -10px; 
-  left: 30px;
-  transform: translate(-50%, -100%);
-  
-  /* Estilos visuales del tooltip */
-  background-color: #da5c5c;
-  color: #000;
-  min-width: 250px;
-  padding: 8px 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  z-index: 999; /* Asegúrate de que quede por encima */
+  top: -10px;
+  left: 35px;
+  transform: translate(0, -100%);
+  background-color: white;
+  color: #333;
+  min-width: 220px;
+  padding: 0;
+  border-radius: 6px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.4);
+  z-index: 10000; /* Consistently high z-index */
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #ddd;
+  pointer-events: none; /* Default to no pointer events, enable on hover/show */
 }
 
-/* Cada tarea dentro del tooltip */
-.tooltip-item {
-  margin: 4px 0;
-}
-
-/* Al pasar el ratón sobre .due-marker, mostramos el tooltip */
+/* Ensure hover state has same styling as active state */
 .due-marker:hover .tooltip-content {
-  display: block;
+  animation: tooltip-pop 0.2s ease-out;
+}
+
+/* Make the due marker itself appear above other elements when hovered */
+.due-marker:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+  z-index: 9500; /* Higher than normal but lower than tooltip */
+}
+
+/* New styles for task information */
+.task-name {
+  font-weight: 500;
+}
+
+.task-assignee {
+  font-size: 0.7rem;
+  margin-top: 2px;
+  color: #666;
+  display: flex;
+  align-items: center;
+}
+
+.tooltip-item {
+  margin: 0;
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: flex-start;
+  font-size: 0.8rem;
+}
+
+.tooltip-item .priority-indicator {
+  margin-top: 5px;
+}
+
+.tooltip-body {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Fix Today button positioning */
+.today-button {
+  margin: 0 5px !important;
+  white-space: nowrap;
+}
+
+.ml-calendar section.calendar-right .calendar .calendar-nav {
+  top: 25px; /* Adjusted position */
 }
