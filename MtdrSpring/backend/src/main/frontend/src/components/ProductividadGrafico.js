@@ -8,24 +8,44 @@ function ProductividadGrafico({ datos }) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Configuración de la gráfica
-    const anchoBarra = 40;
-    const separacion = 20;
-    const alturaMaxima = 150;
+    const anchoBarra = 80; // Barras más anchas
+    const separacion = 200; // Más separación
+    const alturaMaxima = 400; // Altura total de la gráfica
 
     datos.forEach((d, i) => {
-      const x = i * (anchoBarra + separacion) + 30; // Posición X
-      const y = alturaMaxima - d[2]; // Ajuste de altura (horas trabajadas)
-      ctx.fillStyle = "blue"; // Color de las barras
-      ctx.fillRect(x, y, anchoBarra, d[2]); // Dibujo de la barra
+      const xGrupo = i * (anchoBarra + separacion) + 300; // Mayor espacio inicial
+      const xEstimadas = xGrupo;
+      const xReales = xGrupo + anchoBarra + 30;
+      const xCostos = xReales + anchoBarra + 30;
 
-      // Etiqueta con el nombre del sprint
-      ctx.fillStyle = "black";
-      ctx.fillText(d[0], x + 5, alturaMaxima + 15);
+      // Dibujar barras
+      ctx.fillStyle = "blue"; // Horas estimadas
+      ctx.fillRect(xEstimadas, alturaMaxima - d[1], anchoBarra, d[1]);
+
+      ctx.fillStyle = "red"; // Horas reales
+      ctx.fillRect(xReales, alturaMaxima - d[2], anchoBarra, d[2]);
+
+      ctx.fillStyle = "green"; // Costos en USD
+      ctx.fillRect(xCostos, alturaMaxima - (d[4] / 2), anchoBarra, d[4] / 2);
+
+      // Agregar etiquetas sobre las barras
+      ctx.fillStyle = "white";
+      ctx.font = "16px Arial";
+      ctx.fillText(`Horas estimadas: ${d[1]}`, xEstimadas + 10, alturaMaxima - d[1] - 10);
+      ctx.fillText(`Horas Reales: ${d[2]}`, xReales + 10, alturaMaxima - d[2] - 10);
+      ctx.fillText(`Costo total: $${Math.round(d[4])}`, xCostos + 10, alturaMaxima - (d[4] / 2) - 10);
+
+      // Agregar nombres de los sprints abajo
+      ctx.fillStyle = "white";
+      ctx.fillText(d[0], xGrupo, alturaMaxima + 30);
     });
   }, [datos]);
 
-  return <canvas ref={canvasRef} width={400} height={200} />;
+  return (
+    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", margin: "auto" }}>
+      <canvas ref={canvasRef} width={1200} height={600} style={{ display: "block" }} />
+    </div>
+  );
 }
 
 export default ProductividadGrafico;

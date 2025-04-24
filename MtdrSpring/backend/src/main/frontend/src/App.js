@@ -25,6 +25,9 @@ import TestManager from './components/TestManager';
 import TestPrioridades from './components/TestPrioridades';
 import TestSprints from './components/TestSprints';
 import TestEstados from './components/TestEstados';
+import ProductividadGrafico from './components/ProductividadGrafico';
+import { API_KPI_EQUIPO } from './API_Reportes';
+import ReporteTareas from './components/ReporteTareas';
 
 /* In this application we're using Function Components with the State Hooks 
  * to manage the states. See the doc: https://reactjs.org/docs/hooks-state.html
@@ -44,6 +47,8 @@ function App() {
     const [items, setItems] = useState([]);
     // In case of an error during the API call:
     const [error, setError] = useState();
+    // grafica
+    const [datos, setDatos] = useState([]);
 
     function deleteItem(deleteId) {
       // console.log("deleteItem("+deleteId+")")
@@ -149,6 +154,10 @@ function App() {
           });
 
       //})
+      fetch(API_KPI_EQUIPO)
+            .then(response => response.json())
+            .then(data => setDatos(data))
+            .catch(error => console.error("Error al obtener los KPIs:", error));
     },
     // https://en.reactjs.org/docs/faq-ajax.html
     [] // empty deps array [] means
@@ -249,6 +258,9 @@ function App() {
             </table>
           </div>
         }
+        {/* Sección de Reportes */}
+        <h2>Reporte de Productividad</h2>
+        <ProductividadGrafico datos={datos} />
   
         {/* Agregamos los nuevos componentes de prueba */}
         <Calendar />
@@ -260,9 +272,16 @@ function App() {
         <TestPrioridades />
         <TestSprints />
         <TestEstados />
+        <ReporteTareas />
   
       </div>
     );
   }
   
   export default App;
+
+
+
+  //   kubectl apply -f deployment.yaml
+  //   kubectl get pods
+  //   kubectl get svc agile-service
