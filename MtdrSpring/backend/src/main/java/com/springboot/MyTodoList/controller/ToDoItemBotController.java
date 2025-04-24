@@ -20,12 +20,16 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import com.springboot.MyTodoList.model.Developer;
 import com.springboot.MyTodoList.model.Estado;
 import com.springboot.MyTodoList.model.Sprint;
 import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.model.ToDoItem;
 import com.springboot.MyTodoList.service.ToDoItemService;
+import com.springboot.MyTodoList.service.DeveloperService;
 import com.springboot.MyTodoList.service.EstadoService;
+import com.springboot.MyTodoList.service.SprintService;
+import com.springboot.MyTodoList.service.TareaDeveloperService;
 import com.springboot.MyTodoList.service.TareaService;
 import com.springboot.MyTodoList.util.BotCommands;
 import com.springboot.MyTodoList.util.BotHelper;
@@ -44,10 +48,15 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	// ------------------------------------
 	private TareaService tareaService;
 	private EstadoService estadoService;
+	private TareaDeveloperService tareaDeveloperService;
+	private SprintService sprintService;
 
-	
 	private Map<Long, TaskCreationState> pendingTaskCreations = new HashMap<>();
 	private Map<Long, Integer> pendingCompletionTasks = new HashMap<>();
+	// Agrega estos atributos arriba en la clase:
+	private DeveloperService developerService;
+	private Map<Long, Boolean> userSessions = new HashMap<>();
+
 	// --------------------
 
 	// Definimos una clase interna para manejar el estado de creación de tareas
@@ -79,23 +88,22 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 		public void setHoursEstimated(Double hoursEstimated) {
 			this.hoursEstimated = hoursEstimated;
 		}
+
 	}
 
-	// public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService) {
-	// 	super(botToken);
-	// 	logger.info("Bot Token: " + botToken);
-	// 	logger.info("Bot name: " + botName);
-	// 	this.toDoItemService = toDoItemService;
-	// 	this.botName = botName;
-	// }
+	private Map<Long, Developer> developerSessions = new HashMap<>();
 
-	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService, TareaService tareaService, EstadoService estadoService) {
-        super(botToken);
-        this.toDoItemService = toDoItemService;
-        this.tareaService = tareaService;
+	public ToDoItemBotController(String botToken, String botName, ToDoItemService toDoItemService,
+			TareaService tareaService, EstadoService estadoService, DeveloperService developerService) {
+		super(botToken);
+		this.toDoItemService = toDoItemService;
+		this.tareaService = tareaService;
 		this.estadoService = estadoService;
-        this.botName = botName;
-    }
+		this.botName = botName;
+		this.developerService = developerService;
+		this.tareaDeveloperService = tareaDeveloperService;
+		this.sprintService = sprintService;
+	}
 
 	@Override
 	public void onUpdateReceived(Update update) {
@@ -104,6 +112,43 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 
 			String messageTextFromTelegram = update.getMessage().getText();
 			long chatId = update.getMessage().getChatId();
+
+
+			
+			// LOGIN
+			if (messageTextFromTelegram.startsWith("/login")) {
+				String[] parts = messageTextFromTelegram.split(" ");
+				if (parts.length != 3) {
+					BotHelper.sendMessageToTelegram(chatId, "Usa: /login <telefono> <contrasena>", this);
+					return;
+				}
+
+				String telefono = parts[1];
+				String contrasena = parts[2];
+
+				try {
+					Developer dev = developerService.findByTelefonoAndContrasena(telefono, contrasena);
+					if (dev != null) {
+						userSessions.put(chatId, true);
+						developerSessions.put(chatId, dev); 
+						BotHelper.sendMessageToTelegram(chatId,
+								"¡Login exitoso! Ya puedes usar el bot. Bienvenido " + dev.getNombre(), this);
+					} else {
+						BotHelper.sendMessageToTelegram(chatId, "Credenciales incorrectas.", this);
+					}
+				} catch (Exception e) {
+					logger.error("Error al procesar el login", e);
+					BotHelper.sendMessageToTelegram(chatId, "Error al procesar el login. Intenta nuevamente.", this);
+				}
+				return;
+			}
+
+			// VALIDAR SESIÓN ANTES DE PERMITIR CUALQUIER OTRO COMANDO
+			if (!userSessions.getOrDefault(chatId, false)) {
+				BotHelper.sendMessageToTelegram(chatId, "Debes iniciar sesión con /login <telefono> <contrasena>",
+						this);
+				return;
+			}
 
 			// Verificar si el chat tiene un proceso de creación de tarea pendiente
 			if (pendingTaskCreations.containsKey(chatId)) {
@@ -157,7 +202,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				try {
 					double horasReales = Double.parseDouble(messageTextFromTelegram);
 					int taskId = pendingCompletionTasks.get(chatId);
-	
+
 					// Obtener la tarea a través del servicio
 					ResponseEntity<Tarea> tareaResponse = tareaService.getTareaById(taskId);
 					if (tareaResponse.getStatusCode() == HttpStatus.OK) {
@@ -165,7 +210,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 						// Actualizar las horas reales
 						tarea.setHorasReales(horasReales);
 						tareaService.updateTarea(taskId, tarea);
-	
+
 						// Actualizar el estado a "Completada"
 						ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(taskId);
 						if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
@@ -173,22 +218,28 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 							estado.setEstado("Completada");
 							estadoService.updateEstado(taskId, estado);
 						}
-	
+
 						BotHelper.sendMessageToTelegram(chatId,
-							"Tarea " + taskId + " completada con " + horasReales + " horas reales.", this);
+								"Tarea " + taskId + " completada con " + horasReales + " horas reales.", this);
 					} else {
 						BotHelper.sendMessageToTelegram(chatId, "No se encontró la tarea con id " + taskId, this);
 					}
 				} catch (NumberFormatException e) {
 					BotHelper.sendMessageToTelegram(chatId,
-						"Por favor, ingresa un número válido para las horas reales.", this);
+							"Por favor, ingresa un número válido para las horas reales.", this);
 				}
 				pendingCompletionTasks.remove(chatId);
 				return;
 			}
+
 			
-			if (messageTextFromTelegram.equals(BotCommands.START_COMMAND.getCommand())
-					|| messageTextFromTelegram.equals(BotLabels.SHOW_MAIN_SCREEN.getLabel())) {
+
+			if ((messageTextFromTelegram.equals(BotCommands.START_COMMAND.getCommand()) ||
+     messageTextFromTelegram.equals(BotLabels.SHOW_MAIN_SCREEN.getLabel()))
+    && developerSessions.get(chatId) != null) {
+ {
+
+						
 
 				SendMessage messageToTelegram = new SendMessage();
 				messageToTelegram.setChatId(chatId);
@@ -226,12 +277,13 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 				} catch (TelegramApiException e) {
 					logger.error(e.getLocalizedMessage(), e);
 				}
-
-			}	else if (messageTextFromTelegram.equals(BotLabels.COMPLETE_TASK.getLabel())) {
+			}
+			
+			} else if (messageTextFromTelegram.equals(BotLabels.COMPLETE_TASK.getLabel())) {
 				// Obtener la lista de todas las tareas
 				List<Tarea> todasTareas = getAllTareas();
 				List<Tarea> tareasFiltradas = new ArrayList<>();
-				
+
 				// Filtrar solo las tareas cuyo estado sea Pendiente o En progreso
 				for (Tarea tarea : todasTareas) {
 					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(tarea.getIdTarea());
@@ -242,30 +294,31 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 						}
 					}
 				}
-				
+
 				if (tareasFiltradas.isEmpty()) {
 					BotHelper.sendMessageToTelegram(chatId, "No hay tareas disponibles para completar.", this);
 				} else {
 					ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 					List<KeyboardRow> keyboard = new ArrayList<>();
-					
+
 					// Para cada tarea filtrada se crea una fila con 2 botones:
 					// 1. Información de la tarea: [ID] Nombre de la tarea.
 					// 2. Botón para completar la tarea: ID-DASH-Completar Tarea.
 					for (Tarea tarea : tareasFiltradas) {
 						KeyboardRow row = new KeyboardRow();
 						String infoButton = "[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea();
-						String completeButton = tarea.getIdTarea() + BotLabels.DASH.getLabel() + BotLabels.COMPLETE_TASK.getLabel();
+						String completeButton = tarea.getIdTarea() + BotLabels.DASH.getLabel()
+								+ BotLabels.COMPLETE_TASK.getLabel();
 						row.add(infoButton);
 						row.add(completeButton);
 						keyboard.add(row);
 					}
-					
+
 					// Botón para volver a la pantalla principal
 					KeyboardRow mainScreenRow = new KeyboardRow();
 					mainScreenRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 					keyboard.add(mainScreenRow);
-			
+
 					keyboardMarkup.setKeyboard(keyboard);
 					SendMessage messageToTelegram = new SendMessage();
 					messageToTelegram.setChatId(chatId);
@@ -278,7 +331,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					}
 				}
 
-			}  else if (messageTextFromTelegram.contains(BotLabels.COMPLETE_TASK.getLabel())
+			} else if (messageTextFromTelegram.contains(BotLabels.COMPLETE_TASK.getLabel())
 					&& messageTextFromTelegram.contains(BotLabels.DASH.getLabel())) {
 				try {
 					int dashIndex = messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel());
@@ -294,8 +347,9 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					BotHelper.sendMessageToTelegram(chatId,
 							"Error al procesar la tarea. Por favor, intenta nuevamente.", this);
 				}
-			
-			} if (messageTextFromTelegram.equals(BotLabels.AGREGAR_TAREA.getLabel())) {
+
+			}
+			if (messageTextFromTelegram.equals(BotLabels.AGREGAR_TAREA.getLabel())) {
 				TaskCreationState state = new TaskCreationState();
 				state.setStep(1); // Comenzar pidiendo el nombre de la tarea
 				pendingTaskCreations.put(chatId, state);
@@ -315,18 +369,20 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 						}
 					}
 				}
-			
+
 				if (tareasPendientes.isEmpty()) {
 					BotHelper.sendMessageToTelegram(chatId, "No hay tareas pendientes para iniciar.", this);
 				} else {
-					// Crear teclado en 2 columnas: una columna con información de la tarea y otra con el botón para iniciar.
+					// Crear teclado en 2 columnas: una columna con información de la tarea y otra
+					// con el botón para iniciar.
 					ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 					List<KeyboardRow> keyboard = new ArrayList<>();
-			
+
 					for (Tarea tarea : tareasPendientes) {
 						KeyboardRow row = new KeyboardRow();
 						String infoButton = "[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea();
-						String iniciarButton = tarea.getIdTarea() + BotLabels.DASH.getLabel() + BotLabels.INICIAR_TAREA.getLabel();
+						String iniciarButton = tarea.getIdTarea() + BotLabels.DASH.getLabel()
+								+ BotLabels.INICIAR_TAREA.getLabel();
 						row.add(infoButton);
 						row.add(iniciarButton);
 						keyboard.add(row);
@@ -335,7 +391,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					KeyboardRow mainScreenRow = new KeyboardRow();
 					mainScreenRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 					keyboard.add(mainScreenRow);
-			
+
 					keyboardMarkup.setKeyboard(keyboard);
 					SendMessage messageToTelegram = new SendMessage();
 					messageToTelegram.setChatId(chatId);
@@ -355,7 +411,7 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					int dashIndex = messageTextFromTelegram.indexOf(BotLabels.DASH.getLabel());
 					String idStr = messageTextFromTelegram.substring(0, dashIndex);
 					int taskId = Integer.parseInt(idStr);
-			
+
 					// Obtener el estado de la tarea
 					ResponseEntity<Estado> estadoResponse = estadoService.getEstadoById(taskId);
 					if (estadoResponse.getStatusCode() == HttpStatus.OK && estadoResponse.getBody() != null) {
@@ -364,16 +420,19 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 							// Actualizar el estado a "En progreso"
 							estado.setEstado("En progreso");
 							estadoService.updateEstado(taskId, estado);
-							BotHelper.sendMessageToTelegram(chatId, "Tarea " + taskId + " iniciada y ahora en progreso.", this);
+							BotHelper.sendMessageToTelegram(chatId,
+									"Tarea " + taskId + " iniciada y ahora en progreso.", this);
 						} else {
-							BotHelper.sendMessageToTelegram(chatId, "La tarea " + taskId + " no se encuentra en estado Pendiente.", this);
+							BotHelper.sendMessageToTelegram(chatId,
+									"La tarea " + taskId + " no se encuentra en estado Pendiente.", this);
 						}
 					} else {
 						BotHelper.sendMessageToTelegram(chatId, "No se encontró la tarea con id " + taskId, this);
 					}
 				} catch (Exception e) {
 					logger.error("Error al procesar Iniciar Tarea", e);
-					BotHelper.sendMessageToTelegram(chatId, "Error al procesar la tarea. Por favor, intenta nuevamente.", this);
+					BotHelper.sendMessageToTelegram(chatId,
+							"Error al procesar la tarea. Por favor, intenta nuevamente.", this);
 				}
 
 			} else if (messageTextFromTelegram.indexOf(BotLabels.DONE.getLabel()) != -1) {
@@ -491,47 +550,70 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 					logger.error(e.getLocalizedMessage(), e);
 				}
 
-			} else if (messageTextFromTelegram.equals(BotLabels.LIST_ALL_TAREAS.getLabel())) {
-				// Recuperar la lista de Tareas desde la base de datos
-				List<Tarea> tareas = getAllTareas();
-
+			} // ...existing code...
+			else if (messageTextFromTelegram.equals(BotLabels.LIST_ALL_TAREAS.getLabel())) {
+				Developer dev = developerSessions.get(chatId);
+				if (dev == null) {
+					BotHelper.sendMessageToTelegram(chatId, "Debes iniciar sesión primero.", this);
+					return;
+				}
+			
+				// Obtener el último sprint (por ID más alto)
+				Sprint ultimoSprint = sprintService.findAll()
+					.stream()
+					.max((s1, s2) -> Integer.compare(s1.getIdSprint(), s2.getIdSprint()))
+					.orElse(null);
+			
+				if (ultimoSprint == null) {
+					BotHelper.sendMessageToTelegram(chatId, "No hay sprints registrados.", this);
+					return;
+				}
+			
+				// Obtener todas las tareas del developer
+				List<Tarea> tareasDeveloper = tareaDeveloperService.findTareasByDeveloperId(dev.getIdDeveloper());
+			
+				// Filtrar solo las del último sprint
+				List<Tarea> tareas = tareasDeveloper.stream()
+					.filter(t -> t.getSprint() != null && t.getSprint().getIdSprint().equals(ultimoSprint.getIdSprint()))
+					.toList();
+			
 				// Construir el teclado para mostrar las Tareas
 				ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
 				List<KeyboardRow> keyboard = new ArrayList<>();
-
+			
 				// Botón para volver a la pantalla principal
 				KeyboardRow topRow = new KeyboardRow();
 				topRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				keyboard.add(topRow);
-
+			
 				// Agregar una fila por cada tarea (por ejemplo, mostrando el nombre y el id)
 				for (Tarea tarea : tareas) {
 					KeyboardRow row = new KeyboardRow();
-					// Puedes personalizar la información que se muestra. Por ejemplo:
 					row.add("[" + tarea.getIdTarea() + "] " + tarea.getNombreTarea());
 					keyboard.add(row);
 				}
-
+			
 				// Botón inferior para regresar a la pantalla principal
 				KeyboardRow bottomRow = new KeyboardRow();
 				bottomRow.add(BotLabels.SHOW_MAIN_SCREEN.getLabel());
 				keyboard.add(bottomRow);
-
+			
 				keyboardMarkup.setKeyboard(keyboard);
-
+			
 				// Enviar el mensaje al usuario con la lista de Tareas
 				SendMessage messageToTelegram = new SendMessage();
 				messageToTelegram.setChatId(chatId);
-				messageToTelegram.setText("Lista de Tareas:");
+				messageToTelegram.setText("Tus tareas del último sprint:");
 				messageToTelegram.setReplyMarkup(keyboardMarkup);
-
+			
 				try {
 					execute(messageToTelegram);
 				} catch (TelegramApiException e) {
 					logger.error(e.getLocalizedMessage(), e);
 				}
+			}
 			
-			} else if (messageTextFromTelegram.equals(BotCommands.ADD_ITEM.getCommand())
+			else if (messageTextFromTelegram.equals(BotCommands.ADD_ITEM.getCommand())
 					|| messageTextFromTelegram.equals(BotLabels.ADD_NEW_ITEM.getLabel())) {
 				try {
 					SendMessage messageToTelegram = new SendMessage();
@@ -571,12 +653,12 @@ public class ToDoItemBotController extends TelegramLongPollingBot {
 	}
 
 	@Override
-	public String getBotUsername() {		
+	public String getBotUsername() {
 		return botName;
 	}
 
 	// GET /todolist
-	public List<ToDoItem> getAllToDoItems() { 
+	public List<ToDoItem> getAllToDoItems() {
 		return toDoItemService.findAll();
 	}
 

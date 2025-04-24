@@ -55,4 +55,5 @@ public class TareaController {
         boolean flag = tareaService.deleteTarea(id);
         return flag ? new ResponseEntity<>(true, HttpStatus.OK) : new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
     }
+    
 }

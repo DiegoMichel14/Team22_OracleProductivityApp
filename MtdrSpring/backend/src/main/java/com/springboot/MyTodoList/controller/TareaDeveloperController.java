@@ -1,6 +1,9 @@
 package com.springboot.MyTodoList.controller;
 
+import com.springboot.MyTodoList.model.Sprint;
+import com.springboot.MyTodoList.model.Tarea;
 import com.springboot.MyTodoList.model.TareaDeveloper;
+import com.springboot.MyTodoList.service.SprintService;
 import com.springboot.MyTodoList.service.TareaDeveloperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +15,9 @@ import java.util.List;
 
 @RestController
 public class TareaDeveloperController {
+
+     @Autowired
+    private SprintService sprintService; 
 
     @Autowired
     private TareaDeveloperService tareaDeveloperService;
@@ -64,4 +70,31 @@ public class TareaDeveloperController {
         return flag ? new ResponseEntity<>(true, HttpStatus.OK)
                     : new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
     }
+
+    // Ejemplo para TareaDeveloperController
+@GetMapping("/tarea-developers/tareas/{developerId}")
+public List<Tarea> getTareasByDeveloperId(@PathVariable Integer developerId) {
+    return tareaDeveloperService.findTareasByDeveloperId(developerId);
+}
+
+@GetMapping("/sprints/ultimo/developer/{developerId}/tareas")
+public List<Tarea> getTareasUltimoSprintByDeveloper(@PathVariable Integer developerId) {
+    // Obtener el último sprint (por ID más alto)
+    Sprint ultimoSprint = sprintService.findAll()
+        .stream()
+        .max((s1, s2) -> Integer.compare(s1.getIdSprint(), s2.getIdSprint()))
+        .orElse(null);
+
+    if (ultimoSprint == null) {
+        return List.of();
+    }
+
+    // Obtener todas las tareas del developer
+    List<Tarea> tareasDeveloper = tareaDeveloperService.findTareasByDeveloperId(developerId);
+
+    // Filtrar solo las del último sprint
+    return tareasDeveloper.stream()
+            .filter(t -> t.getSprint() != null && t.getSprint().getIdSprint().equals(ultimoSprint.getIdSprint()))
+            .toList();
+}
 }

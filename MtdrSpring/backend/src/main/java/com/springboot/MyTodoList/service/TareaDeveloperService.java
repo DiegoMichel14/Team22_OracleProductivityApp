@@ -61,4 +61,11 @@ public class TareaDeveloperService {
             return false;
         }
     }
+
+    public List<Tarea> findTareasByDeveloperId(Integer developerId) {
+        List<TareaDeveloper> asociaciones = tareaDeveloperRepository.findByDeveloper_IdDeveloper(developerId);
+        return asociaciones.stream()
+                .map(TareaDeveloper::getTarea)
+                .toList();
+    }
 }
