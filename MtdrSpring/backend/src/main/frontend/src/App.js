@@ -1,4 +1,8 @@
+<<<<<<< HEAD
           /*
+=======
+/*
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 ## MyToDoReact version 1.0.
 ##
 ## Copyright (c) 2022 Oracle, Inc.
@@ -11,12 +15,20 @@
  * @author  jean.de.lavarene@oracle.com
  */
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
+=======
+import { useNavigate } from 'react-router-dom';
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 import NewItem from './NewItem';
 import API_LIST from './API';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, TableBody, CircularProgress } from '@mui/material';
 import Moment from 'react-moment';
+<<<<<<< HEAD
 import Calendar from './components/calendar';
+=======
+import Calendar from './components/Calendar';
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 import TestTareas from './components/TestTareas';
 import TestEquipos from './components/TestEquipos';
 import TestDevelopers from './components/TestDevelopers';
@@ -25,6 +37,11 @@ import TestManager from './components/TestManager';
 import TestPrioridades from './components/TestPrioridades';
 import TestSprints from './components/TestSprints';
 import TestEstados from './components/TestEstados';
+<<<<<<< HEAD
+=======
+import './index.css'
+
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 
 /* In this application we're using Function Components with the State Hooks 
  * to manage the states. See the doc: https://reactjs.org/docs/hooks-state.html
@@ -33,6 +50,7 @@ import TestEstados from './components/TestEstados';
  * one with the items that are already done.
  */
 function App() {
+<<<<<<< HEAD
     // isLoading is true while waiting for the backend to return the list
     // of items. We use this state to display a spinning circle:
     const [isLoading, setLoading] = useState(false);
@@ -45,6 +63,39 @@ function App() {
     // In case of an error during the API call:
     const [error, setError] = useState();
 
+=======
+  const navigate = useNavigate();
+  // isLoading is true while waiting for the backend to return the list
+  // of items. We use this state to display a spinning circle:
+  const [isLoading, setLoading] = useState(false);
+  // Similar to isLoading, isInserting is true while waiting for the backend
+  // to insert a new item:
+  const [isInserting, setInserting] = useState(false);
+  // The list of todo items is stored in this state. It includes the "done"
+  // "not-done" items:
+  const [items, setItems] = useState([]);
+  // In case of an error during the API call:
+  const [error, setError] = useState();
+
+  // DISABLED FOR TESTING - Login related code
+  /*
+  // Estado para almacenar los datos del usuario
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Intentar obtener los datos del usuario desde localStorage
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
+  */
+
+  // Add a mock user to simulate being logged in
+  const user = { nombre: "Test User" };
+  
+  // ... rest of component code
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
     function deleteItem(deleteId) {
       // console.log("deleteItem("+deleteId+")")
       fetch(API_LIST+"/"+deleteId, {
@@ -198,6 +249,29 @@ function App() {
     return (
       <div className="App">
         <h1>MY TODO LIST</h1>
+<<<<<<< HEAD
+=======
+        {user && <p>Bienvenido, {user.nombre}</p>}
+        
+        {/* Botones de navegación */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', margin: '15px 0' }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={() => navigate('/developer')}
+          >
+            Vista Developer
+          </Button>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            onClick={() => navigate('/manager')}
+          >
+            Vista Manager
+          </Button>
+        </div>
+        
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
         <NewItem addItem={addItem} isInserting={isInserting} />
         { error && <p>Error: {error.message}</p> }
         { isLoading && <CircularProgress /> }
@@ -249,7 +323,11 @@ function App() {
             </table>
           </div>
         }
+<<<<<<< HEAD
   
+=======
+        
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
         {/* Agregamos los nuevos componentes de prueba */}
         <Calendar />
         <TestTareas />

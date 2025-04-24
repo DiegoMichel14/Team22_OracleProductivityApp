@@ -11,5 +11,9 @@ import javax.transaction.Transactional;
 @Transactional
 @EnableTransactionManagement
 public interface DeveloperRepository extends JpaRepository<Developer, Integer> {
+<<<<<<< HEAD
 
+=======
+    Developer findByTelefonoAndContrasena(String telefono, String contrasena);
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 }

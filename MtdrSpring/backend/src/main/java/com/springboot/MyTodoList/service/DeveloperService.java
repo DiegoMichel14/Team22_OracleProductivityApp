@@ -6,6 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+<<<<<<< HEAD
+=======
+import com.springboot.MyTodoList.service.DeveloperService;
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 
 import java.util.List;
 import java.util.Optional;
@@ -58,4 +62,13 @@ public class DeveloperService {
             return false;
         }
     }
+<<<<<<< HEAD
+=======
+
+
+    public Developer findByTelefonoAndContrasena(String telefono, String contrasena) {
+        // Buscar el developer por teléfono y contraseña
+        return developerRepository.findByTelefonoAndContrasena(telefono, contrasena);
+    }
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 }

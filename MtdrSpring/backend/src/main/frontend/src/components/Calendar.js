@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './ml-calendar.css'; 
+<<<<<<< HEAD
 import API_TAREA from '../API_Tarea';
 import API_ESTADO from '../API_ESTADO';
 import API_PRIORIDAD from '../API_Prioridad';
+=======
+import API_TAREA from '../API_TAREA';
+import API_ESTADO from '../API_ESTADO';
+import API_PRIORIDAD from '../API_PRIORIDAD';
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 
 function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1));
@@ -166,7 +172,11 @@ function Calendar() {
               <strong>{monthNames[currentDate.getMonth()]}</strong> {currentDate.getFullYear()}
             </h2>
             <div className="calendar-nav">
+<<<<<<< HEAD
               <a href="#" onClick={handlePrevMonth}>
+=======
+              <a aria-label="Previous Month" href="#" onClick={handlePrevMonth}>
+>>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
                 <i className="fas fa-arrow-left"></i>
               </a>
               <a href="#" onClick={handleToday}>Today</a>
