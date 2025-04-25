@@ -20,7 +20,7 @@ ReactDOM.render(
   <BrowserRouter>
     <Routes>
       {/* Temporarily change the root path to go directly to App for testing */}
-      <Route path="/" element={<App />} />
+      <Route path="/" element={<Login />} />
       <Route path="/App" element={<App />} />
       <Route path="/developer" element={<VistaDeveloper />} />
       <Route path="/manager" element={<VistaManager />} />
