@@ -8,6 +8,7 @@ const Routes = () => {
     <>
       <Route path="/login" element={<Login />} />
       <Route path="/App" element={<AppPage />} />
+
     </>
   );
 };

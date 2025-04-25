@@ -13,12 +13,19 @@ import ReactDOM from 'react-dom';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import App from './App';
+import VistaDeveloper from './components/VistaDeveloper';
+import VistaManager from './components/VistaManager';
 
 ReactDOM.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Login />} />
+      {/* Temporarily change the root path to go directly to App for testing */}
+      <Route path="/" element={<App />} />
       <Route path="/App" element={<App />} />
+      <Route path="/developer" element={<VistaDeveloper />} />
+      <Route path="/manager" element={<VistaManager />} />
+      {/* Keep this commented out until you're done testing */}
+      {/* <Route path="/" element={<Login />} /> */}
     </Routes>
   </BrowserRouter>,
   document.getElementById('root')

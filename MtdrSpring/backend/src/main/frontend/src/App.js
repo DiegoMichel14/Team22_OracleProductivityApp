@@ -1,4 +1,4 @@
-          /*
+/*
 ## MyToDoReact version 1.0.
 ##
 ## Copyright (c) 2022 Oracle, Inc.
@@ -11,6 +11,7 @@
  * @author  jean.de.lavarene@oracle.com
  */
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import NewItem from './NewItem';
 import API_LIST from './API';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,11 +26,7 @@ import TestManager from './components/TestManager';
 import TestPrioridades from './components/TestPrioridades';
 import TestSprints from './components/TestSprints';
 import TestEstados from './components/TestEstados';
-import ProductividadGrafico from './components/ProductividadGrafico';
-import { API_KPI_EQUIPO } from './API_Reportes';
-import ReporteTareas from './components/ReporteTareas';
 import './index.css'
-
 
 
 /* In this application we're using Function Components with the State Hooks 
@@ -39,22 +36,22 @@ import './index.css'
  * one with the items that are already done.
  */
 function App() {
-    // isLoading is true while waiting for the backend to return the list
-    // of items. We use this state to display a spinning circle:
-    const [isLoading, setLoading] = useState(false);
-    // Similar to isLoading, isInserting is true while waiting for the backend
-    // to insert a new item:
-    const [isInserting, setInserting] = useState(false);
-    // The list of todo items is stored in this state. It includes the "done"
-    // "not-done" items:
-    const [items, setItems] = useState([]);
-    // In case of an error during the API call:
-    const [error, setError] = useState();
-    // grafica
-    const [datos, setDatos] = useState([]);
+  const navigate = useNavigate();
+  // isLoading is true while waiting for the backend to return the list
+  // of items. We use this state to display a spinning circle:
+  const [isLoading, setLoading] = useState(false);
+  // Similar to isLoading, isInserting is true while waiting for the backend
+  // to insert a new item:
+  const [isInserting, setInserting] = useState(false);
+  // The list of todo items is stored in this state. It includes the "done"
+  // "not-done" items:
+  const [items, setItems] = useState([]);
+  // In case of an error during the API call:
+  const [error, setError] = useState();
 
-
-      // Estado para almacenar los datos del usuario
+  // DISABLED FOR TESTING - Login related code
+  /*
+  // Estado para almacenar los datos del usuario
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -64,8 +61,12 @@ function App() {
       setUser(storedUser);
     }
   }, []);
+  */
 
-
+  // Add a mock user to simulate being logged in
+  const user = { nombre: "Test User" };
+  
+  // ... rest of component code
     function deleteItem(deleteId) {
       // console.log("deleteItem("+deleteId+")")
       fetch(API_LIST+"/"+deleteId, {
@@ -170,10 +171,6 @@ function App() {
           });
 
       //})
-      fetch(API_KPI_EQUIPO)
-            .then(response => response.json())
-            .then(data => setDatos(data))
-            .catch(error => console.error("Error al obtener los KPIs:", error));
     },
     // https://en.reactjs.org/docs/faq-ajax.html
     [] // empty deps array [] means
@@ -224,6 +221,25 @@ function App() {
       <div className="App">
         <h1>MY TODO LIST</h1>
         {user && <p>Bienvenido, {user.nombre}</p>}
+        
+        {/* Botones de navegación */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', margin: '15px 0' }}>
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={() => navigate('/developer')}
+          >
+            Vista Developer
+          </Button>
+          <Button 
+            variant="contained" 
+            color="secondary" 
+            onClick={() => navigate('/manager')}
+          >
+            Vista Manager
+          </Button>
+        </div>
+        
         <NewItem addItem={addItem} isInserting={isInserting} />
         { error && <p>Error: {error.message}</p> }
         { isLoading && <CircularProgress /> }
@@ -275,10 +291,7 @@ function App() {
             </table>
           </div>
         }
-        {/* Sección de Reportes */}
-        <h2>Reporte de Productividad</h2>
-        <ProductividadGrafico datos={datos} />
-  
+        
         {/* Agregamos los nuevos componentes de prueba */}
         <Calendar />
         <TestTareas />
@@ -289,16 +302,9 @@ function App() {
         <TestPrioridades />
         <TestSprints />
         <TestEstados />
-        <ReporteTareas />
   
       </div>
     );
   }
   
   export default App;
-
-
-
-  //   kubectl apply -f deployment.yaml
-  //   kubectl get pods
-  //   kubectl get svc agile-service
