@@ -1,10 +1,10 @@
 package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "TAREA")
@@ -14,7 +14,7 @@ public class Tarea {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_TAREA", nullable = false)
     private Integer idTarea;
- 
+
     @Column(name = "NOMBRE_TAREA", length = 200, nullable = false)
     private String nombreTarea;
 
@@ -35,13 +35,21 @@ public class Tarea {
     @JsonBackReference
     private Sprint sprint;
 
-    // Constructor vacío
+    @OneToOne(mappedBy = "tarea", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Estado estado;
+
     public Tarea() {
     }
 
-    // Constructor completo
-    public Tarea(Integer idTarea, String nombreTarea, LocalDate fechaRegistro, LocalDate fechaFin,
-                 Double horasEstimadas, Double horasReales, Sprint sprint) {
+    public Tarea(Integer idTarea,
+                 String nombreTarea,
+                 LocalDate fechaRegistro,
+                 LocalDate fechaFin,
+                 Double horasEstimadas,
+                 Double horasReales,
+                 Sprint sprint,
+                 Estado estado) {
         this.idTarea = idTarea;
         this.nombreTarea = nombreTarea;
         this.fechaRegistro = fechaRegistro;
@@ -49,9 +57,9 @@ public class Tarea {
         this.horasEstimadas = horasEstimadas;
         this.horasReales = horasReales;
         this.sprint = sprint;
+        this.estado = estado;
     }
 
-    // Getters y setters
     public Integer getIdTarea() {
         return idTarea;
     }
@@ -108,6 +116,14 @@ public class Tarea {
         this.sprint = sprint;
     }
 
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
     @Override
     public String toString() {
         return "Tarea{" +
@@ -117,7 +133,6 @@ public class Tarea {
                 ", fechaFin=" + fechaFin +
                 ", horasEstimadas=" + horasEstimadas +
                 ", horasReales=" + horasReales +
-                ", sprint=" + sprint +
                 '}';
     }
 }
