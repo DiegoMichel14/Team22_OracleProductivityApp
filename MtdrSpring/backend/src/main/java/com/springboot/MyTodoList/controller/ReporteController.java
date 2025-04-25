@@ -30,4 +30,10 @@ public class ReporteController {
     public double getCostoDesarrollo() {
         return reporteService.calcularCostoDesarrollo();
     }
+
+    @GetMapping("/reportes/tareas-por-desarrollador")
+    public List<Object[]> getTareasPorDesarrollador() {
+        return reporteService.getTareasCompletadasPorDesarrollador();
+    }
+
 }

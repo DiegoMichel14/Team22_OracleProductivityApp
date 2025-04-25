@@ -3,7 +3,6 @@ package com.springboot.MyTodoList.model;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import java.time.LocalDate;
 
 @Entity
@@ -35,13 +34,15 @@ public class Tarea {
     @JsonBackReference
     private Sprint sprint;
 
+    @OneToOne(mappedBy = "tarea") // Relación con Estado
+    private Estado estado;
+
     // Constructor vacío
-    public Tarea() {
-    }
+    public Tarea() {}
 
     // Constructor completo
     public Tarea(Integer idTarea, String nombreTarea, LocalDate fechaRegistro, LocalDate fechaFin,
-                 Double horasEstimadas, Double horasReales, Sprint sprint) {
+                 Double horasEstimadas, Double horasReales, Sprint sprint, Estado estado) {
         this.idTarea = idTarea;
         this.nombreTarea = nombreTarea;
         this.fechaRegistro = fechaRegistro;
@@ -49,6 +50,7 @@ public class Tarea {
         this.horasEstimadas = horasEstimadas;
         this.horasReales = horasReales;
         this.sprint = sprint;
+        this.estado = estado;
     }
 
     // Getters y setters
@@ -108,6 +110,14 @@ public class Tarea {
         this.sprint = sprint;
     }
 
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
     @Override
     public String toString() {
         return "Tarea{" +
@@ -118,6 +128,7 @@ public class Tarea {
                 ", horasEstimadas=" + horasEstimadas +
                 ", horasReales=" + horasReales +
                 ", sprint=" + sprint +
+                ", estado=" + (estado != null ? estado.getEstado() : "Sin estado") +
                 '}';
     }
 }

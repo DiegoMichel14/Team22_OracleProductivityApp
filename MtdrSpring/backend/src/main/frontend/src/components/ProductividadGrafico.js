@@ -8,8 +8,8 @@ function ProductividadGrafico({ datos }) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const anchoBarra = 80; // Barras más anchas
-    const separacion = 200; // Más separación
+    const anchoBarra = 150; // Barras más anchas
+    const separacion = 350; // Más separación
     const alturaMaxima = 400; // Altura total de la gráfica
 
     datos.forEach((d, i) => {
@@ -31,10 +31,15 @@ function ProductividadGrafico({ datos }) {
       // Agregar etiquetas sobre las barras
       ctx.fillStyle = "white";
       ctx.font = "16px Arial";
-      ctx.fillText(`Horas estimadas: ${d[1]}`, xEstimadas + 10, alturaMaxima - d[1] - 10);
-      ctx.fillText(`Horas Reales: ${d[2]}`, xReales + 10, alturaMaxima - d[2] - 10);
-      ctx.fillText(`Costo total: $${Math.round(d[4])}`, xCostos + 10, alturaMaxima - (d[4] / 2) - 10);
+      ctx.fillText(`Horas estimadas: ${d[1]}`, xEstimadas + 20, alturaMaxima - d[1] - 20);
+      ctx.fillText(`Horas Reales: ${d[2]}`, xReales + 20, alturaMaxima - d[2] - 20);
+      ctx.fillText(`Costo total: $${Math.round(d[4])}`, xCostos + 20, alturaMaxima - (d[4] / 2) - 20);
 
+
+      // Agregar porcentaje de productividad al lado
+      ctx.fillStyle = "white";
+      ctx.fillText(`Productividad: ${(d[5] * 100).toFixed(1)}%`, xReales + anchoBarra + 200, alturaMaxima - d[2] - 10);
+      
       // Agregar nombres de los sprints abajo
       ctx.fillStyle = "white";
       ctx.fillText(d[0], xGrupo, alturaMaxima + 30);

@@ -28,6 +28,8 @@ import TestEstados from './components/TestEstados';
 import ProductividadGrafico from './components/ProductividadGrafico';
 import { API_KPI_EQUIPO } from './API_Reportes';
 import ReporteTareas from './components/ReporteTareas';
+import GraficoPastel from "./components/GraficoPastel";
+import { API_TAREAS_POR_DESARROLLADOR } from "./API_Reportes";
 
 /* In this application we're using Function Components with the State Hooks 
  * to manage the states. See the doc: https://reactjs.org/docs/hooks-state.html
@@ -49,7 +51,11 @@ function App() {
     const [error, setError] = useState();
     // grafica
     const [datos, setDatos] = useState([]);
-
+    const [datosBarras, setDatosBarras] = useState({});
+    const [sprintSeleccionado, setSprintSeleccionado] = useState(null);
+    //const [datosPastel, setDatosPastel] = useState([]);
+    const [datosPastel, setDatosPastel] = useState({});
+    
     function deleteItem(deleteId) {
       // console.log("deleteItem("+deleteId+")")
       fetch(API_LIST+"/"+deleteId, {
@@ -153,11 +159,31 @@ function App() {
             setError(error);
           });
 
-      //})
-      fetch(API_KPI_EQUIPO)
-            .then(response => response.json())
-            .then(data => setDatos(data))
-            .catch(error => console.error("Error al obtener los KPIs:", error));
+
+        fetch(API_KPI_EQUIPO)
+          .then(response => response.json())
+          .then(data => {
+            const sprints = data.reduce((acc, d) => {
+              acc[d[0]] = acc[d[0]] || [];
+              acc[d[0]].push(d);
+              return acc;
+            }, {});
+            setDatosBarras(sprints);
+            setSprintSeleccionado(Object.keys(sprints)[0]); // Selecciona el primer sprint por defecto
+          })
+          .catch(error => console.error("Error:", error));
+    
+        fetch(API_TAREAS_POR_DESARROLLADOR)
+          .then(response => response.json())
+          .then(data => {
+            const sprints = data.reduce((acc, d) => {
+              acc[d[0]] = acc[d[0]] || [];
+              acc[d[0]].push([d[1], d[2]]); // Agrupar desarrollador y tareas
+              return acc;
+            }, {});
+            setDatosPastel(sprints);
+          })
+          .catch(error => console.error("Error:", error));
     },
     // https://en.reactjs.org/docs/faq-ajax.html
     [] // empty deps array [] means
@@ -259,8 +285,39 @@ function App() {
           </div>
         }
         {/* Sección de Reportes */}
-        <h2>Reporte de Productividad</h2>
-        <ProductividadGrafico datos={datos} />
+        <h1>Reportes de Productividad por Sprint</h1>
+
+        {/* Botones para cambiar entre sprints */}
+        <div>
+          {Object.keys(datosBarras).map((sprint) => (
+            <button
+              key={sprint}
+              onClick={() => setSprintSeleccionado(sprint)}
+              style={{
+                margin: "5px",
+                padding: "10px",
+                background: sprintSeleccionado === sprint ? "red" : "gray",
+                color: "white",
+                borderRadius: "5px",
+              }}
+            >
+              {sprint}
+            </button>
+          ))}
+        </div>
+
+        {/* Mostrar la gráfica de barras y pastel del sprint seleccionado */}
+        {sprintSeleccionado && datosBarras[sprintSeleccionado] && datosPastel[sprintSeleccionado] && (
+          <div>
+            <h2 style={{ textAlign: "center" }}>Gráfica de Productividad - {sprintSeleccionado}</h2>
+            <ProductividadGrafico datos={datosBarras[sprintSeleccionado]} />
+
+            <h2 style={{ textAlign: "center", marginTop: "20px" }}>
+              Gráfica de Tareas por Desarrollador - {sprintSeleccionado}
+            </h2>
+            <GraficoPastel datos={datosPastel[sprintSeleccionado]} />
+          </div>
+        )}
   
         {/* Agregamos los nuevos componentes de prueba */}
         <Calendar />
