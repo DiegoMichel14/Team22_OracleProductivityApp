@@ -26,6 +26,7 @@ import TestManager from './components/TestManager';
 import TestPrioridades from './components/TestPrioridades';
 import TestSprints from './components/TestSprints';
 import TestEstados from './components/TestEstados';
+import ReporteTareas from './components/ReporteTareas'
 import './index.css'
 
 
@@ -302,6 +303,7 @@ function App() {
         <TestPrioridades />
         <TestSprints />
         <TestEstados />
+        <ReporteTareas />
   
       </div>
     );
