@@ -247,6 +247,7 @@ function Calendar() {
             </h2>
             <div className="calendar-nav">
               <a aria-label="Previous Month" href="#" onClick={handlePrevMonth}>
+                <i className="fas fa-arrow-left"></i>
                 <ArrowBackIcon />
               </a>
               <a href="#" onClick={handleToday} className="today-button">

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-public class DeveloperController {
+public class DeveloperController { 
 
     @Autowired
     private DeveloperService developerService;
@@ -59,14 +59,14 @@ public class DeveloperController {
 
 
     // Obtener un developer por teléfono y contraseña
-@GetMapping(value = "/login")
-public ResponseEntity<Developer> login(@RequestParam String telefono, @RequestParam String contrasena) {
-    Developer developer = developerService.findByTelefonoAndContrasena(telefono, contrasena);
-    if (developer != null) {
-        return ResponseEntity.ok(developer);  // Devuelve el Developer si las credenciales son correctas
-    } else {
-        return ResponseEntity.status(401).body(null);  // Devuelve un error 401 si las credenciales son incorrectas
+    @GetMapping(value = "/login")
+    public ResponseEntity<Developer> login(@RequestParam String telefono, @RequestParam String contrasena) {
+        Developer developer = developerService.findByTelefonoAndContrasena(telefono, contrasena);
+        if (developer != null) {
+            return ResponseEntity.ok(developer); // Devuelve el Developer si las credenciales son correctas
+        } else {
+            return ResponseEntity.status(401).body(null); // Devuelve un error 401 si las credenciales son incorrectas
+        }
     }
-}
 
 }
