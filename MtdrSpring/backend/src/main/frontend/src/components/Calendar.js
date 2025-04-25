@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './ml-calendar.css'; 
-<<<<<<< HEAD
-import API_TAREA from '../API_Tarea';
-import API_ESTADO from '../API_ESTADO';
-import API_PRIORIDAD from '../API_Prioridad';
-=======
 import API_TAREA from '../API_TAREA';
 import API_ESTADO from '../API_ESTADO';
 import API_PRIORIDAD from '../API_PRIORIDAD';
-<<<<<<< HEAD
->>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
-=======
 import API_DEVELOPER from '../API_DEVELOPER';
 // Import Material-UI icons as a safer alternative
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -22,7 +14,7 @@ import FlagIcon from '@mui/icons-material/Flag';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import PersonIcon from '@mui/icons-material/Person';
->>>>>>> 70062c3 (Cambios a Calendario)
+
 
 function Calendar() {
   // Change to use current date instead of fixed 2025 date
@@ -255,16 +247,9 @@ function Calendar() {
               <CalendarMonthIcon className="calendar-icon" /> <strong>{monthNames[currentDate.getMonth()]}</strong> {currentDate.getFullYear()}
             </h2>
             <div className="calendar-nav">
-<<<<<<< HEAD
-              <a href="#" onClick={handlePrevMonth}>
-=======
               <a aria-label="Previous Month" href="#" onClick={handlePrevMonth}>
-<<<<<<< HEAD
->>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
                 <i className="fas fa-arrow-left"></i>
-=======
                 <ArrowBackIcon />
->>>>>>> 70062c3 (Cambios a Calendario)
               </a>
               <a href="#" onClick={handleToday} className="today-button">
                 <TodayIcon fontSize="small" /> Today

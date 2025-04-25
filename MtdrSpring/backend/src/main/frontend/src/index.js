@@ -10,15 +10,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-<<<<<<< HEAD
-import './index.css';
-import App from './App';
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-=======
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Login';
 import App from './App';
@@ -37,6 +28,5 @@ ReactDOM.render(
       {/* <Route path="/" element={<Login />} /> */}
     </Routes>
   </BrowserRouter>,
->>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
   document.getElementById('root')
 );

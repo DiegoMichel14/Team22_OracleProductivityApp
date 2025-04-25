@@ -1,9 +1,5 @@
 import React, { useEffect } from 'react';
-<<<<<<< HEAD
-import API_TAREA from '../API_Tarea';
-=======
 import API_TAREA from '../API_TAREA';
->>>>>>> c665cdb (Cambios con Las Vistas de Developer y Manager)
 
 function TestTareas() {
   useEffect(() => {
