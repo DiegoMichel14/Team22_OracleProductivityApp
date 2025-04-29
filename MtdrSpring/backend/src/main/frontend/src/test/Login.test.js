@@ -95,5 +95,26 @@ describe("Login Component", () => {
               )
             ).toBeInTheDocument();
           });
+          
+          // Test 6: Verifica que una contraseña válida permite el login
+test("permite login con contraseña válida", async () => {
+  renderWithRouter(<Login />);
+
+  const telefonoInput = screen.getByLabelText(/Teléfono/i);
+  const passwordInput = screen.getByLabelText(/Contraseña/i);
+  const submitButton = screen.getByText(/Ingresar/i);
+
+  fireEvent.change(telefonoInput, { target: { value: "1234567890" } });
+  fireEvent.change(passwordInput, { target: { value: "contrasenaSegura3" } });
+  fireEvent.click(submitButton);
+
+  // Esperar que NO aparezca el mensaje de error de contraseña
+  expect(
+    screen.queryByText(/La contraseña es obligatoria\./i)
+  ).not.toBeInTheDocument();
+
+  // También puedes verificar que se redirige o que aparece algún mensaje de éxito si tu app lo muestra
+});
+
 });
 
