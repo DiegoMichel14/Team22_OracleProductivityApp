@@ -10,7 +10,7 @@ function GraficoPastel({ datos }) {
 
     const totalTareas = datos.reduce((acc, d) => acc + d[1], 0);
     let anguloInicio = 0;
-    const colores = ["red", "blue", "green", "orange", "purple"];
+    const colores = ["red", "blue", "green", "yellow", "purple"];
 
     datos.forEach((d, i) => {
       const porcentaje = d[1] / totalTareas;
