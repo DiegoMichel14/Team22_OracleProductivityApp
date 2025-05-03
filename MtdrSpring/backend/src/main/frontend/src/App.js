@@ -319,7 +319,7 @@ function App() {
   const navigate = useNavigate();
 
   // Estados principales
-  const [isLoading, setLoading]             = useState(false);
+  const [isLoading,setLoading]=useState("false")
   const [items,      setItems]              = useState([]);
   const [error,      setError]              = useState(null);
   const [datosBarras,        setDatosBarras]        = useState({});
