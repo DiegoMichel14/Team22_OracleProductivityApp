@@ -334,7 +334,7 @@ function App() {
     setLoading(true);
     fetch(API_LIST)
       .then(res => {
-        if (!res.ok) throw new Error('Error al cargar tareas');
+        if (!res.ok) throw new Error("Error al cargar tareas")
         return res.json();
       })
       .then(data => {
