@@ -11,7 +11,7 @@ import {
   Paper,
   IconButton,
   Box,
-  Typography,
+  Typography, 
   Card,
   CardContent,
   useTheme,
@@ -37,8 +37,8 @@ import TimerIcon from '@mui/icons-material/Timer';
 
 function VistaDeveloper() {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const theme=useTheme()
+  const isMobile=useMediaQuery(theme.breakpoints.down('sm'))
   
   // State for managing API data
   const [developers, setDevelopers] = useState([]);
