@@ -2,6 +2,8 @@ package com.springboot.MyTodoList.model;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "ESTADO")
 public class Estado {
@@ -13,23 +15,21 @@ public class Estado {
     @OneToOne
     @MapsId
     @JoinColumn(name = "ID_TAREA", nullable = false)
+    @JsonBackReference
     private Tarea tarea;
 
     @Column(name = "ESTADO", length = 20, nullable = false)
     private String estado;
 
-    // Constructor vacío
     public Estado() {
     }
 
-    // Constructor completo
     public Estado(Tarea tarea, String estado) {
         this.tarea = tarea;
         this.id = tarea.getIdTarea();
         this.setEstado(estado);
     }
 
-    // Getters y setters
     public Integer getId() {
         return id;
     }
@@ -52,9 +52,12 @@ public class Estado {
     }
 
     public void setEstado(String estado) {
-        // Validación para asegurar que el estado solo tome los valores permitidos.
-        if (!estado.equals("Pendiente") && !estado.equals("En progreso") && !estado.equals("Completada")) {
-            throw new IllegalArgumentException("El estado debe ser: Pendiente, En progreso o Completada");
+        if (!estado.equals("Pendiente")
+         && !estado.equals("En progreso")
+         && !estado.equals("Completada")) {
+            throw new IllegalArgumentException(
+                "El estado debe ser: Pendiente, En progreso o Completada"
+            );
         }
         this.estado = estado;
     }

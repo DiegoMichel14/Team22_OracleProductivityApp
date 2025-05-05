@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import API_TAREA from '../API_Tarea';
+import API_TAREA from '../API_TAREA';
 
 function TestTareas() {
   useEffect(() => {
