@@ -68,4 +68,8 @@ public class TareaDeveloperService {
                 .map(TareaDeveloper::getTarea)
                 .toList();
     }
+
+    public List<TareaDeveloper> findByTareaId(Integer tareaId) {
+    return tareaDeveloperRepository.findByTarea_IdTarea(tareaId);
+}
 }

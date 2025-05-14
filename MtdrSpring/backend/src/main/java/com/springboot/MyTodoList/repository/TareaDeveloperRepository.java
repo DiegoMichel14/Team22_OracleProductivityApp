@@ -14,4 +14,5 @@ import java.util.List;
 @EnableTransactionManagement
 public interface TareaDeveloperRepository extends JpaRepository<TareaDeveloper, TareaDeveloperId> {
     List<TareaDeveloper> findByDeveloper_IdDeveloper(Integer developerId);
+    List<TareaDeveloper> findByTarea_IdTarea(Integer idTarea);
 }
