@@ -21,6 +21,8 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import Layout from './Layout';
+import '../styles/Dashboard.css';
 
 function VistaManager() {
   const navigate = useNavigate();
@@ -143,18 +145,8 @@ function VistaManager() {
   }, []);
 
   return (
-    <Box sx={{ 
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      width: '100vw',
-      maxWidth: '100%',
-      backgroundColor: '#f5f5f5',
-      margin: 0,
-      padding: 0,
-      overflow: 'hidden'
-    }}>
-      {/* Top navigation */}
+    <Layout>
+      {/* Breadcrumb navigation */}
       <Box sx={{ 
         backgroundColor: '#f0f0f0', 
         padding: '8px 20px',
@@ -171,7 +163,6 @@ function VistaManager() {
       
       {/* Main content area */}
       <Box sx={{ 
-        flex: 1, 
         py: 3, 
         px: { xs: 2, sm: 3, md: 4 }, 
         display: 'flex', 
@@ -210,10 +201,10 @@ function VistaManager() {
         )}
 
         {/* Team Workload Section */}
-        <Card sx={{ mb: 4, width: '100%', boxShadow: 2 }}>
-          <CardContent sx={{ width: '100%', padding: 2 }}>
+        <Card sx={{ mb: 4, width: '100%', boxShadow: 2, maxWidth: '800px', mx: 'auto' }}>
+          <CardContent sx={{ width: '100%', padding: 3 }}>
             <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>Team Workload</Typography>
-            <TableContainer component={Paper} elevation={0} sx={{ width: '100%' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ width: '100%', overflowX: 'hidden' }}>
               {loadingWorkload ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                   <CircularProgress size={40} />
@@ -223,18 +214,18 @@ function VistaManager() {
                   <Typography color="textSecondary">No developer data available</Typography>
                 </Box>
               ) : (
-                <Table size={isMobile ? "small" : "medium"} sx={{ width: '100%', tableLayout: 'fixed' }}>
+                <Table size={isMobile ? "small" : "medium"} sx={{ width: '100%', tableLayout: 'fixed', minWidth: '300px' }}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ width: '70%' }}>Developer Name</TableCell>
-                      <TableCell align="right" sx={{ width: '30%' }}>Tasks</TableCell>
+                      <TableCell sx={{ width: '70%', pl: 3 }}>Developer Name</TableCell>
+                      <TableCell align="right" sx={{ width: '30%', pr: 5 }}>Tasks</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {teamWorkloadData.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell>{row.name}</TableCell>
-                        <TableCell align="right">{row.tasks}</TableCell>
+                        <TableCell sx={{ pl: 3 }}>{row.name}</TableCell>
+                        <TableCell align="right" sx={{ pr: 5 }}>{row.tasks}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -245,10 +236,10 @@ function VistaManager() {
         </Card>
 
         {/* Task Completion Section */}
-        <Card sx={{ width: '100%', boxShadow: 2, mb: 4 }}>
-          <CardContent sx={{ width: '100%', padding: 2 }}>
+        <Card sx={{ width: '100%', boxShadow: 2, mb: 4, maxWidth: '800px', mx: 'auto' }}>
+          <CardContent sx={{ width: '100%', padding: 3 }}>
             <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>Task Completion</Typography>
-            <TableContainer component={Paper} elevation={0} sx={{ width: '100%' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ width: '100%', overflowX: 'hidden' }}>
               {loadingCompletion ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                   <CircularProgress size={40} />
@@ -258,20 +249,20 @@ function VistaManager() {
                   <Typography color="textSecondary">No task completion data available</Typography>
                 </Box>
               ) : (
-                <Table size={isMobile ? "small" : "medium"} sx={{ width: '100%', tableLayout: 'fixed' }}>
+                <Table size={isMobile ? "small" : "medium"} sx={{ width: '100%', tableLayout: 'fixed', minWidth: '300px' }}>
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ width: '40%' }}>Developer Name</TableCell>
-                      <TableCell align="right" sx={{ width: '30%' }}>Ongoing</TableCell>
-                      <TableCell align="right" sx={{ width: '30%' }}>Completed</TableCell>
+                      <TableCell sx={{ width: '60%', pl: 3 }}>Developer Name</TableCell>
+                      <TableCell align="right" sx={{ width: '20%' }}>Ongoing</TableCell>
+                      <TableCell align="right" sx={{ width: '20%', pr: 5 }}>Completed</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {taskCompletionData.map((row) => (
                       <TableRow key={row.id}>
-                        <TableCell>{row.name}</TableCell>
+                        <TableCell sx={{ pl: 3 }}>{row.name}</TableCell>
                         <TableCell align="right">{row.ongoing}</TableCell>
-                        <TableCell align="right">{row.completed}</TableCell>
+                        <TableCell align="right" sx={{ pr: 5 }}>{row.completed}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -285,7 +276,7 @@ function VistaManager() {
           <Button 
             variant="contained" 
             color="primary"
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/dashboard')} 
             sx={{ 
               px: { xs: 2, sm: 3 },
               py: { xs: 1, sm: 1.5 }
@@ -295,7 +286,7 @@ function VistaManager() {
           </Button>
         </Box>
       </Box>
-    </Box>
+    </Layout>
   );
 }
 

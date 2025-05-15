@@ -34,6 +34,8 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import TimerIcon from '@mui/icons-material/Timer';
+import Layout from './Layout';
+import '../styles/Dashboard.css';
 
 function VistaDeveloper() {
   const navigate = useNavigate();
@@ -200,30 +202,62 @@ function VistaDeveloper() {
   };
 
   return (
-    <Box sx={{ 
-      display: 'flex',
-      flexDirection: 'column',
-      minHeight: '100vh',
-      width: '100vw',
-      maxWidth: '100%',
-      backgroundColor: '#f5f5f5',
-      margin: 0,
-      padding: 0,
-      overflow: 'hidden'
-    }}>
+    <Layout>
+      <Box sx={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+        width: '100vw',
+        maxWidth: '100%',
+        backgroundColor: '#f5f5f5',
+        margin: 0,
+        padding: 0,
+        overflow: 'hidden'
+      }}>
       {/* Top navigation */}
       <Box sx={{ 
-        backgroundColor: '#f0f0f0', 
-        padding: '8px 20px',
+        backgroundColor: '#3c3c3c',
+        color: 'white',
+        padding: '12px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid #ddd',
         width: '100%'
       }}>
-        <Typography variant="caption" color="textSecondary">
-          Developer Dashboard / Tasks
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Button
+            variant="text"
+            sx={{ 
+              color: 'white', 
+              fontWeight: 'bold', 
+              fontSize: '18px', 
+              mr: 2,
+              '&:hover': {
+                backgroundColor: 'rgba(255,255,255,0.1)'
+              }
+            }}
+          >
+            Tasks Management
+          </Button>
+          <Typography variant="body2" sx={{ color: '#ccc' }}>
+            Developer View
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ 
+            color: 'white', 
+            borderColor: 'rgba(255,255,255,0.3)',
+            borderRadius: '4px',
+            '&:hover': {
+              borderColor: 'rgba(255,255,255,0.6)',
+              backgroundColor: 'rgba(255,255,255,0.1)'
+            }
+          }}
+        >
+          Settings
+        </Button>
       </Box>
       
       {/* Main content area */}
@@ -265,7 +299,7 @@ function VistaDeveloper() {
         )}
 
         {/* Developer selector - only for testing */}
-        <Card sx={{ mb: 3, width: '100%', boxShadow: 2 }}>
+        <Card sx={{ mb: 3, width: '100%', boxShadow: 2, maxWidth: '800px', mx: 'auto' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Developer Selection (For Testing)
@@ -291,7 +325,7 @@ function VistaDeveloper() {
         </Card>
 
         {/* Developer Stats */}
-        <Card sx={{ mb: 3, width: '100%', boxShadow: 2 }}>
+        <Card sx={{ mb: 3, width: '100%', boxShadow: 2, maxWidth: '800px', mx: 'auto' }}>
           <CardContent>
             <Typography variant="h6" gutterBottom>
               Task Stats
@@ -326,7 +360,7 @@ function VistaDeveloper() {
         </Card>
 
         {/* Tasks Section with Tabs */}
-        <Card sx={{ width: '100%', boxShadow: 2, mb: 4 }}>
+        <Card sx={{ width: '100%', boxShadow: 2, mb: 4, maxWidth: '800px', mx: 'auto' }}>
           <CardContent sx={{ padding: 0 }}>
             <Tabs
               value={tabValue}
@@ -359,59 +393,53 @@ function VistaDeveloper() {
                   <Typography color="textSecondary">No tasks available</Typography>
                 </Box>
               ) : (
-                <TableContainer component={Paper} elevation={0} sx={{ width: '100%' }}>
-                  <Table size={isMobile ? "small" : "medium"} sx={{ width: '100%' }}>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Task Name</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell>Priority</TableCell>
-                        <TableCell>Due Date</TableCell>
-                        <TableCell>Estimated Hours</TableCell>
-                        <TableCell>Actual Hours</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {getFilteredTasks().map((task) => (
-                        <TableRow key={task.idTarea}>
-                          <TableCell>{task.nombreTarea}</TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={task.estado} 
-                              color={getStatusColor(task.estado)} 
-                              size="small" 
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Chip 
-                              label={task.prioridad} 
-                              color={getPriorityColor(task.prioridad)} 
-                              size="small" 
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <CalendarTodayIcon fontSize="small" sx={{ mr: 1 }} />
-                              {formatDate(task.fechaFin)}
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <TimerIcon fontSize="small" sx={{ mr: 1 }} />
-                              {task.horasEstimadas || 'N/A'}
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <TimerIcon fontSize="small" sx={{ mr: 1 }} />
-                              {task.horasReales || 'N/A'}
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                  {getFilteredTasks().map((task) => (
+                    <Card key={task.idTarea} sx={{ width: { xs: '100%', sm: '48%', md: '31%' }, mb: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                      <CardContent sx={{ p: 2 }}>
+                        <Typography variant="h6" sx={{ mb: 1, fontWeight: 500 }}>
+                          {task.nombreTarea}
+                        </Typography>
+                        
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                          <Chip 
+                            label={task.estado} 
+                            color={getStatusColor(task.estado)} 
+                            size="small" 
+                            sx={{ mr: 1 }} 
+                          />
+                          <Chip 
+                            label={task.prioridad} 
+                            color={getPriorityColor(task.prioridad)} 
+                            size="small" 
+                          />
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                          <CalendarTodayIcon fontSize="small" sx={{ mr: 1, color: '#666' }} />
+                          <Typography variant="body2" color="text.secondary">
+                            Due: {formatDate(task.fechaFin)}
+                          </Typography>
+                        </Box>
+                        
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <TimerIcon fontSize="small" sx={{ mr: 1, color: '#666' }} />
+                            <Typography variant="body2" align="right" sx={{ color: 'text.secondary', minWidth: '60px' }}>
+                              Est: {task.horasEstimadas || 'N/A'} hrs
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <TimerIcon fontSize="small" sx={{ mr: 1, color: '#666' }} />
+                            <Typography variant="body2" align="right" sx={{ color: 'text.secondary', minWidth: '60px', pr: 1 }}>
+                              Actual: {task.horasReales || 'N/A'} hrs
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Box>
               )}
             </Box>
           </CardContent>
@@ -421,7 +449,7 @@ function VistaDeveloper() {
           <Button 
             variant="contained" 
             color="primary"
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/dashboard')} 
             sx={{ 
               px: { xs: 2, sm: 3 },
               py: { xs: 1, sm: 1.5 }
@@ -432,6 +460,7 @@ function VistaDeveloper() {
         </Box>
       </Box>
     </Box>
+    </Layout>
   );
 }
 
