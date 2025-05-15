@@ -1,8 +1,9 @@
 package com.springboot.MyTodoList.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,34 @@ public class ReporteService {
                 }))
             .collect(Collectors.toList());
     }
+
+    public List<Object[]> getHorasTrabajadasPorSprint() {
+    return sprintRepository.findAll().stream()
+        .map(sprint -> new Object[]{
+            sprint.getNombre(),
+            sprint.getTareas().stream()
+                .mapToDouble(t -> t.getHorasReales() != null ? t.getHorasReales() : 0)
+                .sum()
+        })
+        .collect(Collectors.toList());
+    }
+
+    public List<Object[]> getHorasPorDeveloperPorSprint() {
+    return tareaDeveloperRepository.findAll().stream()
+        .collect(Collectors.groupingBy(
+            td -> td.getTarea().getSprint().getNombre() + "-" + td.getDeveloper().getNombre(), // Concatenación como clave
+            Collectors.summingDouble(td -> Optional.ofNullable(td.getTarea().getHorasReales()).orElse(0.0))
+        ))
+        .entrySet().stream()
+        .map(entry -> {
+            String[] claveDividida = entry.getKey().split("-", 2); // Separar Sprint y Developer
+            return new Object[]{ claveDividida[0], claveDividida[1], entry.getValue() };
+        })
+        .collect(Collectors.toList());
+    }
+
+
+
 
     /**
      * KPI de equipo por sprint:

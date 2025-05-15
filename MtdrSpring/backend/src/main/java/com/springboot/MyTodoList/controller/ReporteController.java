@@ -45,4 +45,16 @@ public class ReporteController {
     public List<Object[]> getTareasPorDesarrollador() {
         return reporteService.getTareasCompletadasPorDesarrollador();
     }
+
+    @GetMapping("/horas-por-sprint")
+    public List<Object[]> getHorasPorSprint() {
+        return reporteService.getHorasTrabajadasPorSprint();
+    }
+
+    @GetMapping("/horas-por-developer")
+    public List<Object[]> getHorasPorDeveloper() {
+        return reporteService.getHorasPorDeveloperPorSprint();
+    }
+
+
 }

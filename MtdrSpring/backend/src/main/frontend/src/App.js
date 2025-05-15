@@ -313,6 +313,10 @@ import Moment from 'react-moment';
 import Calendar from './components/Calendar';
 import ProductividadGrafico from './components/ProductividadGrafico';
 import GraficoPastel from './components/GraficoPastel';
+import HorasPorSprintGrafico from './components/HorasPorSprintGrafico';
+import { API_HORAS_SPRINT } from "./API_Reportes";
+import HorasPorDeveloperGrafico from "./components/HorasPorDeveloperGrafico";
+import { API_HORAS_DEVELOPER } from "./API_Reportes";
 import './index.css';
 
 function App() {
@@ -325,6 +329,8 @@ function App() {
   const [datosBarras,        setDatosBarras]        = useState({});
   const [datosPastel,        setDatosPastel]        = useState({});
   const [sprintSeleccionado, setSprintSeleccionado] = useState(null);
+  const [datosHorasSprint, setDatosHorasSprint] = useState([]);
+  const [datosHorasDeveloper, setDatosHorasDeveloper] = useState([]);
 
   // Usuario simulado
   const user = { nombre: 'Test User' };
@@ -372,6 +378,17 @@ function App() {
         setDatosPastel(sprints);
       })
       .catch(console.error);
+    
+    fetch(API_HORAS_SPRINT)
+      .then(res => res.json())
+      .then(data => setDatosHorasSprint(data))
+      .catch(console.error);
+
+    fetch(API_HORAS_DEVELOPER)
+      .then(res => res.json())
+      .then(data => setDatosHorasDeveloper(data))
+      .catch(console.error);
+
   }, []);
 
   return (
@@ -436,6 +453,15 @@ function App() {
             <GraficoPastel datos={datosPastel[sprintSeleccionado]} />
           </div>
         )}
+
+      <h2 style={{ textAlign: "center", marginTop: 20 }}>
+      </h2>
+      <HorasPorSprintGrafico datos={datosHorasSprint} />
+
+      <h2 style={{ textAlign: "center", marginTop: 20 }}>
+      </h2>
+      <HorasPorDeveloperGrafico datos={datosHorasDeveloper} />
+
 
       {/* 5. Calendario */}
       <Calendar />

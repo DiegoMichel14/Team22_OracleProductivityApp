@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,6 +60,7 @@ public class DeveloperController {
 
 
     // Obtener un developer por teléfono y contraseña
+    @CrossOrigin(origins = "*")
     @GetMapping(value = "/login")
     public ResponseEntity<Developer> login(@RequestParam String telefono, @RequestParam String contrasena) {
         Developer developer = developerService.findByTelefonoAndContrasena(telefono, contrasena);
