@@ -229,6 +229,7 @@ public Map<Long, TaskCreationState> getPendingTaskCreations() {
 					row.add(BotLabels.COMPLETE_TASK.getLabel());
 					row.add(BotLabels.AGREGAR_TAREA.getLabel());
 					keyboard.add(row);
+					row.add(BotLabels.LIST_P_TASKS.getLabel());
 
 					// Set the keyboard
 					keyboardMarkup.setKeyboard(keyboard);
@@ -488,16 +489,21 @@ public Map<Long, TaskCreationState> getPendingTaskCreations() {
 			////////////TAREAS COMPLETADAS POR SPRINT Y QUIER LAS COMPLETO//////
 
 else if (messageTextFromTelegram.equals(BotLabels.LIST_COMPLETED_TASKS.getLabel())) {
-    // Obtener el último sprint
+    // Obtener el último sprint por fecha de inicio (o fecha de fin si es más adecuado)
     List<Sprint> sprints = sprintService.findAll();
     if (sprints.isEmpty()) {
         BotHelper.sendMessageToTelegram(chatId, "No hay sprints registrados.", this);
         return;
     }
-    int ultimoSprintId = sprints.stream()
-            .mapToInt(Sprint::getIdSprint)
-            .max()
-            .getAsInt();
+    Sprint ultimoSprint = sprints.stream()
+            .max(java.util.Comparator.comparing(Sprint::getFechaInicio)) // Usa getFechaFin si es más adecuado
+            .orElse(null);
+
+    if (ultimoSprint == null) {
+        BotHelper.sendMessageToTelegram(chatId, "No hay sprints registrados.", this);
+        return;
+    }
+    int ultimoSprintId = ultimoSprint.getIdSprint();
 
     // Obtener todas las tareas del último sprint
     List<Tarea> todasTareas = tareaService.findAll();
@@ -548,6 +554,10 @@ else if (messageTextFromTelegram.equals(BotLabels.LIST_COMPLETED_TASKS.getLabel(
     }
     return;
 }
+
+
+////////////TAREAS PENDEINTES POR SPRINT Y QUIER LAS TIENE ASIGANDAS//////
+
 
 // ...existing code...
 			/////////////////////////////////////////////////

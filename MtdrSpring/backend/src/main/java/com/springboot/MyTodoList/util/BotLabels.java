@@ -16,7 +16,8 @@ public enum BotLabels {
 	DELETE("DELETE"),
 	MY_TODO_LIST("MY TODO LIST"),
 	DASH("-"),
-	LIST_COMPLETED_TASKS("tareas completadas en sprint"),;
+	LIST_COMPLETED_TASKS("tareas completadas en sprint"),
+	LIST_P_TASKS("tareas Pendientes en sprint");
 	
 
 
