@@ -1,6 +1,7 @@
 package com.springboot.MyTodoList.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -10,25 +11,12 @@ import org.springframework.stereotype.Service;
 
 import com.springboot.MyTodoList.repository.SprintRepository;
 import com.springboot.MyTodoList.repository.TareaDeveloperRepository;
-<<<<<<< HEAD
-import com.springboot.MyTodoList.model.TareaDeveloper;
-import com.springboot.MyTodoList.model.Estado;
-import com.springboot.MyTodoList.repository.EstadoRepository;
-import java.util.concurrent.atomic.AtomicReference;
-
-=======
->>>>>>> Metricas-Vistas
 
 @Service
 public class ReporteService {
 
     @Autowired
     private SprintRepository sprintRepository;
-    @Autowired
-    private TareaDeveloperRepository tareaDeveloperRepository;
-    @Autowired
-    private EstadoRepository estadoRepository; 
-
 
     @Autowired
     private TareaDeveloperRepository tareaDeveloperRepository;
@@ -48,126 +36,68 @@ public class ReporteService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Horas trabajadas por sprint
+     */
     public List<Object[]> getHorasTrabajadasPorSprint() {
-    return sprintRepository.findAll().stream()
-        .map(sprint -> new Object[]{
-            sprint.getNombre(),
-            sprint.getTareas().stream()
-                .mapToDouble(t -> t.getHorasReales() != null ? t.getHorasReales() : 0)
-                .sum()
-        })
-        .collect(Collectors.toList());
+        return sprintRepository.findAll().stream()
+            .map(sprint -> new Object[]{
+                sprint.getNombre(),
+                Optional.ofNullable(sprint.getTareas())
+                    .orElse(List.of())
+                    .stream()
+                    .mapToDouble(t -> Optional.ofNullable(t.getHorasReales()).orElse(0.0))
+                    .sum()
+            })
+            .collect(Collectors.toList());
     }
-
-    public List<Object[]> getHorasPorDeveloperPorSprint() {
-    return tareaDeveloperRepository.findAll().stream()
-        .collect(Collectors.groupingBy(
-            td -> td.getTarea().getSprint().getNombre() + "-" + td.getDeveloper().getNombre(), // Concatenación como clave
-            Collectors.summingDouble(td -> Optional.ofNullable(td.getTarea().getHorasReales()).orElse(0.0))
-        ))
-        .entrySet().stream()
-        .map(entry -> {
-            String[] claveDividida = entry.getKey().split("-", 2); // Separar Sprint y Developer
-            return new Object[]{ claveDividida[0], claveDividida[1], entry.getValue() };
-        })
-        .collect(Collectors.toList());
-    }
-
-
-
 
     /**
-     * KPI de equipo por sprint:
-     * [ sprint, sumaHorasEstimadas, sumaHorasReales, numTareas, costoTotal, productividad, %aumento ]
+     * Horas trabajadas por developer en cada sprint
+     */
+    public List<Object[]> getHorasPorDeveloperPorSprint() {
+        return tareaDeveloperRepository.findAll().stream()
+            .collect(Collectors.groupingBy(
+                td -> Map.entry(td.getTarea().getSprint().getNombre(), td.getDeveloper().getNombre()), // Clave más segura
+                Collectors.summingDouble(td -> Optional.ofNullable(td.getTarea().getHorasReales()).orElse(0.0))
+            ))
+            .entrySet().stream()
+            .map(entry -> new Object[]{ entry.getKey().getKey(), entry.getKey().getValue(), entry.getValue() })
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * KPI de equipo por sprint
      */
     public List<Object[]> getKPIEquipoPorSprint() {
         double costoPorHora = 25.0;
         AtomicReference<Double> productividadInicial = new AtomicReference<>(0.0);
 
         return sprintRepository.findAll().stream()
-<<<<<<< HEAD
-            .sorted((s1, s2) -> s1.getNombre().compareTo(s2.getNombre())) // Ordenar los sprints
-            .map(sprint -> {
-                long tareasCompletadas = sprint.getTareas().stream()
-                    .filter(t -> t.getEstado() != null && t.getEstado().getEstado().equalsIgnoreCase("Completada"))
-                    .count();
-
-                double horasReales = sprint.getTareas().stream()
-                    .mapToDouble(t -> t.getHorasReales() != null ? t.getHorasReales() : 0).sum();
-
-                // Nueva productividad
-                double nuevaProductividad = tareasCompletadas > 0 ? tareasCompletadas / horasReales : 0;
-
-                // Cálculo del aumento de productividad
-                double aumentoProductividad = productividadInicial.get() > 0
-                    ? ((nuevaProductividad - productividadInicial.get()) / productividadInicial.get()) * 100
-                    : 0;
-
-                // Actualizar productividad inicial para el siguiente sprint
-=======
             .sorted((s1, s2) -> s1.getNombre().compareTo(s2.getNombre()))
             .map(sprint -> {
                 long tareasCompletadas = sprint.getTareas().stream()
-                    .filter(t -> t.getEstado() != null 
-                              && "Completada".equalsIgnoreCase(t.getEstado().getEstado()))
+                    .filter(t -> t.getEstado() != null && "Completada".equalsIgnoreCase(t.getEstado().getEstado()))
                     .count();
+
                 double horasEstimadas = sprint.getTareas().stream()
-                    .mapToDouble(t -> t.getHorasEstimadas() != null ? t.getHorasEstimadas() : 0)
-                    .sum();
-                double horasReales = sprint.getTareas().stream()
-                    .mapToDouble(t -> t.getHorasReales() != null ? t.getHorasReales() : 0)
-                    .sum();
-                double costoTotal = sprint.getTareas().stream()
-                    .mapToDouble(t -> t.getHorasReales() != null 
-                                    ? t.getHorasReales() * costoPorHora 
-                                    : 0)
+                    .mapToDouble(t -> Optional.ofNullable(t.getHorasEstimadas()).orElse(0.0))
                     .sum();
 
-                double nuevaProductividad = tareasCompletadas > 0 
-                    ? tareasCompletadas / horasReales 
-                    : 0;
+                double horasReales = sprint.getTareas().stream()
+                    .mapToDouble(t -> Optional.ofNullable(t.getHorasReales()).orElse(0.0))
+                    .sum();
+
+                double costoTotal = horasReales * costoPorHora;
+
+                double nuevaProductividad = horasReales > 0 ? tareasCompletadas / horasReales : 0;
                 double aumentoProductividad = productividadInicial.get() > 0
-                    ? ((nuevaProductividad - productividadInicial.get())
-                       / productividadInicial.get()) * 100
+                    ? ((nuevaProductividad - productividadInicial.get()) / productividadInicial.get()) * 100
                     : 0;
->>>>>>> Metricas-Vistas
                 productividadInicial.set(nuevaProductividad);
 
                 return new Object[]{
                     sprint.getNombre(),
-<<<<<<< HEAD
-                    sprint.getTareas().stream()
-                        .mapToDouble(t -> t.getHorasEstimadas() != null ? t.getHorasEstimadas() : 0).sum(),
-                    horasReales,
-                    tareasCompletadas,
-                    sprint.getTareas().stream()
-                        .mapToDouble(t -> t.getHorasReales() != null ? t.getHorasReales() * costoPorHora : 0).sum(),
-                    nuevaProductividad,
-                    aumentoProductividad
-                };
-            })
-            .collect(Collectors.toList());
-    }
-
-
-
-    
-    public List<Object[]> getTareasCompletadasPorDesarrollador() {
-        return tareaDeveloperRepository.findAll().stream()
-            .filter(td -> td.getTarea().getEstado() != null && td.getTarea().getEstado().getEstado().equalsIgnoreCase("Completada")) // Filtra tareas completadas
-            .collect(Collectors.groupingBy(td -> td.getTarea().getSprint().getNombre() + "-" + td.getDeveloper().getNombre(), Collectors.counting())) // Agrupa por Sprint y Desarrollador
-            .entrySet().stream()
-            .map(entry -> {
-                String[] sprintDev = entry.getKey().split("-"); // Separar Sprint y Developer
-                return new Object[]{ sprintDev[0], sprintDev[1], entry.getValue() };
-            })
-            .collect(Collectors.toList());
-    }
-    
-
-
-    
-=======
                     horasEstimadas,
                     horasReales,
                     tareasCompletadas,
@@ -178,39 +108,31 @@ public class ReporteService {
             })
             .collect(Collectors.toList());
     }
->>>>>>> Metricas-Vistas
 
     /**
-     * Tareas completadas agrupadas por sprint y desarrollador.
-     * Cada Object[] = [ sprint, developer, count ]
+     * Tareas completadas agrupadas por sprint y desarrollador
      */
     public List<Object[]> getTareasCompletadasPorDesarrollador() {
         return tareaDeveloperRepository.findAll().stream()
             .filter(td -> td.getTarea().getEstado() != null 
                        && "Completada".equalsIgnoreCase(td.getTarea().getEstado().getEstado()))
             .collect(Collectors.groupingBy(
-                td -> td.getTarea().getSprint().getNombre()
-                     + "-" + td.getDeveloper().getNombre(),
+                td -> Map.entry(td.getTarea().getSprint().getNombre(), td.getDeveloper().getNombre()),
                 Collectors.counting()
             ))
             .entrySet().stream()
-            .map(entry -> {
-                String[] parts = entry.getKey().split("-", 2);
-                return new Object[]{ parts[0], parts[1], entry.getValue() };
-            })
+            .map(entry -> new Object[]{ entry.getKey().getKey(), entry.getKey().getValue(), entry.getValue() })
             .collect(Collectors.toList());
     }
 
     /**
-     * Cálculo de costo total de desarrollo.
+     * Cálculo de costo total de desarrollo
      */
     public double calcularCostoDesarrollo() {
         double costoPorHora = 25.0;
         return sprintRepository.findAll().stream()
             .flatMap(sprint -> sprint.getTareas().stream())
-            .mapToDouble(t -> t.getHorasReales() != null 
-                            ? t.getHorasReales() * costoPorHora 
-                            : 0)
+            .mapToDouble(t -> Optional.ofNullable(t.getHorasReales()).orElse(0.0) * costoPorHora)
             .sum();
     }
 }

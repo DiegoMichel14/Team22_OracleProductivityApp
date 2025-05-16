@@ -3,7 +3,9 @@ package com.springboot.MyTodoList.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.springboot.MyTodoList.service.ReporteService;
 
@@ -38,21 +40,14 @@ public class ReporteController {
         return reporteService.calcularCostoDesarrollo();
     }
 
-<<<<<<< HEAD
-    @GetMapping("/reportes/tareas-por-desarrollador")
-=======
     /**
      * GET /reportes/tareas-por-desarrollador
      */
     @GetMapping("/tareas-por-desarrollador")
->>>>>>> Metricas-Vistas
     public List<Object[]> getTareasPorDesarrollador() {
         return reporteService.getTareasCompletadasPorDesarrollador();
     }
 
-<<<<<<< HEAD
-}
-=======
     @GetMapping("/horas-por-sprint")
     public List<Object[]> getHorasPorSprint() {
         return reporteService.getHorasTrabajadasPorSprint();
@@ -65,4 +60,3 @@ public class ReporteController {
 
 
 }
->>>>>>> Metricas-Vistas

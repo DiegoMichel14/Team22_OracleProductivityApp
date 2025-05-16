@@ -4,11 +4,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-<<<<<<< HEAD
-import java.time.LocalDate;
-=======
 import com.fasterxml.jackson.annotation.JsonManagedReference;
->>>>>>> Metricas-Vistas
 
 @Entity
 @Table(name = "TAREA")
@@ -39,17 +35,6 @@ public class Tarea {
     @JsonBackReference
     private Sprint sprint;
 
-<<<<<<< HEAD
-    @OneToOne(mappedBy = "tarea") // Relación con Estado
-    private Estado estado;
-
-    // Constructor vacío
-    public Tarea() {}
-
-    // Constructor completo
-    public Tarea(Integer idTarea, String nombreTarea, LocalDate fechaRegistro, LocalDate fechaFin,
-                 Double horasEstimadas, Double horasReales, Sprint sprint, Estado estado) {
-=======
     @OneToOne(mappedBy = "tarea", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Estado estado;
@@ -65,7 +50,6 @@ public class Tarea {
                  Double horasReales,
                  Sprint sprint,
                  Estado estado) {
->>>>>>> Metricas-Vistas
         this.idTarea = idTarea;
         this.nombreTarea = nombreTarea;
         this.fechaRegistro = fechaRegistro;
@@ -149,11 +133,6 @@ public class Tarea {
                 ", fechaFin=" + fechaFin +
                 ", horasEstimadas=" + horasEstimadas +
                 ", horasReales=" + horasReales +
-<<<<<<< HEAD
-                ", sprint=" + sprint +
-                ", estado=" + (estado != null ? estado.getEstado() : "Sin estado") +
-=======
->>>>>>> Metricas-Vistas
                 '}';
     }
 }
