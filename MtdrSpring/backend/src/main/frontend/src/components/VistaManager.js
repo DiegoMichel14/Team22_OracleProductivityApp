@@ -23,6 +23,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Layout from './Layout';
 import '../styles/Dashboard.css';
+import HorasPorSprintGrafico from './HorasPorSprintGrafico';
 
 function VistaManager() {
   const navigate = useNavigate();
@@ -269,6 +270,14 @@ function VistaManager() {
                 </Table>
               )}
             </TableContainer>
+          </CardContent>
+        </Card>
+
+        {/* New Section: Horas Por Sprint Grafico */}
+        <Card sx={{ width: '100%', boxShadow: 2, mb: 4, maxWidth: '800px', mx: 'auto' }}>
+          <CardContent sx={{ width: '100%', padding: 3 }}>
+            <Typography variant={isMobile ? "h6" : "h5"} gutterBottom>Horas Por Sprint</Typography>
+            <HorasPorSprintGrafico />
           </CardContent>
         </Card>
 
