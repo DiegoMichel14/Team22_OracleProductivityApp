@@ -129,6 +129,31 @@ function App() {
                   Welcome to the Oracle Productivity App Dashboard. Use the sidebar for navigation or these quick links.
                 </Typography>
               </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => navigate('/developer')}
+                  >
+                    Developer View
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => navigate('/manager')}
+                  >
+                    Manager View
+                  </Button>
+                  <Button
+                    variant="contained"
+                    sx={{ backgroundColor: '#2196f3', color: 'white' }}
+                    onClick={() => navigate('/reports')}
+                  >
+                    Analytics Dashboard
+                  </Button>
+                </Box>
+              </Grid>
             </Grid>
           </CardContent>
         </Card>

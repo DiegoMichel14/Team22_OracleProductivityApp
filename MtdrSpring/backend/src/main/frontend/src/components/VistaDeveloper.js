@@ -456,7 +456,7 @@ function VistaDeveloper() {
           </Card>
         )}
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 'auto', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 'auto', mb: 2, gap: 2 }}>
           <Button 
             variant="contained" 
             color="primary"
@@ -467,6 +467,19 @@ function VistaDeveloper() {
             }}
           >
             VOLVER A LA PÁGINA PRINCIPAL
+          </Button>
+          <Button 
+            variant="contained" 
+            sx={{ 
+              px: { xs: 2, sm: 3 },
+              py: { xs: 1, sm: 1.5 },
+              backgroundColor: '#2196f3',
+              color: 'white',
+              '&:hover': { backgroundColor: '#1976d2' }
+            }}
+            onClick={() => navigate('/reports')} 
+          >
+            VER ANALYTICS DASHBOARD
           </Button>
         </Box>
       </Box>
