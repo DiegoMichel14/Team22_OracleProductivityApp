@@ -1,14 +1,43 @@
-import React, { useEffect, useRef, useState } from "react";
-// Import removed as we're using mock data now
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+  LabelList
+} from 'recharts';
 
 function HorasPorDeveloperGrafico({ datos: propDatos }) {
-  const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
+  const [selectedDeveloper, setSelectedDeveloper] = useState(null);
+
+  // Define color palette for different developers
+  const COLORS = useMemo(() => [
+    '#4dabf5', // blue
+    '#ff7e67', // red
+    '#66bb6a', // green
+    '#9575cd', // purple
+    '#ffb74d', // orange
+    '#4fc3f7', // light blue
+    '#81c784', // light green
+    '#ba68c8'  // light purple
+  ], []);
 
   useEffect(() => {
     // If props are provided, use them instead of fetching
     if (propDatos && propDatos.length > 0) {
-      setDatos(propDatos);
+      // Transform the data to the format required by Recharts
+      const formattedData = propDatos.map((item, index) => ({
+        nombre: item[0],
+        horas: item[1],
+        color: COLORS[index % COLORS.length]
+      }));
+      setDatos(formattedData);
       return;
     }
     
@@ -17,7 +46,12 @@ function HorasPorDeveloperGrafico({ datos: propDatos }) {
       .then(response => response.json())
       .then(data => {
         if (data && data.horasDeveloper) {
-          setDatos(data.horasDeveloper);
+          const formattedData = data.horasDeveloper.map((item, index) => ({
+            nombre: item[0],
+            horas: item[1],
+            color: COLORS[index % COLORS.length]
+          }));
+          setDatos(formattedData);
         } else {
           console.error("Mock data format incorrect");
         }
@@ -26,108 +60,138 @@ function HorasPorDeveloperGrafico({ datos: propDatos }) {
         console.error("Error loading mock data:", error);
         // Fallback to static data if even mock data fails
         setDatos([
-          ["Juan", 15],
-          ["Ana", 20],
-          ["Diego", 12],
-          ["Carlos", 18]
+          { nombre: "Diego", horas: 8, color: COLORS[0] },
+          { nombre: "Adair", horas: 10, color: COLORS[1] },
+          { nombre: "Omar", horas: 5, color: COLORS[2] },
+          { nombre: "Oswaldo", horas: 3, color: COLORS[3] },
+          { nombre: "Salvador", horas: 0, color: COLORS[4] },
         ]);
       });
-  }, [propDatos]);
+  }, [propDatos, COLORS]);
 
-  useEffect(() => {
-    // Safety check for datos
-    if (!datos || !Array.isArray(datos) || datos.length === 0) {
-      console.log("No data available for HorasPorDeveloperGrafico");
-      return;
+  // Custom tooltip component
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div 
+          className="custom-tooltip" 
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            padding: '10px 14px',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          <p className="label" style={{ 
+            margin: '0 0 5px', 
+            fontWeight: 'bold',
+            fontSize: '14px',
+            color: '#333' 
+          }}>
+            {`${payload[0].payload.nombre}`}
+          </p>
+          <p className="value" style={{ 
+            margin: '0', 
+            fontSize: '13px',
+            color: payload[0].color 
+          }}>
+            {`Horas trabajadas: ${payload[0].value}`}
+          </p>
+        </div>
+      );
     }
+    return null;
+  };
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const chartWidth = canvas.width;
-    const chartHeight = canvas.height;
-    const padding = 80;
-    const axisYMax = Math.max(...datos.map(d => d[1])) + 5; // Dynamically set based on max value
-    const numLines = 10;
-
-    const barWidth = 50;
-    const gap = 40;
-    const maxBarHeight = chartHeight - padding * 2;
-    const barSpacing = barWidth + gap;
-
-    // Dibujar fondo blanco con bordes redondeados y sombra
-    ctx.fillStyle = "#fff";
-    ctx.shadowColor = "rgba(0,0,0,0.2)";
-    ctx.shadowBlur = 10;
-    ctx.fillRect(20, 20, chartWidth - 40, chartHeight - 40);
-    ctx.shadowBlur = 0;
-
-    // Título
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 24px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Horas Trabajadas por Desarrollador", chartWidth / 2, 60);
-
-    // Líneas de guía
-    ctx.strokeStyle = "#eee";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i = 0; i <= numLines; i++) {
-      const y = padding + (i * maxBarHeight) / numLines;
-      ctx.moveTo(padding, y);
-      ctx.lineTo(chartWidth - padding, y);
-      ctx.fillStyle = "#666";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "right";
-      ctx.fillText(`${axisYMax - (i * axisYMax) / numLines}`, padding - 10, y + 5);
+  const handleBarClick = (data) => {
+    if (selectedDeveloper === data.nombre) {
+      setSelectedDeveloper(null);
+    } else {
+      setSelectedDeveloper(data.nombre);
     }
-    ctx.stroke();
-
-    // Dibujar barras
-    datos.forEach((d, i) => {
-      const [label, value] = d;
-      const x = padding + i * barSpacing + 40;
-      const barHeight = (value / axisYMax) * maxBarHeight;
-      const y = chartHeight - padding - barHeight;
-
-      ctx.fillStyle = "rgba(75, 192, 192, 0.6)";
-      ctx.fillRect(x, y, barWidth, barHeight);
-
-      // Etiqueta valor
-      ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(`${value}`, x + barWidth / 2, y - 10);
-
-      // Etiqueta developer (nombre)
-      ctx.fillStyle = "#000";
-      ctx.font = "12px Arial";
-      ctx.fillText(label, x + barWidth / 2, chartHeight - padding + 20);
-    });
-
-    // Leyenda
-    ctx.fillStyle = "rgba(75, 192, 192, 0.6)";
-    ctx.fillRect(chartWidth / 2 - 60, 90, 20, 20);
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Horas invertidas", chartWidth / 2 - 30, 105);
-  }, [datos]);
+  };
 
   return (
     <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      width: "100%", 
-      margin: "auto", 
-      backgroundColor: "#f9f9f9", 
-      padding: "20px", 
-      borderRadius: "16px", 
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" 
+      width: '100%', 
+      height: 400,
+      backgroundColor: '#f9f9f9', 
+      padding: '20px', 
+      borderRadius: '16px', 
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
     }}>
-      <canvas ref={canvasRef} width={800} height={400} />
+      <h3 style={{ 
+        textAlign: 'center', 
+        marginBottom: '20px',
+        color: '#333',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Horas trabajadas por sprint por desarrollador
+      </h3>
+      
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart
+          data={datos}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 20,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+          <XAxis 
+            dataKey="nombre" 
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666', fontSize: 14 }}
+            dy={10}
+          />
+          <YAxis 
+            label={{ 
+              value: 'Horas', 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fill: '#666' }
+            }}
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666' }}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(180, 180, 180, 0.1)' }} />
+          <Legend 
+            wrapperStyle={{ paddingTop: '10px' }}
+            formatter={() => <span style={{ color: '#666', fontSize: 14 }}>Horas trabajadas</span>}
+          />
+          <Bar 
+            dataKey="horas"
+            name="Horas trabajadas" 
+            animationDuration={1500}
+            animationEasing="ease-out"
+            onClick={handleBarClick}
+            className="cursor-pointer"
+          >
+            <LabelList 
+              dataKey="horas" 
+              position="top" 
+              style={{ fill: '#666', fontSize: 12, fontWeight: 'bold' }} 
+            />
+            
+            {datos.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`}
+                fill={selectedDeveloper === entry.nombre 
+                  ? '#303f9f' // highlight color when selected
+                  : entry.color}
+                cursor="pointer"
+                stroke={selectedDeveloper === entry.nombre ? '#1a237e' : entry.color}
+                strokeWidth={selectedDeveloper === entry.nombre ? 2 : 0}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

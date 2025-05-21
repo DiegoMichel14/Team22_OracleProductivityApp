@@ -50,17 +50,39 @@ function HorasPorSprintGrafico() {
 export default HorasPorSprintGrafico;
 */
 
-import React, { useEffect, useRef, useState } from "react";
-// Import removed as we're using mock data now
+import React, { useState, useEffect } from "react";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 
 function HorasPorSprintGrafico({ datos: propDatos }) {
-  const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
+  const [hoveredBar, setHoveredBar] = useState(null);
+
+  // Colors for gradient effects
+  const gradientColors = {
+    primary: '#6a75ca',
+    secondary: '#8e95d3',
+    highlight: '#4b56c2'
+  };
 
   useEffect(() => {
     // If props are provided, use them instead of fetching
     if (propDatos && propDatos.length > 0) {
-      setDatos(propDatos);
+      // Transform the data to the format required by Recharts
+      const formattedData = propDatos.map(item => ({
+        name: item[0],
+        horas: item[1]
+      }));
+      setDatos(formattedData);
       return;
     }
     
@@ -69,7 +91,11 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
       .then(response => response.json())
       .then(data => {
         if (data && data.horasSprint) {
-          setDatos(data.horasSprint);
+          const formattedData = data.horasSprint.map(item => ({
+            name: item[0],
+            horas: item[1]
+          }));
+          setDatos(formattedData);
         } else {
           console.error("Mock data format incorrect");
         }
@@ -78,108 +104,115 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
         console.error("Error loading mock data:", error);
         // Fallback to static data if even mock data fails
         setDatos([
-          ["Sprint 1", 20],
-          ["Sprint 2", 30],
-          ["Sprint 3", 15],
-          ["Sprint 4", 25]
+          { name: "Sprint 1", horas: 36 },
+          { name: "Sprint 3", horas: 19 },
+          { name: "Sprint 2", horas: 21 }
         ]);
       });
   }, [propDatos]);
 
-  useEffect(() => {
-    // Safety check for datos
-    if (!datos || !Array.isArray(datos) || datos.length === 0) {
-      console.log("No data available for HorasPorSprintGrafico");
-      return;
+  // Custom tooltip component to enhance appearance
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip" style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          padding: '8px 12px',
+          border: '1px solid #ddd',
+          borderRadius: '6px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
+        }}>
+          <p className="label" style={{ margin: '0 0 5px', fontWeight: 'bold', color: '#333' }}>
+            {`${label}`}
+          </p>
+          <p className="value" style={{ margin: '0', color: '#666' }}>
+            {`Horas invertidas: ${payload[0].value}`}
+          </p>
+        </div>
+      );
     }
+    return null;
+  };
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const handleBarMouseOver = (data, index) => {
+    setHoveredBar(index);
+  };
 
-    const chartWidth = canvas.width;
-    const chartHeight = canvas.height;
-    const padding = 80;
-    const axisYMax = 50;
-    const numLines = 10;
-
-    const barWidth = 50;
-    const gap = 40;
-    const maxBarHeight = chartHeight - padding * 2;
-    const barSpacing = barWidth + gap;
-
-    // Dibujar fondo blanco con bordes redondeados y sombra
-    ctx.fillStyle = "#fff";
-    ctx.shadowColor = "rgba(0,0,0,0.2)";
-    ctx.shadowBlur = 10;
-    ctx.fillRect(20, 20, chartWidth - 40, chartHeight - 40);
-    ctx.shadowBlur = 0;
-
-    // Título
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 24px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Horas Trabajadas por Sprint", chartWidth / 2, 60);
-
-    // Líneas de guía
-    ctx.strokeStyle = "#eee";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i = 0; i <= numLines; i++) {
-      const y = padding + (i * maxBarHeight) / numLines;
-      ctx.moveTo(padding, y);
-      ctx.lineTo(chartWidth - padding, y);
-      ctx.fillStyle = "#666";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "right";
-      ctx.fillText(`${axisYMax - (i * axisYMax) / numLines}`, padding - 10, y + 5);
-    }
-    ctx.stroke();
-
-    // Dibujar barras
-    datos.forEach((d, i) => {
-      const [label, value] = d;
-      const x = padding + i * barSpacing + 40;
-      const barHeight = (value / axisYMax) * maxBarHeight;
-      const y = chartHeight - padding - barHeight;
-
-      ctx.fillStyle = "rgba(153, 102, 255, 0.5)";
-      ctx.fillRect(x, y, barWidth, barHeight);
-
-      // Etiqueta valor
-      ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(`${value}`, x + barWidth / 2, y - 10);
-
-      // Etiqueta sprint
-      ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
-      ctx.fillText(label, x + barWidth / 2, chartHeight - padding + 20);
-    });
-
-    // Leyenda
-    ctx.fillStyle = "rgba(153, 102, 255, 0.5)";
-    ctx.fillRect(chartWidth / 2 - 60, 90, 20, 20);
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Horas invertidas", chartWidth / 2 - 30, 105);
-  }, [datos]);
+  const handleBarMouseLeave = () => {
+    setHoveredBar(null);
+  };
 
   return (
     <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      width: "100%", 
-      margin: "auto", 
-      backgroundColor: "#f9f9f9", 
-      padding: "20px", 
-      borderRadius: "16px", 
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" 
+      width: '100%', 
+      height: 400,
+      backgroundColor: '#f9f9f9', 
+      padding: '20px', 
+      borderRadius: '16px', 
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
     }}>
-      <canvas ref={canvasRef} width={800} height={400} />
+      <h3 style={{ 
+        textAlign: 'center', 
+        marginBottom: '20px',
+        color: '#333',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Horas Trabajadas por Sprint
+      </h3>
+      
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart
+          data={datos}
+          margin={{
+            top: 20,
+            right: 30,
+            left: 20,
+            bottom: 20,
+          }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis 
+            dataKey="name" 
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666', fontSize: 14 }}
+            dy={10}
+          />
+          <YAxis 
+            label={{ 
+              value: 'Horas', 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fill: '#666' }
+            }}
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666' }}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(180, 180, 180, 0.1)' }} />
+          <Legend 
+            wrapperStyle={{ paddingTop: '10px' }}
+            formatter={(value) => <span style={{ color: '#666', fontSize: 14 }}>Horas invertidas</span>}
+          />
+          <Bar 
+            dataKey="horas"
+            name="Horas invertidas" 
+            fill={gradientColors.primary}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            onMouseOver={handleBarMouseOver}
+            onMouseLeave={handleBarMouseLeave}
+          >
+            {datos.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`}
+                fill={hoveredBar === index ? gradientColors.highlight : gradientColors.primary} 
+                cursor="pointer"
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
