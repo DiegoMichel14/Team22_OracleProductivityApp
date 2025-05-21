@@ -1,59 +1,7 @@
-/*import React, { useEffect, useRef, useState } from "react";
-import { API_HORAS_SPRINT } from "../API_Reportes";
-
-function HorasPorSprintGrafico() {
-  const canvasRef = useRef(null);
-  const [datos, setDatos] = useState([]);
-
-  useEffect(() => {
-    fetch(API_HORAS_SPRINT)
-      .then(response => response.json())
-      .then(data => setDatos(data))
-      .catch(error => console.error("Error:", error));
-  }, []);
-
-  useEffect(() => {
-    if (datos.length === 0) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const anchoBarra = 60;
-    const separacion = 40;
-    const alturaMaxima = 200;
-    const margenIzquierdo = 80;
-
-    const maxHoras = Math.max(...datos.map(d => d[1])) || 1;
-
-    datos.forEach((d, i) => {
-      const xBarra = margenIzquierdo + i * (anchoBarra + separacion);
-      const alturaBarra = (d[1] / maxHoras) * alturaMaxima;
-
-      ctx.fillStyle = "blue";
-      ctx.fillRect(xBarra, alturaMaxima - alturaBarra, anchoBarra, alturaBarra);
-
-      ctx.fillStyle = "white";
-      ctx.font = "16px Arial";
-      ctx.fillText(`${d[1]}h`, xBarra + 10, alturaMaxima - alturaBarra - 10);
-      ctx.fillText(d[0], xBarra, alturaMaxima + 30);
-    });
-  }, [datos]);
-
-  return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", margin: "auto" }}>
-      <canvas ref={canvasRef} width={1200} height={600} style={{ display: "block" }} />
-    </div>
-  );
-}
-
-export default HorasPorSprintGrafico;
-*/
-
 import React, { useEffect, useRef, useState } from "react";
-import { API_HORAS_SPRINT } from "../API_Reportes";
+import { API_HORAS_DEVELOPER } from "../API_Reportes";
 
-function HorasPorSprintGrafico({ datos: propDatos }) {
+function HorasPorDeveloperGrafico({ datos: propDatos }) {
   const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
 
@@ -65,7 +13,7 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
     }
     
     // Otherwise fetch data from API
-    fetch(API_HORAS_SPRINT)
+    fetch(API_HORAS_DEVELOPER)
       .then(response => response.json())
       .then(data => setDatos(data))
       .catch(error => console.error("Error:", error));
@@ -81,7 +29,7 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
     const chartWidth = canvas.width;
     const chartHeight = canvas.height;
     const padding = 80;
-    const axisYMax = 50;
+    const axisYMax = Math.max(...datos.map(d => d[1])) + 5; // Dynamically set based on max value
     const numLines = 10;
 
     const barWidth = 50;
@@ -100,7 +48,7 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
     ctx.fillStyle = "#000";
     ctx.font = "bold 24px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Horas Trabajadas por Sprint", chartWidth / 2, 60);
+    ctx.fillText("Horas Trabajadas por Desarrollador", chartWidth / 2, 60);
 
     // Líneas de guía
     ctx.strokeStyle = "#eee";
@@ -124,7 +72,7 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
       const barHeight = (value / axisYMax) * maxBarHeight;
       const y = chartHeight - padding - barHeight;
 
-      ctx.fillStyle = "rgba(153, 102, 255, 0.5)";
+      ctx.fillStyle = "rgba(75, 192, 192, 0.6)";
       ctx.fillRect(x, y, barWidth, barHeight);
 
       // Etiqueta valor
@@ -133,14 +81,14 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
       ctx.textAlign = "center";
       ctx.fillText(`${value}`, x + barWidth / 2, y - 10);
 
-      // Etiqueta sprint
+      // Etiqueta developer (nombre)
       ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
+      ctx.font = "12px Arial";
       ctx.fillText(label, x + barWidth / 2, chartHeight - padding + 20);
     });
 
     // Leyenda
-    ctx.fillStyle = "rgba(153, 102, 255, 0.5)";
+    ctx.fillStyle = "rgba(75, 192, 192, 0.6)";
     ctx.fillRect(chartWidth / 2 - 60, 90, 20, 20);
     ctx.fillStyle = "#000";
     ctx.font = "14px Arial";
@@ -165,4 +113,4 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
   );
 }
 
-export default HorasPorSprintGrafico;
+export default HorasPorDeveloperGrafico;
