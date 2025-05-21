@@ -35,6 +35,7 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import TimerIcon from '@mui/icons-material/Timer';
 import Layout from './Layout';
+import HorasPorSprintGrafico from './HorasPorSprintGrafico';
 import '../styles/Dashboard.css';
 
 function VistaDeveloper() {
@@ -444,6 +445,16 @@ function VistaDeveloper() {
             </Box>
           </CardContent>
         </Card>
+
+        {/* Add the Sprint Hours Graph below the main dashboard features */}
+        {selectedDeveloper && (
+          <Card sx={{ mb: 4 }}>
+            <CardContent>
+              <Typography variant="h5" gutterBottom>Hours by Sprint</Typography>
+              <HorasPorSprintGrafico />
+            </CardContent>
+          </Card>
+        )}
 
         <Box sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 'auto', mb: 2 }}>
           <Button 
