@@ -1,0 +1,17 @@
+{
+  "mockAPI": true,
+  "horasSprint": [
+    ["Sprint 1", 25],
+    ["Sprint 2", 32],
+    ["Sprint 3", 18],
+    ["Sprint 4", 40],
+    ["Sprint 5", 22]
+  ],
+  "horasDeveloper": [
+    ["Juan", 15],
+    ["Ana", 22],
+    ["Diego", 18],
+    ["Oswaldo", 28],
+    ["Adair", 25]
+  ]
+}

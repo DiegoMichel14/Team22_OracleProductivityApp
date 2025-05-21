@@ -51,7 +51,7 @@ export default HorasPorSprintGrafico;
 */
 
 import React, { useEffect, useRef, useState } from "react";
-import { API_HORAS_SPRINT } from "../API_Reportes";
+// Import removed as we're using mock data now
 
 function HorasPorSprintGrafico({ datos: propDatos }) {
   const canvasRef = useRef(null);
@@ -64,15 +64,34 @@ function HorasPorSprintGrafico({ datos: propDatos }) {
       return;
     }
     
-    // Otherwise fetch data from API
-    fetch(API_HORAS_SPRINT)
+    // Otherwise fetch mock data for development/testing
+    fetch('/mockData.json')
       .then(response => response.json())
-      .then(data => setDatos(data))
-      .catch(error => console.error("Error:", error));
+      .then(data => {
+        if (data && data.horasSprint) {
+          setDatos(data.horasSprint);
+        } else {
+          console.error("Mock data format incorrect");
+        }
+      })
+      .catch(error => {
+        console.error("Error loading mock data:", error);
+        // Fallback to static data if even mock data fails
+        setDatos([
+          ["Sprint 1", 20],
+          ["Sprint 2", 30],
+          ["Sprint 3", 15],
+          ["Sprint 4", 25]
+        ]);
+      });
   }, [propDatos]);
 
   useEffect(() => {
-    if (datos.length === 0) return;
+    // Safety check for datos
+    if (!datos || !Array.isArray(datos) || datos.length === 0) {
+      console.log("No data available for HorasPorSprintGrafico");
+      return;
+    }
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
