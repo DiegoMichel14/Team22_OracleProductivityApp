@@ -6,11 +6,14 @@ failImmediatelyOnError: true
 
 steps:
   - type: Command
-    name: Prepare JDK 11
-    timeoutInSeconds: 600
+    name: Build JAR in Maven container
+    timeoutInSeconds: 4000    
     command: |
-      # Instala Java 11
-      yum install -y java-11-openjdk-devel
+      docker run --rm \
+        -v $(pwd)/MtdrSpring/backend:/workspace \
+        -w /workspace \
+        maven:3.8.7-openjdk-11 \
+        mvn clean package spring-boot:repackage -DskipTests
       
   - type: Command
     name: Build and Push Docker Image
@@ -18,12 +21,8 @@ steps:
     command: |
       cd MtdrSpring/backend
 
-      export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-      export PATH=$JAVA_HOME/bin:$PATH
-
-      mvn clean package spring-boot:repackage -DskipTests
-
       docker build -f Dockerfile \
         -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
         .
+        
       docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
