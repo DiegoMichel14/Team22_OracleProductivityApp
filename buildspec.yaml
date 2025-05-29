@@ -1,9 +1,16 @@
 version: 0.1
 component: build
+timeoutInSeconds: 7200  
 shell: bash
 failImmediatelyOnError: true
 
 steps:
+  - type: Command
+    name: Install Java 11
+    timeoutInSeconds: 600      # 10 minutos
+    command: |
+      yum install -y java-11-openjdk-devel
+      
   - type: Command
     name: Build and Push Docker Image
     timeoutInSeconds: 7500  
