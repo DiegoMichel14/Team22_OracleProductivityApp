@@ -6,9 +6,10 @@ failImmediatelyOnError: true
 
 steps:
   - type: Command
-    name: Install Java 11
-    timeoutInSeconds: 600      # 10 minutos
+    name: Prepare JDK 11
+    timeoutInSeconds: 600
     command: |
+      # Instala Java 11
       yum install -y java-11-openjdk-devel
       
   - type: Command
@@ -16,6 +17,13 @@ steps:
     timeoutInSeconds: 7500  
     command: |
       cd MtdrSpring/backend
+
+      export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+      export PATH=$JAVA_HOME/bin:$PATH
+
       mvn clean package spring-boot:repackage -DskipTests
-      docker build -f Dockerfile -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} .
+
+      docker build -f Dockerfile \
+        -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
+        .
       docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
