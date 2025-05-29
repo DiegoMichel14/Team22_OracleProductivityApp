@@ -9,10 +9,8 @@ steps:
     name: Prepare JDK 11
     timeoutInSeconds: 600
     command: |
-      # Instala Java 11
       yum install -y java-11-openjdk-devel
 
-      # Define JAVA_HOME y fuerza las alternativas
       export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
       alternatives --set java $JAVA_HOME/bin/java
       alternatives --set javac $JAVA_HOME/bin/javac
@@ -22,13 +20,8 @@ steps:
     name: Build and Push Docker Image
     timeoutInSeconds: 3600
     command: |
-      # Muévete al módulo con el pom.xml y el Dockerfile
       cd MtdrSpring/backend
-
-      # Ahora sí Maven usará JDK 11
       mvn clean package spring-boot:repackage -DskipTests
-
-      # Construye y publica la imagen
       docker build -f Dockerfile \
         -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} .
       docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
