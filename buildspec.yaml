@@ -1,28 +1,33 @@
 version: 0.1
 component: build
-timeoutInSeconds: 7200  
+timeoutInSeconds: 7200
 shell: bash
 failImmediatelyOnError: true
 
 steps:
   - type: Command
-    name: Build JAR in Maven container
-    timeoutInSeconds: 4000    
+    name: Prepare JDK 11
+    timeoutInSeconds: 600
     command: |
-      docker run --rm \
-        -v $(pwd)/MtdrSpring/backend:/workspace \
-        -w /workspace \
-        maven:3.8.7-openjdk-11 \
-        mvn clean package spring-boot:repackage -DskipTests
-      
+      # Instala Java 11
+      yum install -y java-11-openjdk-devel
+
   - type: Command
     name: Build and Push Docker Image
-    timeoutInSeconds: 7500  
+    timeoutInSeconds: 3600
     command: |
+      # 1) Apunta a tu módulo
       cd MtdrSpring/backend
 
+      # 2) Fuerza que use el JDK 11
+      export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+      export PATH=$JAVA_HOME/bin:$PATH
+
+      # 3) Empaquetar con Maven (sin tests para ir rápido)
+      mvn clean package spring-boot:repackage -DskipTests
+
+      # 4) Construir y subir la imagen
       docker build -f Dockerfile \
         -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
         .
-        
       docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
