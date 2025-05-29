@@ -1,0 +1,7 @@
+version: 0.1
+
+phases:
+  build:
+    commands:
+      - cd MtdrSpring/backend
+      - mvn clean package spring-boot:repackage
