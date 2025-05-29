@@ -5,5 +5,5 @@ steps:
   - type: Command
     name: Compile backend
     command: |
-      cd backend
+      cd MtdrSpring/backend
       mvn clean package spring-boot:repackage
