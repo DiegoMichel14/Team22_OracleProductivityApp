@@ -1,0 +1,8 @@
+version: 0.1
+
+phases:
+  build:
+    commands:
+      - mvn clean package spring-boot:repackage
+      - docker build -f Dockerfile -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} .
+      - docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
