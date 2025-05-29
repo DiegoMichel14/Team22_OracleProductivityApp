@@ -1,8 +1,10 @@
 version: 0.1
-
-phases:
-  build:
-    commands:
-      - docker build -f Dockerfile \
-          -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
-          .
+component: build
+failImmediatelyOnError: true
+steps:
+  - type: Command
+    name: Docker build
+    command: |
+      docker build -f Dockerfile \
+        -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
+        .
