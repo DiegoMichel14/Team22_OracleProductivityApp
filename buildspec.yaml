@@ -12,22 +12,23 @@ steps:
       # Instala Java 11
       yum install -y java-11-openjdk-devel
 
+      # Define JAVA_HOME y fuerza las alternativas
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk
+      alternatives --set java $JAVA_HOME/bin/java
+      alternatives --set javac $JAVA_HOME/bin/javac
+      export PATH=$JAVA_HOME/bin:$PATH
+
   - type: Command
     name: Build and Push Docker Image
     timeoutInSeconds: 3600
     command: |
-      # 1) Apunta a tu módulo
+      # Muévete al módulo con el pom.xml y el Dockerfile
       cd MtdrSpring/backend
 
-      # 2) Fuerza que use el JDK 11
-      export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
-      export PATH=$JAVA_HOME/bin:$PATH
-
-      # 3) Empaquetar con Maven (sin tests para ir rápido)
+      # Ahora sí Maven usará JDK 11
       mvn clean package spring-boot:repackage -DskipTests
 
-      # 4) Construir y subir la imagen
+      # Construye y publica la imagen
       docker build -f Dockerfile \
-        -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
-        .
+        -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} .
       docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
