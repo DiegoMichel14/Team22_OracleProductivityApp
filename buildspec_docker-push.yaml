@@ -1,6 +1,8 @@
 version: 0.1
-
-phases:
-  build:
-    commands:
-      - docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
+component: build
+failImmediatelyOnError: true
+steps:
+  - type: Command
+    name: Docker push
+    command: |
+      docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
