@@ -1,11 +1,12 @@
 version: 0.1
-component: build     
+component: build
+shell: bash              
+failImmediatelyOnError: true
 
-phases:
-  build:
-    commands:
-      - mvn clean package spring-boot:repackage
-      - docker build -f Dockerfile \
-          -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} \
-          .
-      - docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
+steps:
+  - type: Command
+    name: Build and Push Docker Image
+    command: |
+      mvn clean package spring-boot:repackage
+      docker build -f Dockerfile -t mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag} .
+      docker push mx-queretaro-1.ocir.io/axvteqzybmr1/deploy22_repo:${imageTag}
