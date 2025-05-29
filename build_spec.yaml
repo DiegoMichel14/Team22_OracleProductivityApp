@@ -1,0 +1,53 @@
+version: 0.1
+component: build
+timeoutInSeconds: 6000
+runAs: root
+shell: bash
+
+env:
+  variables:
+    DOCKER_REGISTRY: "mx-queretaro-1.ocir.io"
+    DOCKER_REPO:     "mx-queretaro-1.ocir.io/axvteqzybmr1/team22_repo"
+  exportedVariables:
+    - DOCKER_IMAGE_TAG
+
+steps:
+  - type: Command
+    name: "Install Java 11"
+    command: |
+      apt-get update && apt-get install -y openjdk-11-jdk
+      export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+      java -version
+
+  - type: Command
+    name: "Build Application with Maven"
+    command: |
+      echo "Building full-stack application..."
+      cd MtdrSpring/backend
+      ./mvnw clean package spring-boot:repackage -DskipTests
+      echo "Build completed. JAR file:"
+      ls -la target/
+
+  - type: Command
+    name: "Build Docker Image"
+    command: |
+      cd MtdrSpring/backend
+      export DOCKER_IMAGE_TAG=$(date +%Y%m%d%H%M%S)
+      echo "Building Docker image with tag: $DOCKER_IMAGE_TAG"
+      docker build \
+        -f Dockerfile \
+        -t ${DOCKER_REPO}:${DOCKER_IMAGE_TAG} \
+        -t ${DOCKER_REPO}:latest \
+        .
+
+  - type: Command
+    name: "Push to Container Registry"
+    command: |
+      echo "Pushing to: $DOCKER_REPO:$DOCKER_IMAGE_TAG"
+      docker push ${DOCKER_REPO}:${DOCKER_IMAGE_TAG}
+      docker push ${DOCKER_REPO}:latest
+
+outputArtifacts:
+  - name: docker_image_info
+    type: DOCKER_IMAGE
+    location: ${DOCKER_REPO}:${DOCKER_IMAGE_TAG}
