@@ -6,6 +6,7 @@ failImmediatelyOnError: true
 steps:
   - type: Command
     name: Build and Push Docker Image
+    timeoutInSeconds: 7500  
     command: |
       cd MtdrSpring/backend
       mvn clean package spring-boot:repackage -DskipTests
