@@ -22,7 +22,7 @@ steps:
   - type: Command
     name: "Build Application with Maven"
     command: |
-      echo "Building full-stack application..."
+      echo "Building your full-stack application..."
       cd MtdrSpring/backend
       ./mvnw clean package spring-boot:repackage -DskipTests
       echo "Build completed. JAR file:"
