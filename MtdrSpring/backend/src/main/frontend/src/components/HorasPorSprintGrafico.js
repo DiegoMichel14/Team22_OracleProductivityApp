@@ -1,48 +1,132 @@
-/*import React, { useEffect, useRef, useState } from "react";
+/*import React, { useState, useEffect } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 import { API_HORAS_SPRINT } from "../API_Reportes";
 
 function HorasPorSprintGrafico() {
-  const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
+  const [hoveredBar, setHoveredBar] = useState(null);
+
+  // Colores para los efectos
+  const gradientColors = {
+    primary: '#6a75ca',
+    highlight: '#4b56c2'
+  };
 
   useEffect(() => {
     fetch(API_HORAS_SPRINT)
       .then(response => response.json())
-      .then(data => setDatos(data))
-      .catch(error => console.error("Error:", error));
+      .then(data => {
+        const formattedData = data.map(item => ({
+          name: item[0],
+          horas: item[1]
+        }));
+        setDatos(formattedData);
+      })
+      .catch(error => {
+        console.error("Error al cargar datos del API:", error);
+        // Datos de respaldo
+        setDatos([
+          { name: "Sprint 1", horas: 36 },
+          { name: "Sprint 2", horas: 21 },
+          { name: "Sprint 3", horas: 19 }
+        ]);
+      });
   }, []);
 
-  useEffect(() => {
-    if (datos.length === 0) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const anchoBarra = 60;
-    const separacion = 40;
-    const alturaMaxima = 200;
-    const margenIzquierdo = 80;
-
-    const maxHoras = Math.max(...datos.map(d => d[1])) || 1;
-
-    datos.forEach((d, i) => {
-      const xBarra = margenIzquierdo + i * (anchoBarra + separacion);
-      const alturaBarra = (d[1] / maxHoras) * alturaMaxima;
-
-      ctx.fillStyle = "blue";
-      ctx.fillRect(xBarra, alturaMaxima - alturaBarra, anchoBarra, alturaBarra);
-
-      ctx.fillStyle = "white";
-      ctx.font = "16px Arial";
-      ctx.fillText(`${d[1]}h`, xBarra + 10, alturaMaxima - alturaBarra - 10);
-      ctx.fillText(d[0], xBarra, alturaMaxima + 30);
-    });
-  }, [datos]);
+  // Tooltip personalizado
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          padding: '8px 12px',
+          border: '1px solid #ddd',
+          borderRadius: '6px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+        }}>
+          <p style={{ margin: 0, fontWeight: 'bold', color: '#333' }}>{label}</p>
+          <p style={{ margin: 0, color: '#666' }}>Horas invertidas: {payload[0].value}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", margin: "auto" }}>
-      <canvas ref={canvasRef} width={1200} height={600} style={{ display: "block" }} />
+    <div style={{
+      width: '100%',
+      height: 420,
+      backgroundColor: '#f9f9f9',
+      padding: '20px',
+      borderRadius: '16px',
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
+    }}>
+      <h3 style={{
+        textAlign: 'center',
+        marginBottom: '20px',
+        color: '#333',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Horas Trabajadas por Sprint
+      </h3>
+
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart
+          data={datos}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis 
+            dataKey="name"
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666', fontSize: 14 }}
+            dy={10}
+          />
+          <YAxis 
+            label={{
+              value: 'Horas',
+              angle: -90,
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fill: '#666' }
+            }}
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666' }}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(180, 180, 180, 0.1)' }} />
+          <Legend 
+            formatter={() => <span style={{ color: '#666', fontSize: 14 }}>Horas invertidas</span>}
+          />
+          <Bar
+            dataKey="horas"
+            name="Horas invertidas"
+            fill={gradientColors.primary}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            onMouseOver={(_, index) => setHoveredBar(index)}
+            onMouseLeave={() => setHoveredBar(null)}
+          >
+            {datos.map((_, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={hoveredBar === index ? gradientColors.highlight : gradientColors.primary}
+                cursor="pointer"
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -50,110 +134,140 @@ function HorasPorSprintGrafico() {
 export default HorasPorSprintGrafico;
 */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useEffect } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell
+} from 'recharts';
 import { API_HORAS_SPRINT } from "../API_Reportes";
 
 function HorasPorSprintGrafico() {
-  const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
+  const [hoveredBar, setHoveredBar] = useState(null);
+
+  const gradientColors = {
+    primary: '#6a75ca',
+    highlight: '#4b56c2'
+  };
 
   useEffect(() => {
     fetch(API_HORAS_SPRINT)
       .then(response => response.json())
-      .then(data => setDatos(data))
-      .catch(error => console.error("Error:", error));
+      .then(data => {
+        const formattedData = data
+          .map(item => ({
+            name: item[0],
+            horas: item[1]
+          }))
+          .sort((a, b) => {
+            const numA = parseInt(a.name.replace(/\D/g, ''));
+            const numB = parseInt(b.name.replace(/\D/g, ''));
+            return numA - numB;
+          });
+
+        setDatos(formattedData);
+      })
+      .catch(error => {
+        console.error("Error al cargar datos del API:", error);
+        // Datos de respaldo
+        setDatos([
+          { name: "Sprint 1", horas: 36 },
+          { name: "Sprint 2", horas: 21 },
+          { name: "Sprint 3", horas: 19 }
+        ]);
+      });
   }, []);
 
-  useEffect(() => {
-    if (datos.length === 0) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const chartWidth = canvas.width;
-    const chartHeight = canvas.height;
-    const padding = 80;
-    const axisYMax = 50;
-    const numLines = 10;
-
-    const barWidth = 50;
-    const gap = 40;
-    const maxBarHeight = chartHeight - padding * 2;
-    const barSpacing = barWidth + gap;
-
-    // Dibujar fondo blanco con bordes redondeados y sombra
-    ctx.fillStyle = "#fff";
-    ctx.shadowColor = "rgba(0,0,0,0.2)";
-    ctx.shadowBlur = 10;
-    ctx.fillRect(20, 20, chartWidth - 40, chartHeight - 40);
-    ctx.shadowBlur = 0;
-
-    // Título
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 24px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Horas Trabajadas por Sprint", chartWidth / 2, 60);
-
-    // Líneas de guía
-    ctx.strokeStyle = "#eee";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (let i = 0; i <= numLines; i++) {
-      const y = padding + (i * maxBarHeight) / numLines;
-      ctx.moveTo(padding, y);
-      ctx.lineTo(chartWidth - padding, y);
-      ctx.fillStyle = "#666";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "right";
-      ctx.fillText(`${axisYMax - (i * axisYMax) / numLines}`, padding - 10, y + 5);
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          padding: '8px 12px',
+          border: '1px solid #ddd',
+          borderRadius: '6px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+        }}>
+          <p style={{ margin: 0, fontWeight: 'bold', color: '#333' }}>{label}</p>
+          <p style={{ margin: 0, color: '#666' }}>Horas invertidas: {payload[0].value}</p>
+        </div>
+      );
     }
-    ctx.stroke();
-
-    // Dibujar barras
-    datos.forEach((d, i) => {
-      const [label, value] = d;
-      const x = padding + i * barSpacing + 40;
-      const barHeight = (value / axisYMax) * maxBarHeight;
-      const y = chartHeight - padding - barHeight;
-
-      ctx.fillStyle = "rgba(153, 102, 255, 0.5)";
-      ctx.fillRect(x, y, barWidth, barHeight);
-
-      // Etiqueta valor
-      ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
-      ctx.textAlign = "center";
-      ctx.fillText(`${value}`, x + barWidth / 2, y - 10);
-
-      // Etiqueta sprint
-      ctx.fillStyle = "#000";
-      ctx.font = "14px Arial";
-      ctx.fillText(label, x + barWidth / 2, chartHeight - padding + 20);
-    });
-
-    // Leyenda
-    ctx.fillStyle = "rgba(153, 102, 255, 0.5)";
-    ctx.fillRect(chartWidth / 2 - 60, 90, 20, 20);
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.textAlign = "left";
-    ctx.fillText("Horas invertidas", chartWidth / 2 - 30, 105);
-  }, [datos]);
+    return null;
+  };
 
   return (
-    <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      width: "100%", 
-      margin: "auto", 
-      backgroundColor: "#f9f9f9", 
-      padding: "20px", 
-      borderRadius: "16px", 
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" 
+    <div style={{
+      width: '100%',
+      height: 420,
+      backgroundColor: '#f9f9f9',
+      padding: '20px',
+      borderRadius: '16px',
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
     }}>
-      <canvas ref={canvasRef} width={800} height={400} />
+      <h3 style={{
+        textAlign: 'center',
+        marginBottom: '20px',
+        color: '#333',
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Horas Trabajadas por Sprint
+      </h3>
+
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart
+          data={datos}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis 
+            dataKey="name"
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666', fontSize: 14 }}
+            dy={10}
+          />
+          <YAxis 
+            label={{
+              value: 'Horas',
+              angle: -90,
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fill: '#666' }
+            }}
+            tickLine={false}
+            axisLine={{ stroke: '#e0e0e0' }}
+            tick={{ fill: '#666' }}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(180, 180, 180, 0.1)' }} />
+          <Legend 
+            formatter={() => <span style={{ color: '#666', fontSize: 14 }}>Horas invertidas</span>}
+          />
+          <Bar
+            dataKey="horas"
+            name="Horas invertidas"
+            fill={gradientColors.primary}
+            animationDuration={1500}
+            animationEasing="ease-out"
+            onMouseOver={(_, index) => setHoveredBar(index)}
+            onMouseLeave={() => setHoveredBar(null)}
+          >
+            {datos.map((_, index) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={hoveredBar === index ? gradientColors.highlight : gradientColors.primary}
+                cursor="pointer"
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

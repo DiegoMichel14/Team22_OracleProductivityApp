@@ -285,7 +285,7 @@ function VistaManager() {
           <Button 
             variant="contained" 
             color="primary"
-            onClick={() => navigate('/')} 
+            onClick={() => navigate('/dashboard')} 
             sx={{ 
               px: { xs: 2, sm: 3 },
               py: { xs: 1, sm: 1.5 }

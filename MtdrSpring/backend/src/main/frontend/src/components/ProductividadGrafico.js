@@ -1,61 +1,4 @@
-/*import React, { useEffect, useRef } from 'react';
-
-function ProductividadGrafico({ datos }) {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const anchoBarra = 150; // Barras más anchas
-    const separacion = 350; // Más separación
-    const alturaMaxima = 400; // Altura total de la gráfica
-
-    datos.forEach((d, i) => {
-      const xGrupo = i * (anchoBarra + separacion) + 300; // Mayor espacio inicial
-      const xEstimadas = xGrupo;
-      const xReales = xGrupo + anchoBarra + 30;
-      const xCostos = xReales + anchoBarra + 30;
-
-      // Dibujar barras
-      ctx.fillStyle = "blue"; // Horas estimadas
-      ctx.fillRect(xEstimadas, alturaMaxima - d[1], anchoBarra, d[1]);
-
-      ctx.fillStyle = "red"; // Horas reales
-      ctx.fillRect(xReales, alturaMaxima - d[2], anchoBarra, d[2]);
-
-      ctx.fillStyle = "green"; // Costos en USD
-      ctx.fillRect(xCostos, alturaMaxima - (d[4] / 2), anchoBarra, d[4] / 2);
-
-      // Agregar etiquetas sobre las barras
-      ctx.fillStyle = "white";
-      ctx.font = "16px Arial";
-      ctx.fillText(`Horas estimadas: ${d[1]}`, xEstimadas + 20, alturaMaxima - d[1] - 20);
-      ctx.fillText(`Horas Reales: ${d[2]}`, xReales + 20, alturaMaxima - d[2] - 20);
-      ctx.fillText(`Costo total: $${Math.round(d[4])}`, xCostos + 20, alturaMaxima - (d[4] / 2) - 20);
-
-
-      // Agregar porcentaje de productividad al lado
-      ctx.fillStyle = "white";
-      ctx.fillText(`Productividad: ${(d[5] * 100).toFixed(1)}%`, xReales + anchoBarra + 200, alturaMaxima - d[2] - 10);
-      
-      // Agregar nombres de los sprints abajo
-      ctx.fillStyle = "white";
-      ctx.fillText(d[0], xGrupo, alturaMaxima + 30);
-    });
-  }, [datos]);
-
-  return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", margin: "auto" }}>
-      <canvas ref={canvasRef} width={1200} height={600} style={{ display: "block" }} />
-    </div>
-  );
-}
-
-export default ProductividadGrafico;
-*/
-
+/*
 import React, { useEffect, useRef } from 'react';
 
 function ProductividadGrafico({ datos }) {
@@ -141,6 +84,107 @@ function ProductividadGrafico({ datos }) {
     <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%" }}>
       <canvas ref={canvasRef} width={800} height={400} style={{ display: "block" }} />
     </div>
+  );
+}
+
+export default ProductividadGrafico;
+*/
+
+import React, { useEffect, useState } from 'react';
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
+} from 'recharts';
+
+const COLORS = {
+  horasEstimadas: '#4a90e2',
+  horasReales: '#ff5252',
+  costos: '#4caf50',
+};
+
+function ProductividadGrafico({ datos }) {
+  const [formattedData, setFormattedData] = useState([]);
+  const [hoveredBar, setHoveredBar] = useState(null);
+
+  useEffect(() => {
+    if (!datos || datos.length === 0) return;
+
+    const transformado = datos.map(d => ({
+      name: d[0], // Sprint
+      horasEstimadas: d[1],
+      horasReales: d[2],
+      developer: d[3] || '',
+      costos: d[4],
+      costoOriginal: d[4]
+    }));
+
+    setFormattedData(transformado);
+  }, [datos]);
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const item = payload[0];
+      const color = COLORS[item.dataKey] || '#ccc';
+      const value = item.dataKey === 'costos' 
+        ? `$${Math.round(item.payload.costoOriginal)}`
+        : `${item.value}h`;
+
+      return (
+        <div style={{
+          backgroundColor: 'white',
+          padding: 10,
+          border: '1px solid #ddd',
+          borderRadius: 8
+        }}>
+          <strong>{label}</strong>
+          <div style={{ color }}>{`${item.name}: ${value}`}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <ResponsiveContainer width="100%" height={400}>
+      <BarChart
+        data={formattedData}
+        margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis yAxisId="left" />
+        <YAxis yAxisId="right" orientation="right" />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend />
+
+        {['horasEstimadas', 'horasReales', 'costos'].map((key) => (
+          <Bar
+            key={key}
+            yAxisId={key === 'costos' ? 'right' : 'left'}
+            dataKey={key}
+            name={
+              key === 'horasEstimadas' ? 'Horas estimadas' :
+              key === 'horasReales' ? 'Horas reales' :
+              'Costo total (USD)'
+            }
+            fill={COLORS[key]}
+            barSize={30}
+            onMouseOver={(_, index) => setHoveredBar({ type: key, index })}
+            onMouseLeave={() => setHoveredBar(null)}
+          >
+            {formattedData.map((_, index) => (
+              <Cell
+                key={`cell-${key}-${index}`}
+                fill={hoveredBar?.type === key && hoveredBar.index === index
+                  ? key === 'horasEstimadas' ? '#0d47a1'
+                  : key === 'horasReales' ? '#c62828'
+                  : '#2e7d32'
+                  : COLORS[key]}
+              />
+            ))}
+          </Bar>
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
   );
 }
 

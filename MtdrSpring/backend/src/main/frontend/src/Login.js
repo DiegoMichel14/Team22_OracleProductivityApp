@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './styles/Login.css'; 
 
@@ -8,6 +8,17 @@ const Login = () => {
   const [telefono, setTelefono] = useState('');
   const [contrasena, setContrasena] = useState('');
   const [error, setError] = useState('');
+  
+  // Add an effect to ensure the body takes full width for the login page
+  useEffect(() => {
+    // Add a class to the body specifically for the login page
+    document.body.classList.add('login-page');
+    
+    // Cleanup function to remove the class when component unmounts
+    return () => {
+      document.body.classList.remove('login-page');
+    };
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,11 +41,11 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `http://140.84.170.157:8080/login?telefono=${telefono}&contrasena=${contrasena}`
+        `/login?telefono=${telefono}&contrasena=${contrasena}`
       );
 
       if (response.ok) {
-        navigate('/App');
+        navigate('/dashboard');
       } else {
         setError('Teléfono o contraseña incorrectos.');
       }
@@ -57,27 +68,42 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>Iniciar Sesión</h2>
+        <img 
+          src="/oracle-logo.png" 
+          alt="Oracle Logo" 
+          className="login-logo" 
+          onError={(e) => {
+            e.target.src = "https://www.oracle.com/a/ocom/img/oracle-logo.svg";
+            e.target.style.width = "160px";
+          }}
+        />
+        <h2>Login</h2>
         <form onSubmit={handleLogin}>
-          <label htmlFor="telefono">Teléfono</label>
-          <input
-            id="telefono"
-            type="text"
-            value={telefono}
-            onChange={handleTelefonoChange}
-            required
-          />
+          <div className="input-group">
+            <label htmlFor="telefono">Username</label>
+            <input
+              id="telefono"
+              type="text"
+              value={telefono}
+              onChange={handleTelefonoChange}
+              required
+              placeholder="Enter your username"
+            />
+          </div>
 
-          <label htmlFor="contrasena">Contraseña</label>
-          <input
-            id="contrasena"
-            type="password"
-            value={contrasena}
-            onChange={(e) => setContrasena(e.target.value)}
-            required
-          />
+          <div className="input-group">
+            <label htmlFor="contrasena">Password</label>
+            <input
+              id="contrasena"
+              type="password"
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              required
+              placeholder="Enter your password"
+            />
+          </div>
 
-          <button type="submit">Ingresar</button>
+          <button type="submit">Log in</button>
           {error && <p className="error">{error}</p>}
         </form>
       </div>

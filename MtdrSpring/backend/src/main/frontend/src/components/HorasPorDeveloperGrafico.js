@@ -1,68 +1,131 @@
-/*import React, { useEffect, useRef, useState } from "react";
+/*import React, { useEffect, useMemo, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LabelList,
+  Cell
+} from "recharts";
 import { API_HORAS_DEVELOPER } from "../API_Reportes";
 
 function HorasPorDeveloperGrafico() {
-  const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
+  const [developers, setDevelopers] = useState([]);
+  const [selectedDeveloper, setSelectedDeveloper] = useState(null);
+
+  const COLORS = useMemo(() => [
+    '#4dabf5', '#ff7e67', '#66bb6a', '#9575cd', '#ffb74d', '#4fc3f7', '#81c784', '#ba68c8'
+  ], []);
 
   useEffect(() => {
     fetch(API_HORAS_DEVELOPER)
       .then(res => res.json())
-      .then(data => setDatos(data))
+      .then(data => {
+        const sprints = [...new Set(data.map(d => d[0]))];
+        const devs = [...new Set(data.map(d => d[1]))];
+        setDevelopers(devs);
+
+        const grouped = sprints.map(sprint => {
+          const sprintData = { sprint };
+          devs.forEach(dev => {
+            const entry = data.find(d => d[0] === sprint && d[1] === dev);
+            sprintData[dev] = entry ? entry[2] : 0;
+          });
+          return sprintData;
+        });
+
+        setDatos(grouped);
+      })
       .catch(console.error);
   }, []);
 
-  useEffect(() => {
-    if (datos.length === 0) return;
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          padding: 10,
+          borderRadius: 8,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>{`Sprint: ${label}`}</p>
+          {payload.map((p, i) => (
+            <p key={i} style={{ color: p.color, margin: '4px 0' }}>
+              {`${p.name}: ${p.value} horas`}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const colores = ["blue", "lightblue", "green", "cyan", "orange", "purple"];
-    const anchoBarra = 30;
-    const separacion = 20;
-    const margenIzquierdo = 150;
-    const alturaMaxima = 200;
-    const sprints = [...new Set(datos.map(d => d[0]))]; 
-    const developers = [...new Set(datos.map(d => d[1]))];
-
-    const maxHoras = Math.max(...datos.map(d => d[2])) || 1;
-
-    developers.forEach((dev, j) => {
-      const color = colores[j % colores.length];
-
-      // ⬇ Dibujar etiqueta con el nombre del Developer y su color
-      ctx.fillStyle = color;
-      ctx.fillRect(margenIzquierdo - 100, 50 + j * 25, 15, 15);
-
-      ctx.fillStyle = "white";
-      ctx.font = "14px Arial";
-      ctx.fillText(dev, margenIzquierdo - 80, 63 + j * 25);
-    });
-
-    sprints.forEach((sprint, i) => {
-      developers.forEach((dev, j) => {
-        const horas = datos.find(d => d[0] === sprint && d[1] === dev)?.[2] || 0;
-        const xBarra = margenIzquierdo + i * (anchoBarra * developers.length + separacion) + j * anchoBarra;
-        const alturaBarra = (horas / maxHoras) * alturaMaxima;
-
-        ctx.fillStyle = colores[j % colores.length];
-        ctx.fillRect(xBarra, alturaMaxima - alturaBarra, anchoBarra, alturaBarra);
-
-        ctx.fillStyle = "white";
-        ctx.font = "12px Arial";
-        ctx.fillText(`${horas}h`, xBarra + 5, alturaMaxima - alturaBarra - 5);
-      });
-
-      ctx.fillStyle = "white";
-      ctx.fillText(sprint, margenIzquierdo + i * (anchoBarra * developers.length + separacion), alturaMaxima + 30);
-    });
-  }, [datos]);
+  const handleBarClick = (data, devName) => {
+    setSelectedDeveloper(prev => prev === devName ? null : devName);
+  };
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", width: "100%", margin: "auto" }}>
-      <canvas ref={canvasRef} width={1200} height={600} style={{ display: "block" }} />
+    <div style={{
+      width: '100%',
+      height: 450,
+      backgroundColor: '#f9f9f9',
+      padding: 20,
+      borderRadius: 16,
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
+    }}>
+      <h3 style={{
+        textAlign: 'center',
+        color: '#333',
+        marginBottom: 20,
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Horas trabajadas por sprint por desarrollador
+      </h3>
+
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart data={datos} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+          <XAxis dataKey="sprint" tick={{ fill: '#666', fontSize: 14 }} dy={10} />
+          <YAxis
+            label={{
+              value: 'Horas',
+              angle: -90,
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fill: '#666' }
+            }}
+            tick={{ fill: '#666' }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend formatter={name => <span style={{ color: '#666', fontSize: 14 }}>{name}</span>} />
+
+          {developers.map((dev, i) => (
+            <Bar
+              key={dev}
+              dataKey={dev}
+              name={dev}
+              fill={COLORS[i % COLORS.length]}
+              onClick={(data) => handleBarClick(data, dev)}
+              isAnimationActive
+            >
+              <LabelList dataKey={dev} position="top" style={{ fill: '#333', fontSize: 12 }} />
+              {datos.map((entry, index) => (
+                <Cell
+                  key={`cell-${dev}-${index}`}
+                  fill={selectedDeveloper === dev ? '#303f9f' : COLORS[i % COLORS.length]}
+                  stroke={selectedDeveloper === dev ? '#1a237e' : undefined}
+                  strokeWidth={selectedDeveloper === dev ? 2 : 0}
+                />
+              ))}
+            </Bar>
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
@@ -70,127 +133,142 @@ function HorasPorDeveloperGrafico() {
 export default HorasPorDeveloperGrafico;
 */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  LabelList,
+  Cell
+} from "recharts";
 import { API_HORAS_DEVELOPER } from "../API_Reportes";
 
 function HorasPorDeveloperGrafico() {
-  const canvasRef = useRef(null);
   const [datos, setDatos] = useState([]);
+  const [developers, setDevelopers] = useState([]);
+  const [selectedDeveloper, setSelectedDeveloper] = useState(null);
+
+  const COLORS = useMemo(() => [
+    '#4dabf5', '#ff7e67', '#66bb6a', '#9575cd',
+    '#ffb74d', '#4fc3f7', '#81c784', '#ba68c8'
+  ], []);
 
   useEffect(() => {
     fetch(API_HORAS_DEVELOPER)
       .then(res => res.json())
-      .then(data => setDatos(data))
+      .then(data => {
+        const sprints = [...new Set(data.map(d => d[0]))];
+        const devs = [...new Set(data.map(d => d[1]))];
+        setDevelopers(devs);
+
+        const grouped = sprints.map(sprint => {
+          const sprintData = { sprint };
+          devs.forEach(dev => {
+            const entry = data.find(d => d[0] === sprint && d[1] === dev);
+            sprintData[dev] = entry ? entry[2] : 0;
+          });
+          return sprintData;
+        });
+
+        // Ordenar por número de sprint extraído del string (por ejemplo: "Sprint 1")
+        const orderedGrouped = grouped.sort((a, b) => {
+          const numA = parseInt(a.sprint.replace(/\D/g, ''));
+          const numB = parseInt(b.sprint.replace(/\D/g, ''));
+          return numA - numB;
+        });
+
+        setDatos(orderedGrouped);
+      })
       .catch(console.error);
   }, []);
 
-  useEffect(() => {
-    if (datos.length === 0) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const colores = ["#9c755f", "#59a14f", "#4e79a7", "#f28e2b", "#edc948", "#bab0ab"];
-    const anchoBarra = 30;
-    const separacion = 30;
-    const padding = 80;
-    const alturaGrafica = canvas.height - padding * 2;
-    const anchoGrafica = canvas.width - padding * 2;
-
-    const sprints = [...new Set(datos.map(d => d[0]))];
-    const developers = [...new Set(datos.map(d => d[1]))];
-
-    const maxHoras = Math.max(...datos.map(d => d[2])) || 1;
-    const numLineasY = 5;
-
-    // Título
-    ctx.fillStyle = "#333";
-    ctx.font = "20px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Horas trabajadas por sprint por desarrollador", canvas.width / 2, 40);
-
-    // Eje Y: líneas horizontales + etiquetas
-    ctx.strokeStyle = "#e0e0e0";
-    ctx.fillStyle = "#000";
-    ctx.font = "14px Arial";
-    ctx.textAlign = "right";
-    for (let i = 0; i <= numLineasY; i++) {
-      const valor = Math.round((maxHoras / numLineasY) * i);
-      const y = canvas.height - padding - (valor / maxHoras) * alturaGrafica;
-
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(canvas.width - padding, y);
-      ctx.stroke();
-
-      ctx.fillText(`${valor}`, padding - 10, y + 5);
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div style={{
+          backgroundColor: '#fff',
+          border: '1px solid #ddd',
+          padding: 10,
+          borderRadius: 8,
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        }}>
+          <p style={{ margin: 0, fontWeight: 'bold' }}>{`Sprint: ${label}`}</p>
+          {payload.map((p, i) => (
+            <p key={i} style={{ color: p.color, margin: '4px 0' }}>
+              {`${p.name}: ${p.value} horas`}
+            </p>
+          ))}
+        </div>
+      );
     }
+    return null;
+  };
 
-    // Eje X: etiquetas de sprints
-    ctx.textAlign = "center";
-    sprints.forEach((sprint, i) => {
-      const grupoX = padding + i * ((developers.length * anchoBarra) + separacion) + (developers.length * anchoBarra) / 2;
-      ctx.fillText(sprint, grupoX, canvas.height - padding + 30);
-    });
-
-    // Barras por developer
-    sprints.forEach((sprint, i) => {
-      developers.forEach((dev, j) => {
-        const horas = datos.find(d => d[0] === sprint && d[1] === dev)?.[2] || 0;
-        const altura = (horas / maxHoras) * alturaGrafica;
-
-        const x = padding + i * ((developers.length * anchoBarra) + separacion) + j * anchoBarra;
-        const y = canvas.height - padding - altura;
-
-        ctx.fillStyle = colores[j % colores.length];
-        ctx.fillRect(x, y, anchoBarra, altura);
-
-        // Etiqueta de horas encima de cada barra
-        ctx.fillStyle = "#000";
-        ctx.font = "12px Arial";
-        ctx.fillText(`${horas}`, x + anchoBarra / 2, y - 5);
-      });
-    });
-
-    // Leyenda
-    developers.forEach((dev, j) => {
-      const legendX = canvas.width - padding + 20;
-      const legendY = padding + j * 25;
-
-      ctx.fillStyle = colores[j % colores.length];
-      ctx.fillRect(legendX, legendY, 15, 15);
-
-      ctx.fillStyle = "#000";
-      ctx.font = "10px Arial";
-      ctx.textAlign = "left";
-      ctx.fillText(dev, legendX + 20, legendY + 12);
-    });
-
-    // Eje Y - etiqueta
-    ctx.save();
-    ctx.translate(40, canvas.height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = "center";
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#000";
-    ctx.fillText("Horas trabajadas", 0, 0);
-    ctx.restore();
-  }, [datos]);
+  const handleBarClick = (data, devName) => {
+    setSelectedDeveloper(prev => prev === devName ? null : devName);
+  };
 
   return (
-    <div style={{ 
-      display: "flex", 
-      justifyContent: "center", 
-      alignItems: "center", 
-      width: "100%", 
-      margin: "auto", 
-      backgroundColor: "#fff", 
-      padding: "20px", 
-      borderRadius: "12px", 
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)" 
+    <div style={{
+      width: '100%',
+      height: 450,
+      backgroundColor: '#f9f9f9',
+      padding: 20,
+      borderRadius: 16,
+      boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)'
     }}>
-      <canvas ref={canvasRef} width={600} height={300} />
+      <h3 style={{
+        textAlign: 'center',
+        color: '#333',
+        marginBottom: 20,
+        fontFamily: 'Arial, sans-serif'
+      }}>
+        Horas trabajadas por sprint por desarrollador
+      </h3>
+
+      <ResponsiveContainer width="100%" height="85%">
+        <BarChart data={datos} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+          <XAxis dataKey="sprint" tick={{ fill: '#666', fontSize: 14 }} dy={10} />
+          <YAxis
+            label={{
+              value: 'Horas',
+              angle: -90,
+              position: 'insideLeft',
+              style: { textAnchor: 'middle', fill: '#666' }
+            }}
+            tick={{ fill: '#666' }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Legend formatter={name => <span style={{ color: '#666', fontSize: 14 }}>{name}</span>} />
+
+          {developers.map((dev, i) => (
+            <Bar
+              key={dev}
+              dataKey={dev}
+              name={dev}
+              fill={COLORS[i % COLORS.length]}
+              onClick={(data) => handleBarClick(data, dev)}
+              isAnimationActive
+            >
+              <LabelList dataKey={dev} position="top" style={{ fill: '#333', fontSize: 12 }} />
+              {datos.map((entry, index) => (
+                <Cell
+                  key={`cell-${dev}-${index}`}
+                  fill={selectedDeveloper === dev ? '#303f9f' : COLORS[i % COLORS.length]}
+                  stroke={selectedDeveloper === dev ? '#1a237e' : undefined}
+                  strokeWidth={selectedDeveloper === dev ? 2 : 0}
+                />
+              ))}
+            </Bar>
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
