@@ -1,0 +1,22 @@
+{
+  "name": "team22_oracleproductivityapp",
+  "version": "1.0.0",
+  "description": "A repository for full stack Cloud Native applications with a React JS frontend and various backends (Java, Python, DotNet, and so on) on the Oracle Cloud Infrastructure.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DiegoMichel14/Team22_OracleProductivityApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DiegoMichel14/Team22_OracleProductivityApp/issues"
+  },
+  "homepage": "https://github.com/DiegoMichel14/Team22_OracleProductivityApp#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.30"
+  }
+}
