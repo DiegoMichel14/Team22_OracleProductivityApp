@@ -35,20 +35,24 @@ steps:
     command: |
       echo "🔐 Setting up wallet files..."
       
-      # Create directories
-      mkdir -p wallet
+      # Create wallet directory in backend
+      mkdir -p MtdrSpring/backend/wallet
       
-      # Copy wallet files
-      if [ -d "MtdrSpring/backend/wallet" ]; then
-        cp -r MtdrSpring/backend/wallet/* wallet/
-        echo "✅ Wallet files copied successfully"
+      # Copy wallet files to backend directory
+      if [ -d "MtdrSpring/backend/src/main/resources/wallet" ]; then
+        cp -r MtdrSpring/backend/src/main/resources/wallet/* MtdrSpring/backend/wallet/
+        echo "✅ Wallet files copied from resources"
+      elif [ -d "wallet" ]; then
+        cp -r wallet/* MtdrSpring/backend/wallet/
+        echo "✅ Wallet files copied from root"
       else
         echo "❌ Wallet directory not found!"
+        ls -la MtdrSpring/backend/src/main/resources/
         exit 1
       fi
       
       echo "📋 Wallet contents:"
-      ls -la wallet/
+      ls -la MtdrSpring/backend/wallet/
 
   - type: Command
     name: "Build with Maven"

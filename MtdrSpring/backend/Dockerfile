@@ -4,6 +4,7 @@ FROM openjdk:22
 WORKDIR /tmp/
 RUN mkdir -p /tmp/wallet
 COPY wallet /tmp/wallet
+RUN chmod -R 644 /tmp/wallet/
 ENV db_url="jdbc:oracle:thin:@reacttodoia9ge_tp?TNS_ADMIN=/tmp/wallet"
 ENV db_user="TODOUSER"
 ENV db_password="WELcome__12345"
