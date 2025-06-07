@@ -30,7 +30,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/login?telefono=${telefono}&contrasena=${contrasena}`
+        `http://220.158.67.237/login?telefono=${telefono}&contrasena=${contrasena}`
       );
 
       if (response.ok) {

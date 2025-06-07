@@ -27,7 +27,7 @@ EXPOSE 8080
 
 # Add health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
+    CMD curl -f http://220.158.67.237/actuator/health || exit 1
 
 # Run as non-root user for security
 RUN addgroup --system spring && adduser --system spring --ingroup spring
