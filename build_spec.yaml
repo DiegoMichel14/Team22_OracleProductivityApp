@@ -1,0 +1,125 @@
+version: 0.1
+component: build
+timeoutInSeconds: 1200
+shell: bash
+
+env:
+  variables:
+    REGISTRY: "mx-queretaro-1.ocir.io"
+    NAMESPACE: "axvteqzybmr1"
+    REPOSITORY: "taskmanager"
+    IMAGE_NAME: "todolistapp-springboot"
+    IMAGE_VERSION: "0.1"
+
+  exportedVariables:
+    - IMAGE_FULL_NAME
+    - VERSION
+
+steps:
+  - type: Command
+    name: "Install Java 11"
+    timeoutInSeconds: 600
+    command: |
+      echo "🔧 Installing Java 11..."
+      cd /opt
+      wget -q https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz
+      tar -xzf amazon-corretto-11-x64-linux-jdk.tar.gz
+      
+      JAVA11_DIR=$(find /opt -maxdepth 1 -name "amazon-corretto-11*" -type d | head -1)
+      ln -sf "$JAVA11_DIR" /opt/java11
+      echo "✅ Java 11 installed successfully"
+
+  - type: Command
+    name: "Setup wallet files"
+    timeoutInSeconds: 300
+    command: |
+      echo "🔐 Setting up wallet files..."
+      
+      # Create directories
+      mkdir -p wallet
+      
+      # Copy wallet files
+      if [ -d "MtdrSpring/backend/wallet" ]; then
+        cp -r MtdrSpring/backend/wallet/* wallet/
+        echo "✅ Wallet files copied successfully"
+      else
+        echo "❌ Wallet directory not found!"
+        exit 1
+      fi
+      
+      echo "📋 Wallet contents:"
+      ls -la wallet/
+
+  - type: Command
+    name: "Build with Maven"
+    timeoutInSeconds: 600
+    command: |
+      export JAVA_HOME=/opt/java11
+      export PATH=$JAVA_HOME/bin:$PATH
+      
+      echo "🚀 Building with Maven..."
+      echo "☕ Java version: $(java -version 2>&1 | head -1)"
+      
+      # Navigate to backend directory
+      cd MtdrSpring/backend
+      
+      # Build with Maven
+      mvn clean package spring-boot:repackage -DskipTests
+      
+      echo "📦 Checking build results:"
+      ls -la target/
+      
+      if [ ! -f "target/MyTodoList-0.0.1-SNAPSHOT.jar" ]; then
+        echo "❌ JAR file not found!"
+        exit 1
+      fi
+      
+      local jar_size=$(stat -c%s "target/MyTodoList-0.0.1-SNAPSHOT.jar" 2>/dev/null || stat -f%z "target/MyTodoList-0.0.1-SNAPSHOT.jar")
+      echo "✅ JAR built successfully: ${jar_size} bytes"
+
+  - type: Command
+    name: "Build Docker image"
+    timeoutInSeconds: 600
+    command: |
+      cd MtdrSpring/backend
+      
+      # Generate version based on timestamp
+      VERSION="$(date +'%Y%m%d-%H%M%S')"
+      if [ -d ".git" ]; then
+        COMMIT_SHORT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+        VERSION="${VERSION}-${COMMIT_SHORT}"
+      else
+        VERSION="${VERSION}-${IMAGE_VERSION}"
+      fi
+      
+      IMAGE_TAG="${REGISTRY}/${NAMESPACE}/${REPOSITORY}/${IMAGE_NAME}:${VERSION}"
+      
+      echo "🐳 Building Docker image: ${IMAGE_TAG}"
+      
+      # Build Docker image
+      docker build -f Dockerfile -t "${IMAGE_TAG}" .
+      
+      if [ $? -ne 0 ]; then
+        echo "❌ Docker build failed!"
+        exit 1
+      fi
+      
+      echo "✅ Docker image built successfully: ${IMAGE_TAG}"
+      
+      # Export variables
+      export IMAGE_FULL_NAME="${IMAGE_TAG}"
+      export VERSION="${VERSION}"
+      
+      echo "============================================"
+      echo "Image successfully built!"
+      echo "Image: ${IMAGE_TAG}"
+      echo "============================================"
+      
+      # Create build-output.json in root directory
+      cd ../..
+      echo "{\"image\":\"${IMAGE_TAG}\",\"imageVersion\":\"${VERSION}\",\"repository\":\"${REPOSITORY}\",\"imageName\":\"${IMAGE_NAME}\"}" > build-output.json
+
+outputArtifacts:
+  - name: todolist-springboot-image
+    type: DOCKER_IMAGE
+    location: ${IMAGE_FULL_NAME}
