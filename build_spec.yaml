@@ -2,7 +2,6 @@ version: 0.1
 component: build
 timeoutInSeconds: 1200
 shell: bash
-
 env:
   variables:
     REGISTRY: "mx-queretaro-1.ocir.io"
@@ -10,11 +9,9 @@ env:
     REPOSITORY: "taskmanager"
     IMAGE_NAME: "todolistapp-springboot"
     IMAGE_VERSION: "0.1"
-
   exportedVariables:
     - IMAGE_FULL_NAME
     - VERSION
-
 steps:
   - type: Command
     name: "Install Java 11"
@@ -28,32 +25,55 @@ steps:
       JAVA11_DIR=$(find /opt -maxdepth 1 -name "amazon-corretto-11*" -type d | head -1)
       ln -sf "$JAVA11_DIR" /opt/java11
       echo "✅ Java 11 installed successfully"
-
+      
   - type: Command
     name: "Setup wallet files"
     timeoutInSeconds: 300
     command: |
       echo "🔐 Setting up wallet files..."
       
-      # Create wallet directory in backend
+      # First, let's see what's in the root directory
+      echo "📋 Root directory contents:"
+      ls -la
+      
+      # Create wallet directory in backend for Docker build
       mkdir -p MtdrSpring/backend/wallet
       
-      # Copy wallet files to backend directory
-      if [ -d "MtdrSpring/backend/src/main/resources/wallet" ]; then
+      # Look for wallet in multiple possible locations
+      if [ -d "wallet" ]; then
+        echo "✅ Found wallet directory in root"
+        cp -r wallet/* MtdrSpring/backend/wallet/
+        echo "✅ Wallet files copied from root directory"
+      elif [ -d "MtdrSpring/backend/src/main/resources/wallet" ]; then
+        echo "✅ Found wallet in resources"
         cp -r MtdrSpring/backend/src/main/resources/wallet/* MtdrSpring/backend/wallet/
         echo "✅ Wallet files copied from resources"
-      elif [ -d "wallet" ]; then
-        cp -r wallet/* MtdrSpring/backend/wallet/
-        echo "✅ Wallet files copied from root"
+      elif [ -d "MtdrSpring/wallet" ]; then
+        echo "✅ Found wallet in MtdrSpring directory"
+        cp -r MtdrSpring/wallet/* MtdrSpring/backend/wallet/
+        echo "✅ Wallet files copied from MtdrSpring"
       else
         echo "❌ Wallet directory not found!"
-        ls -la MtdrSpring/backend/src/main/resources/
+        echo "📋 Available directories:"
+        find . -name "*wallet*" -type d 2>/dev/null || echo "No wallet directories found"
+        echo "📋 All directories in project:"
+        find . -type d -maxdepth 3
         exit 1
       fi
       
-      echo "📋 Wallet contents:"
+      echo "📋 Final wallet contents:"
       ls -la MtdrSpring/backend/wallet/
-
+      
+      # Verify we have the essential wallet files
+      if [ ! -f "MtdrSpring/backend/wallet/tnsnames.ora" ]; then
+        echo "❌ tnsnames.ora not found in wallet!"
+        echo "📋 Wallet files found:"
+        ls -la MtdrSpring/backend/wallet/
+        exit 1
+      fi
+      
+      echo "✅ Wallet setup completed successfully"
+      
   - type: Command
     name: "Build with Maven"
     timeoutInSeconds: 600
@@ -80,7 +100,7 @@ steps:
       
       local jar_size=$(stat -c%s "target/MyTodoList-0.0.1-SNAPSHOT.jar" 2>/dev/null || stat -f%z "target/MyTodoList-0.0.1-SNAPSHOT.jar")
       echo "✅ JAR built successfully: ${jar_size} bytes"
-
+      
   - type: Command
     name: "Build Docker image"
     timeoutInSeconds: 600
@@ -99,6 +119,10 @@ steps:
       IMAGE_TAG="${REGISTRY}/${NAMESPACE}/${REPOSITORY}/${IMAGE_NAME}:${VERSION}"
       
       echo "🐳 Building Docker image: ${IMAGE_TAG}"
+      
+      # Verify wallet is present before building
+      echo "📋 Wallet files before Docker build:"
+      ls -la wallet/
       
       # Build Docker image
       docker build -f Dockerfile -t "${IMAGE_TAG}" .
@@ -122,7 +146,7 @@ steps:
       # Create build-output.json in root directory
       cd ../..
       echo "{\"image\":\"${IMAGE_TAG}\",\"imageVersion\":\"${VERSION}\",\"repository\":\"${REPOSITORY}\",\"imageName\":\"${IMAGE_NAME}\"}" > build-output.json
-
+      
 outputArtifacts:
   - name: todolist-springboot-image
     type: DOCKER_IMAGE
