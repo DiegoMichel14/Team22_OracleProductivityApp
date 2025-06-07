@@ -32,43 +32,25 @@ steps:
     command: |
       echo "🔐 Setting up wallet files..."
       
-      # First, let's see what's in the root directory
-      echo "📋 Root directory contents:"
-      ls -la
-      
-      # Create wallet directory in backend for Docker build
-      mkdir -p MtdrSpring/backend/wallet
-      
-      # Look for wallet in multiple possible locations
-      if [ -d "wallet" ]; then
-        echo "✅ Found wallet directory in root"
-        cp -r wallet/* MtdrSpring/backend/wallet/
-        echo "✅ Wallet files copied from root directory"
-      elif [ -d "MtdrSpring/backend/src/main/resources/wallet" ]; then
-        echo "✅ Found wallet in resources"
-        cp -r MtdrSpring/backend/src/main/resources/wallet/* MtdrSpring/backend/wallet/
-        echo "✅ Wallet files copied from resources"
-      elif [ -d "MtdrSpring/wallet" ]; then
-        echo "✅ Found wallet in MtdrSpring directory"
-        cp -r MtdrSpring/wallet/* MtdrSpring/backend/wallet/
-        echo "✅ Wallet files copied from MtdrSpring"
-      else
-        echo "❌ Wallet directory not found!"
-        echo "📋 Available directories:"
-        find . -name "*wallet*" -type d 2>/dev/null || echo "No wallet directories found"
-        echo "📋 All directories in project:"
-        find . -type d -maxdepth 3
-        exit 1
-      fi
-      
-      echo "📋 Final wallet contents:"
-      ls -la MtdrSpring/backend/wallet/
-      
-      # Verify we have the essential wallet files
-      if [ ! -f "MtdrSpring/backend/wallet/tnsnames.ora" ]; then
-        echo "❌ tnsnames.ora not found in wallet!"
-        echo "📋 Wallet files found:"
+      # Check if wallet already exists in the backend directory
+      if [ -d "MtdrSpring/backend/wallet" ]; then
+        echo "✅ Wallet directory already exists in backend"
+        echo "📋 Current wallet contents:"
         ls -la MtdrSpring/backend/wallet/
+        
+        # Verify we have essential wallet files
+        if [ -f "MtdrSpring/backend/wallet/tnsnames.ora" ]; then
+          echo "✅ tnsnames.ora found - wallet setup is complete"
+        else
+          echo "❌ tnsnames.ora not found in existing wallet!"
+          echo "📋 Available files in wallet:"
+          ls -la MtdrSpring/backend/wallet/
+          exit 1
+        fi
+      else
+        echo "❌ Wallet directory not found in expected location!"
+        echo "📋 Checking available directories:"
+        find . -name "*wallet*" -type d 2>/dev/null || echo "No wallet directories found"
         exit 1
       fi
       
