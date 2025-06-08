@@ -102,9 +102,19 @@ steps:
       
       echo "🐳 Building Docker image: ${IMAGE_TAG}"
       
+      # Create wallet directory if not exists (relative to current dir)
+      mkdir -p wallet
+      
+      # Copy wallet files to wallet/ directory (for Docker build)
+      echo "📋 Copying wallet files to build context location..."
+      cp -R ../wallet/* wallet/ || echo "Warning: Could not copy wallet files"
+      
       # Verify wallet is present before building
       echo "📋 Wallet files before Docker build:"
       ls -la wallet/
+      
+      # Set correct permissions
+      chmod -R 755 wallet/
       
       # Build Docker image
       docker build -f Dockerfile -t "${IMAGE_TAG}" .
