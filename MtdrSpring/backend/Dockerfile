@@ -35,5 +35,11 @@ ENV db_password="WELcome__12345"
 # Expose port
 EXPOSE 8080
 
-# Startup command
-CMD ["java", "-Doracle.net.tns_admin=/tmp/wallet", "-jar", "MyTodoList.jar"]
+# Startup command with additional JVM options for debugging and stability
+CMD ["java", \
+     "-Doracle.net.tns_admin=/tmp/wallet", \
+     "-Djava.security.egd=file:/dev/./urandom", \
+     "-Dspring.jpa.hibernate.ddl-auto=none", \
+     "-Dspring.datasource.hikari.initialization-fail-timeout=-1", \
+     "-Dserver.port=8080", \
+     "-jar", "MyTodoList.jar"]
