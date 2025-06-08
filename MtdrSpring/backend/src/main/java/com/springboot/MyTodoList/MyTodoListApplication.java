@@ -8,7 +8,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 import com.springboot.MyTodoList.controller.ToDoItemBotController;
@@ -43,12 +42,19 @@ public class MyTodoListApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		try {
-			TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-			telegramBotsApi.registerBot(new ToDoItemBotController(telegramBotToken, botName, toDoItemService, tareaService, estadoService));
-			logger.info(BotMessages.BOT_REGISTERED_STARTED.getMessage());
-		} catch (TelegramApiException e) {
-			e.printStackTrace();
-		}
+		// Initialize Telegram bot in a separate thread to avoid blocking application startup
+		new Thread(() -> {
+			try {
+				Thread.sleep(5000); // Wait 5 seconds for application to fully start
+				TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+				telegramBotsApi.registerBot(new ToDoItemBotController(telegramBotToken, botName, toDoItemService, tareaService, estadoService));
+				logger.info(BotMessages.BOT_REGISTERED_STARTED.getMessage());
+			} catch (Exception e) {
+				logger.error("Failed to initialize Telegram bot: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}).start();
+		
+		logger.info("Spring Boot application started successfully. Telegram bot initialization running in background.");
 	}
 }
