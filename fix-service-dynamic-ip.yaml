@@ -1,0 +1,17 @@
+# MODIFIED SERVICE - REMOVE HARDCODED IP
+apiVersion: v1
+kind: Service
+metadata:
+  name: todolistapp-springboot-service
+  annotations:
+    oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
+spec:
+  type: LoadBalancer
+  # loadBalancerIP: 159.54.140.95  # REMOVE THIS LINE - let OCI assign IP
+  externalTrafficPolicy: Local
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: todolistapp-springboot

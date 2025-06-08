@@ -1,29 +1,29 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: todolistapp-springboot-service
+  name: agile-service
   annotations:
     oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
 spec:
   type: LoadBalancer
-  loadBalancerIP: 159.54.140.95
-  externalTrafficPolicy: Local
+  # Remove hardcoded IP - let OCI assign dynamically
+  externalTrafficPolicy: Cluster
 
   ports:
     - port: 80
       protocol: TCP
       targetPort: 8080
   selector:
-    app: todolistapp-springboot
+    app: agile-app
 ---
 #this is new stuff for hosting on the load balancer
 apiVersion: v1
 kind: Service
 metadata:
-  name: todolistapp-backend-router
+  name: agile-backend-router
 spec:
   selector:
-    app: todolistapp-springboot
+    app: agile-app
   ports:
     - protocol: TCP
       port: 80
@@ -32,21 +32,21 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todolistapp-springboot-deployment
+  name: agile-deployment
 spec:
   selector:
     matchLabels:
-      app: todolistapp-springboot
+      app: agile-app
   replicas: 2
   template:
     metadata:
       labels:
-        app: todolistapp-springboot
+        app: agile-app
         version: v1
     spec:
       containers:
-        - name: todolistapp-springboot
-          image: %DOCKER_REGISTRY%/todolistapp-springboot:0.1
+        - name: agile-container
+          image: "%DOCKER_REGISTRY%/todolistapp-springboot:0.1"
           imagePullPolicy: Always
           env:
             - name: db_user
@@ -89,5 +89,5 @@ spec:
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
-              app: todolistapp-springboot
+              app: agile-app
 ---
