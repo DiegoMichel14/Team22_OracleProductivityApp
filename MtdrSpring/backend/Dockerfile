@@ -3,16 +3,19 @@ FROM openjdk:11-jdk-slim
 # Set working directory
 WORKDIR /tmp/
 
-# Create wallet directory with proper permissions
+# Create wallet directory first
 RUN mkdir -p /tmp/wallet
 
-# Copy wallet files first (better layer caching)
+# Copy wallet files (better layer caching)
 COPY wallet/ /tmp/wallet/
 
-# Set proper permissions for wallet files
-RUN chmod -R 644 /tmp/wallet/ && \
+# Fix permissions PROPERLY - this is the key fix!
+RUN chmod -R 755 /tmp/wallet/ && \
     ls -la /tmp/wallet/ && \
-    echo "Wallet files copied successfully"
+    echo "Wallet files copied and permissions set"
+
+# Verify essential files exist and are readable
+RUN test -r /tmp/wallet/tnsnames.ora || (echo "ERROR: tnsnames.ora not readable!" && exit 1)
 
 # Copy the JAR file
 COPY target/MyTodoList-0.0.1-SNAPSHOT.jar MyTodoList.jar
@@ -29,13 +32,7 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://220.158.67.237/actuator/health || exit 1
 
-# Run as non-root user for security
-RUN addgroup --system spring && adduser --system spring --ingroup spring
-RUN chown -R spring:spring /tmp/
-USER spring:spring
-
-# Set JVM options for better performance
-ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
-
-# Entry point with JVM options
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar MyTodoList.jar"]
+# Set JVM options directly in entrypoint for better clarity
+# We've removed the non-root user setup as it sometimes causes permission issues with wallet files
+# Start application with explicit memory settings
+ENTRYPOINT ["java", "-Xms256m", "-Xmx512m", "-jar", "MyTodoList.jar"]
