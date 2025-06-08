@@ -21,7 +21,7 @@ spec:
             - name: db_user
               value: "TODOUSER"
             - name: db_url
-              value: "jdbc:oracle:thin:@%TODO_PDB_NAME%_tp?TNS_ADMIN=/mtdrworkshop/creds"
+              value: "jdbc:oracle:thin:@reacttodoia9ge_tp?TNS_ADMIN=/tmp/wallet"
             - name: todo.table.name
               value: "todoitem"
             - name: driver_class_name
@@ -44,7 +44,7 @@ spec:
                   optional: true
           volumeMounts:
             - name: creds
-              mountPath: /mtdrworkshop/creds
+              mountPath: /tmp/wallet
           ports:
             - containerPort: 8080
           readinessProbe:
