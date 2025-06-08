@@ -36,7 +36,13 @@ public class OracleConfiguration {
         String dbUrl = env.getProperty("db_url");
         String dbUser = env.getProperty("db_user"); 
         String dbPassword = env.getProperty("db_password");
+        String dbPasswordAlt = env.getProperty("dbpassword"); // Kubernetes uses this name
         String driverClass = env.getProperty("driver_class_name");
+        
+        // Use dbpassword if db_password is not set (for Kubernetes compatibility)
+        if (dbPassword == null && dbPasswordAlt != null) {
+            dbPassword = dbPasswordAlt;
+        }
         
         if (dbUrl != null && dbUser != null && dbPassword != null) {
             // Use environment variables (Docker/Kubernetes deployment)

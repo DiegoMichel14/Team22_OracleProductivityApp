@@ -31,6 +31,7 @@ ENV ORACLE_HOME=/tmp
 ENV db_url="jdbc:oracle:thin:@reacttodoia9ge_tp?TNS_ADMIN=/tmp/wallet"
 ENV db_user="TODOUSER"
 ENV db_password="WELcome__12345"
+ENV dbpassword="WELcome__12345"
 
 # Expose port
 EXPOSE 8080
