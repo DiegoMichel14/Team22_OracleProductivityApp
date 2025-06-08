@@ -29,19 +29,11 @@ spec:
             - name: OCI_REGION
               value: "%REGION%"
             - name: dbpassword
-              valueFrom:
-                secretKeyRef:
-                  name: dbuser
-                  key: dbpassword
-                  optional: true
+              value: "WELcome__12345"
             - name: ui_username
               value: "%UI_USERNAME%"
             - name: ui_password
-              valueFrom:
-                secretKeyRef:
-                  name: frontendadmin
-                  key: password
-                  optional: true
+              value: "admin123"
           volumeMounts:
             - name: creds
               mountPath: /tmp/wallet
