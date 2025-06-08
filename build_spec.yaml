@@ -93,37 +93,20 @@ steps:
             echo "Warning: Connection test failed but continuing build..."
           fi
         else
-          echo "sqlplus not found, creating simple test program..."
+          echo "sqlplus not found, skipping Oracle client test"
+          echo "Checking wallet configuration instead..."
           
-          # Simple test with Java
-          echo "Creating simple JDBC test program..."
-          cat > TestConnection.java << 'EOF'
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
-public class TestConnection {
-    public static void main(String[] args) {
-        String url = System.getenv("DB_URL");
-        String user = System.getenv("DB_USER");
-        String password = System.getenv("DB_PASSWORD");
-        
-        System.out.println("Testing connection to Oracle DB...");
-        try {
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-            Connection conn = DriverManager.getConnection(url, user, password);
-            System.out.println("Connection successful!");
-            conn.close();
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Connection failed: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-}
-EOF
+          if [ -f "wallet/tnsnames.ora" ]; then
+            echo "Wallet files are present:"
+            ls -la wallet/
+            echo "TNS configuration found:"
+            head -5 wallet/tnsnames.ora
+            echo "Wallet configuration appears valid"
+          else
+            echo "WARNING: No wallet files found for DB connection"
+          fi
           
-          echo "WARNING: Skipping connection test - please provide Oracle client or DB password"
-          echo "NOTE: Manual test can be performed using the TestConnection.java file"
+          echo "NOTE: DB connection test skipped - Oracle client not available"
         fi
       else
         echo "application.properties not found!"
