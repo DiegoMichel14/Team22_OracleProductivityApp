@@ -98,29 +98,29 @@ steps:
           # Simple test with Java
           echo "🔄 Creating simple JDBC test program..."
           cat > TestConnection.java << 'EOF'
-          import java.sql.Connection;
-          import java.sql.DriverManager;
-          import java.sql.SQLException;
-          
-          public class TestConnection {
-              public static void main(String[] args) {
-                  String url = System.getenv("DB_URL");
-                  String user = System.getenv("DB_USER");
-                  String password = System.getenv("DB_PASSWORD");
-                  
-                  System.out.println("Testing connection to Oracle DB...");
-                  try {
-                      Class.forName("oracle.jdbc.driver.OracleDriver");
-                      Connection conn = DriverManager.getConnection(url, user, password);
-                      System.out.println("Connection successful!");
-                      conn.close();
-                  } catch (ClassNotFoundException | SQLException e) {
-                      System.out.println("Connection failed: " + e.getMessage());
-                      e.printStackTrace();
-                  }
-              }
-          }
-          EOF
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class TestConnection {
+    public static void main(String[] args) {
+        String url = System.getenv("DB_URL");
+        String user = System.getenv("DB_USER");
+        String password = System.getenv("DB_PASSWORD");
+        
+        System.out.println("Testing connection to Oracle DB...");
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Connection conn = DriverManager.getConnection(url, user, password);
+            System.out.println("Connection successful!");
+            conn.close();
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Connection failed: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+EOF
           
           echo "⚠️ Skipping connection test - please provide Oracle client or DB password"
           echo "📝 Manual test can be performed using the TestConnection.java file"
