@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: agile-container
-          image: mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:0.1
+          image: "${IMAGE_FULL_NAME}"
           imagePullPolicy: Always
           env:
             - name: db_user
