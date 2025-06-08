@@ -80,7 +80,7 @@ steps:
         exit 1
       fi
       
-      local jar_size=$(stat -c%s "target/MyTodoList-0.0.1-SNAPSHOT.jar" 2>/dev/null || stat -f%z "target/MyTodoList-0.0.1-SNAPSHOT.jar")
+      jar_size=$(stat -c%s "target/MyTodoList-0.0.1-SNAPSHOT.jar" 2>/dev/null || stat -f%z "target/MyTodoList-0.0.1-SNAPSHOT.jar")
       echo "✅ JAR built successfully: ${jar_size} bytes"
       
   - type: Command
