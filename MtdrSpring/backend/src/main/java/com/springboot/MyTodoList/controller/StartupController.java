@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StartupController {
     
-    @GetMapping("/")
-    public Map<String, Object> home() {
+    @GetMapping("/health")
+    public Map<String, Object> health() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "UP");
         response.put("message", "Oracle Productivity App - Spring Boot application is running");

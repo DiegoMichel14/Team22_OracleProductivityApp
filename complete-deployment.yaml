@@ -27,7 +27,7 @@ spec:
             - name: driver_class_name
               value: "oracle.jdbc.OracleDriver"
             - name: OCI_REGION
-              value: "%OCI_REGION%"
+              value: "%REGION%"
             - name: dbpassword
               valueFrom:
                 secretKeyRef:

@@ -1,0 +1,273 @@
+version: 0.1
+component: deployment
+timeoutInSeconds: 600
+shell: bash
+
+env:
+  variables:
+    CLUSTER_NAME: "oke-cluster"
+    NAMESPACE: "default"
+  exportedVariables:
+    - DEPLOYED_VERSION
+
+steps:
+  - type: Command
+    name: "Setup kubectl"
+    timeoutInSeconds: 300
+    command: |
+      echo "Setting up kubectl configuration..."
+      
+      # Get cluster ID from environment or state
+      if [ -z "$OKE_CLUSTER_ID" ]; then
+        echo "OKE_CLUSTER_ID not set, attempting to get from state..."
+        export OKE_CLUSTER_ID=$(state_get OKE_OCID 2>/dev/null || echo "")
+      fi
+      
+      if [ -z "$OKE_CLUSTER_ID" ]; then
+        echo "Warning: OKE_CLUSTER_ID not found, kubectl may not work"
+      else
+        echo "Configuring kubectl for cluster: $OKE_CLUSTER_ID"
+        oci ce cluster create-kubeconfig --cluster-id "$OKE_CLUSTER_ID" --file ~/.kube/config --region "${OCI_REGION:-mx-queretaro-1}" --token-version 2.0.0
+      fi
+      
+      # Test kubectl connection
+      kubectl cluster-info || echo "Warning: kubectl not properly configured"
+
+  - type: Command
+    name: "Use complete deployment file"
+    timeoutInSeconds: 300
+    command: |
+      echo "Using complete-deployment.yaml with parameter substitution..."
+      
+      # Check if complete-deployment.yaml exists
+      if [ -f "complete-deployment.yaml" ]; then
+        echo "Found complete-deployment.yaml, using it for deployment"
+        
+        # Create a copy for parameter substitution
+        cp complete-deployment.yaml deployment-manifest.yaml
+        
+        # Get the built image from build artifacts or use parameter
+        if [ -f "build-output.json" ]; then
+          BUILT_IMAGE=$(cat build-output.json | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
+          echo "Found built image: $BUILT_IMAGE"
+          export IMAGE_FULL_NAME="$BUILT_IMAGE"
+        elif [ -n "${IMAGE_FULL_NAME}" ]; then
+          echo "Using parameter IMAGE_FULL_NAME: $IMAGE_FULL_NAME"
+        else
+          echo "Using default image"
+          export IMAGE_FULL_NAME="mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:latest"
+        fi
+        
+        # Substitute all parameters
+        echo "Substituting parameters..."
+        sed -i "s|\${IMAGE_FULL_NAME}|${IMAGE_FULL_NAME}|g" deployment-manifest.yaml
+        sed -i "s|%TODO_PDB_NAME%|${TODO_PDB_NAME}|g" deployment-manifest.yaml
+        sed -i "s|%REGION%|${REGION}|g" deployment-manifest.yaml  
+        sed -i "s|%UI_USERNAME%|${UI_USERNAME}|g" deployment-manifest.yaml
+        
+        echo "Parameter substitution completed"
+        echo "Using complete-deployment.yaml as deployment manifest"
+        
+      else
+        echo "complete-deployment.yaml not found, will create manifest inline"
+        export USE_INLINE_MANIFEST=true
+      fi
+
+  - type: Command
+    name: "Prepare deployment manifest"
+    timeoutInSeconds: 300
+    command: |
+      # Only create inline manifest if complete-deployment.yaml wasn't used
+      if [ "$USE_INLINE_MANIFEST" = "true" ]; then
+        echo "Preparing deployment manifest with dynamic image..."
+        
+        # Get the built image from build artifacts
+        if [ -f "build-output.json" ]; then
+          BUILT_IMAGE=$(cat build-output.json | grep -o '"image":"[^"]*"' | cut -d'"' -f4)
+          echo "Found built image: $BUILT_IMAGE"
+          export IMAGE_FULL_NAME="$BUILT_IMAGE"
+        else
+          echo "build-output.json not found, using default image"
+          export IMAGE_FULL_NAME="mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:latest"
+        fi
+      
+      # Create deployment manifest with current image
+      cat > deployment-manifest.yaml << EOF
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: agile-deployment
+        namespace: ${NAMESPACE}
+      spec:
+        replicas: 2
+        selector:
+          matchLabels:
+            app: agile-app
+        template:
+          metadata:
+            labels:
+              app: agile-app
+              version: v1
+          spec:
+            containers:
+              - name: agile-container
+                image: ${IMAGE_FULL_NAME}
+                imagePullPolicy: Always
+                env:
+                  - name: db_user
+                    value: "TODOUSER"
+                  - name: db_url
+                    value: "jdbc:oracle:thin:@%TODO_PDB_NAME%_tp?TNS_ADMIN=/mtdrworkshop/creds"
+                  - name: todo.table.name
+                    value: "todoitem"
+                  - name: driver_class_name
+                    value: "oracle.jdbc.OracleDriver"
+                  - name: OCI_REGION
+                    value: "%REGION%"
+                  - name: dbpassword
+                    valueFrom:
+                      secretKeyRef:
+                        name: dbuser
+                        key: dbpassword
+                        optional: true
+                  - name: ui_username
+                    value: "%UI_USERNAME%"
+                  - name: ui_password
+                    valueFrom:
+                      secretKeyRef:
+                        name: frontendadmin
+                        key: password
+                        optional: true
+                volumeMounts:
+                  - name: creds
+                    mountPath: /mtdrworkshop/creds
+                ports:
+                  - containerPort: 8080
+                readinessProbe:
+                  httpGet:
+                    path: /
+                    port: 8080
+                  initialDelaySeconds: 60
+                  periodSeconds: 10
+                livenessProbe:
+                  httpGet:
+                    path: /
+                    port: 8080
+                  initialDelaySeconds: 90
+                  periodSeconds: 30
+            restartPolicy: Always
+            volumes:
+              - name: creds
+                secret:
+                  secretName: db-wallet-secret
+            topologySpreadConstraints:
+              - maxSkew: 1
+                topologyKey: kubernetes.io/hostname 
+                whenUnsatisfiable: DoNotSchedule
+                labelSelector:
+                  matchLabels:
+                    app: agile-app
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: agile-service
+        namespace: ${NAMESPACE}
+        annotations:
+          oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
+      spec:
+        type: LoadBalancer
+        externalTrafficPolicy: Cluster
+        ports:
+          - port: 80
+            protocol: TCP
+            targetPort: 8080
+        selector:
+          app: agile-app
+      ---
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: agile-backend-router
+        namespace: ${NAMESPACE}
+      spec:
+        selector:
+          app: agile-app
+        ports:
+          - protocol: TCP
+            port: 80
+            targetPort: http
+      EOF
+        
+        echo "Deployment manifest created successfully"
+        
+        # Substitute parameters
+        echo "Substituting deployment parameters..."
+        sed -i "s/%TODO_PDB_NAME%/${TODO_PDB_NAME}/g" deployment-manifest.yaml
+        sed -i "s/%REGION%/${REGION}/g" deployment-manifest.yaml  
+        sed -i "s/%UI_USERNAME%/${UI_USERNAME}/g" deployment-manifest.yaml
+        
+        echo "Parameter substitution completed"
+      else
+        echo "Skipping inline manifest creation - using complete-deployment.yaml"
+      fi
+
+  - type: Command
+    name: "Deploy to OKE"
+    timeoutInSeconds: 600
+    command: |
+      echo "Deploying application to OKE cluster..."
+      
+      # Apply the deployment
+      kubectl apply -f deployment-manifest.yaml
+      
+      if [ $? -eq 0 ]; then
+        echo "Deployment applied successfully"
+        
+        # Wait for rollout to complete
+        echo "Waiting for deployment rollout..."
+        kubectl rollout status deployment/agile-deployment -n ${NAMESPACE} --timeout=300s
+        
+        # Get deployment status
+        kubectl get deployments -n ${NAMESPACE} -l app=agile-app
+        kubectl get pods -n ${NAMESPACE} -l app=agile-app
+        kubectl get services -n ${NAMESPACE} -l app=agile-app
+        
+        # Export deployed version
+        export DEPLOYED_VERSION="${IMAGE_FULL_NAME}"
+        echo "Successfully deployed version: $DEPLOYED_VERSION"
+        
+      else
+        echo "Deployment failed!"
+        exit 1
+      fi
+
+  - type: Command
+    name: "Verify deployment"
+    timeoutInSeconds: 300
+    command: |
+      echo "Verifying deployment health..."
+      
+      # Check pod status
+      kubectl get pods -n ${NAMESPACE} -l app=agile-app -o wide
+      
+      # Check service endpoints
+      kubectl get svc -n ${NAMESPACE} agile-service -o wide
+      
+      # Get load balancer IP (if available)
+      EXTERNAL_IP=$(kubectl get svc -n ${NAMESPACE} agile-service -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+      
+      if [ -n "$EXTERNAL_IP" ]; then
+        echo "Load Balancer External IP: $EXTERNAL_IP"
+        echo "Application should be accessible at: http://$EXTERNAL_IP"
+      else
+        echo "Load Balancer IP not yet assigned, check later with:"
+        echo "kubectl get svc -n ${NAMESPACE} agile-service --watch"
+      fi
+      
+      echo "Deployment verification completed"
+
+outputArtifacts:
+  - name: deployment-status
+    type: GENERIC_FILE
+    location: deployment-manifest.yaml
