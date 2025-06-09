@@ -34,6 +34,82 @@ steps:
       kubectl cluster-info || echo "Warning: kubectl not properly configured"
 
   - type: Command
+    name: "Create Database Wallet Secret"
+    timeoutInSeconds: 300
+    command: |
+      echo "🔧 Creating database wallet secret for Oracle connectivity..."
+      
+      # Check if wallet files exist in repository
+      WALLET_DIR="MtdrSpring/backend/wallet"
+      if [ ! -d "$WALLET_DIR" ]; then
+        echo "❌ ERROR: Wallet directory not found at $WALLET_DIR"
+        echo "This is required for database connectivity."
+        exit 1
+      fi
+      
+      # Verify required wallet files exist
+      REQUIRED_FILES=("cwallet.sso" "ewallet.p12" "keystore.jks" "ojdbc.properties" "sqlnet.ora" "tnsnames.ora" "truststore.jks")
+      MISSING_FILES=()
+      
+      for file in "${REQUIRED_FILES[@]}"; do
+        if [ ! -f "$WALLET_DIR/$file" ]; then
+          MISSING_FILES+=("$file")
+        fi
+      done
+      
+      if [ ${#MISSING_FILES[@]} -gt 0 ]; then
+        echo "❌ ERROR: Missing required wallet files:"
+        printf '  - %s\n' "${MISSING_FILES[@]}"
+        echo "All wallet files must be present for database connectivity."
+        exit 1
+      fi
+      
+      echo "✅ All required wallet files found"
+      
+      # Check if secret already exists and recreate it to ensure it's up to date
+      if kubectl get secret db-wallet-secret -n ${NAMESPACE} >/dev/null 2>&1; then
+        echo "🔄 Existing wallet secret found, updating it..."
+        kubectl delete secret db-wallet-secret -n ${NAMESPACE}
+      else
+        echo "🆕 Creating new wallet secret..."
+      fi
+      
+      # Create the secret with all wallet files
+      kubectl create secret generic db-wallet-secret \
+        --namespace=${NAMESPACE} \
+        --from-file=cwallet.sso="$WALLET_DIR/cwallet.sso" \
+        --from-file=ewallet.p12="$WALLET_DIR/ewallet.p12" \
+        --from-file=keystore.jks="$WALLET_DIR/keystore.jks" \
+        --from-file=ojdbc.properties="$WALLET_DIR/ojdbc.properties" \
+        --from-file=sqlnet.ora="$WALLET_DIR/sqlnet.ora" \
+        --from-file=tnsnames.ora="$WALLET_DIR/tnsnames.ora" \
+        --from-file=truststore.jks="$WALLET_DIR/truststore.jks"
+      
+      if [ $? -eq 0 ]; then
+        echo "✅ Database wallet secret created successfully!"
+        
+        # Verify the secret was created with expected keys
+        echo "🔍 Verifying wallet secret contents..."
+        SECRET_KEYS=$(kubectl get secret db-wallet-secret -n ${NAMESPACE} -o jsonpath='{.data}' | jq -r 'keys[]' 2>/dev/null || echo "")
+        
+        if [ -n "$SECRET_KEYS" ]; then
+          echo "📋 Wallet secret contains the following files:"
+          echo "$SECRET_KEYS" | while read -r key; do
+            echo "  ✓ $key"
+          done
+        else
+          echo "⚠️  Warning: Could not verify secret contents (jq may not be available)"
+          kubectl get secret db-wallet-secret -n ${NAMESPACE} -o yaml | head -20
+        fi
+        
+        echo "🎯 Wallet secret is ready for use by the application"
+      else
+        echo "❌ ERROR: Failed to create database wallet secret"
+        echo "This will prevent the application from connecting to the database."
+        exit 1
+      fi
+
+  - type: Command
     name: "Use complete deployment file"
     timeoutInSeconds: 300
     command: |
@@ -260,9 +336,47 @@ steps:
       if [ -n "$EXTERNAL_IP" ]; then
         echo "Load Balancer External IP: $EXTERNAL_IP"
         echo "Application should be accessible at: http://$EXTERNAL_IP"
+        
+        # Test database connectivity through the application
+        echo "🔍 Testing database connectivity..."
+        sleep 30  # Wait for application to fully start
+        
+        # Test the /status endpoint which should show database connectivity
+        HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://$EXTERNAL_IP/status" || echo "000")
+        if [ "$HTTP_CODE" = "200" ]; then
+          echo "✅ Application /status endpoint is responding (HTTP $HTTP_CODE)"
+          
+          # Test a database-dependent endpoint
+          LOGIN_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "telefono=3121539670&contrasena=contrasenaSegura1" \
+            "http://$EXTERNAL_IP/login" || echo "000")
+          
+          if [ "$LOGIN_CODE" = "200" ] || [ "$LOGIN_CODE" = "302" ]; then
+            echo "✅ Database connectivity test passed (HTTP $LOGIN_CODE)"
+            echo "🎉 Deployment successful with working database connection!"
+          else
+            echo "⚠️  Database connectivity test failed (HTTP $LOGIN_CODE)"
+            echo "Application deployed but database endpoints may have issues"
+          fi
+        else
+          echo "⚠️  Application not yet responding (HTTP $HTTP_CODE)"
+          echo "May need more time to start up"
+        fi
       else
         echo "Load Balancer IP not yet assigned, check later with:"
         echo "kubectl get svc -n ${NAMESPACE} agile-service --watch"
+      fi
+      
+      # Verify wallet secret is properly mounted
+      echo "🔍 Verifying wallet secret is mounted in pods..."
+      POD_NAME=$(kubectl get pods -n ${NAMESPACE} -l app=agile-app -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
+      
+      if [ -n "$POD_NAME" ]; then
+        echo "Checking wallet files in pod: $POD_NAME"
+        kubectl exec -n ${NAMESPACE} "$POD_NAME" -- ls -la /tmp/wallet/ 2>/dev/null || echo "⚠️  Could not list wallet files in pod"
+      else
+        echo "⚠️  No pods found to verify wallet mounting"
       fi
       
       echo "Deployment verification completed"
