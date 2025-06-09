@@ -1,3 +1,11 @@
+quickstartadw_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g7595bfe88c3f51_quickstartadw_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+quickstartadw_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g7595bfe88c3f51_quickstartadw_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+quickstartadw_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g7595bfe88c3f51_quickstartadw_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+
+
 reacttodoia9ge_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g7595bfe88c3f51_reacttodoia9ge_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
 
 reacttodoia9ge_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.mx-queretaro-1.oraclecloud.com))(connect_data=(service_name=g7595bfe88c3f51_reacttodoia9ge_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))

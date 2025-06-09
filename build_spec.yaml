@@ -166,11 +166,31 @@ steps:
       
       # Copy wallet files to wallet/ directory (for Docker build)
       echo "Copying wallet files to build context location..."
-      cp -R ../wallet/* wallet/ || echo "Warning: Could not copy wallet files"
+      
+      # The wallet is in MtdrSpring/backend/wallet, and we're currently in MtdrSpring/backend
+      # So we need to copy from ./wallet/ to ./wallet/ (current directory)
+      if [ -d "./wallet" ]; then
+        echo "Wallet directory already exists in current location"
+        ls -la ./wallet/
+      else
+        echo "ERROR: Wallet directory not found in $(pwd)"
+        echo "Available directories:"
+        ls -la .
+        exit 1
+      fi
       
       # Verify wallet is present before building
       echo "Wallet files before Docker build:"
       ls -la wallet/
+      
+      # Critical: Verify tnsnames.ora exists for Oracle connectivity
+      if [ ! -f "wallet/tnsnames.ora" ]; then
+        echo "ERROR: tnsnames.ora not found in wallet directory!"
+        echo "Docker build will fail - wallet files are required"
+        exit 1
+      fi
+      
+      echo "✓ Required wallet files present for Docker build"
       
       # Set correct permissions
       chmod -R 755 wallet/
@@ -184,6 +204,17 @@ steps:
       fi
       
       echo "Docker image built successfully: ${IMAGE_TAG}"
+      
+      # Push image to OCIR
+      echo "Pushing image to OCIR..."
+      docker push "${IMAGE_TAG}"
+      
+      if [ $? -ne 0 ]; then
+        echo "Docker push failed!"
+        exit 1
+      fi
+      
+      echo "Docker image pushed successfully: ${IMAGE_TAG}"
       
       # Export variables
       export IMAGE_FULL_NAME="${IMAGE_TAG}"
