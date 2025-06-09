@@ -197,9 +197,6 @@ function VistaManager() {
             <IconButton onClick={refreshData} title="Refresh Data">
               <RefreshIcon />
             </IconButton>
-            <IconButton>
-              <SettingsIcon />
-            </IconButton>
           </Box>
         </Box>
         

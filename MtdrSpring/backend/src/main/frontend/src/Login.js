@@ -45,6 +45,8 @@ const Login = () => {
       );
 
       if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('usuario', JSON.stringify(data)); // Guarda nombre y rol
         navigate('/dashboard');
       } else {
         setError('Teléfono o contraseña incorrectos.');

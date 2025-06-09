@@ -37,26 +37,49 @@ import GraficoPastel from './components/GraficoPastel';
 // Import styles
 import './index.css';
 import './styles/Dashboard.css';
+import { parseISO, isWithinInterval } from 'date-fns';
 
 function App() {
   const navigate = useNavigate();
-
-  // Estados principales
   const [isLoading, setLoading] = useState(false);
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const [datosBarras, setDatosBarras] = useState({});
   const [datosPastel, setDatosPastel] = useState({});
   const [sprintSeleccionado, setSprintSeleccionado] = useState(null);
+  const [user, setUser] = useState(null);
 
-  // Usuario simulado
-  const user = { nombre: 'Test User' };
+  const sprints = [
+    { name: 'Sprint 1', start: new Date('2025-03-24'), end: new Date('2025-04-04') },
+    { name: 'Sprint 2', start: new Date('2025-04-05'), end: new Date('2025-04-24') },
+    { name: 'Sprint 3', start: new Date('2025-04-25'), end: new Date('2025-05-16') },
+    { name: 'Sprint 4', start: new Date('2025-05-17'), end: new Date('2025-06-01') },
+    { name: 'Sprint 5', start: new Date('2025-06-02'), end: new Date('2025-06-13') },
+  ];
+
+  useEffect(() => { 
+    const storedUser = JSON.parse(localStorage.getItem('usuario')); 
+    if (!storedUser) { 
+      navigate('/'); 
+    } else { 
+      setUser(storedUser); 
+    } 
+  }, [navigate]);
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
+        // Función para determinar a qué sprint pertenece una fecha
+        const getSprintName = (fecha) => {
+          for (const sprint of sprints) {
+            if (isWithinInterval(fecha, { start: sprint.start, end: sprint.end })) {
+              return sprint.name;
+            }
+          }
+          return 'Fuera de Sprint';
+        };
         // 1) Tareas
         const resTareas = await fetch(API_LIST);
         const tareas = await resTareas.json();
@@ -115,40 +138,6 @@ function App() {
             </Typography>
           )}
         </Box>
-
-        {/* Main Quick Links Section */}
-        <Card sx={{ mb: 4, p: 2, maxWidth: '800px', mx: 'auto' }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Quick Navigation
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-                  Welcome to the Oracle Productivity App Dashboard. Use the sidebar for navigation or these quick links.
-                </Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => navigate('/developer')}
-                  >
-                    Developer View
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={() => navigate('/manager')}
-                  >
-                    Manager View
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-          </CardContent>
-        </Card>
 
         {/* Task Summary Cards */}
         <Box sx={{ mb: 4 }}>
@@ -246,16 +235,19 @@ function App() {
                     Sprint Productivity Charts - {sprintSeleccionado}
                   </Typography>
                   
-                  <Box sx={{ mb: 3, p: 2, bgcolor: 'white', borderRadius: 1 }}>
-                    <ProductividadGrafico datos={datosBarras[sprintSeleccionado]} />
-                  </Box>
+                  {/* Mostrar solo si el usuario es Diego */}
+                  {user?.nombre === 'Diego' && (
+                    <Box sx={{ mb: 3, p: 2, bgcolor: 'white', borderRadius: 1 }}>
+                      <ProductividadGrafico datos={datosBarras[sprintSeleccionado]} />
+                    </Box>
+                  )}
                   
                   <Typography variant="h6" gutterBottom>
                     Tasks by Developer - {sprintSeleccionado}
                   </Typography>
                   
                   <Box sx={{ p: 2, bgcolor: 'white', borderRadius: 1 }}>
-                    <GraficoPastel datos={datosPastel[sprintSeleccionado]} />
+                    <GraficoPastel datos={datosPastel[sprintSeleccionado]} usuario={user.nombre} />
                   </Box>
                 </Box>
               )}
@@ -279,41 +271,61 @@ function App() {
         <Card sx={{ mb: 4, maxWidth: '800px', mx: 'auto' }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>
-              Completed Tasks
+              Completed Tasks by Sprint
             </Typography>
-            
+
             {isLoading && (
               <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
                 <CircularProgress />
               </Box>
             )}
-            
+
             {error && (
               <Alert severity="error" sx={{ mb: 2 }}>
                 {error.message}
               </Alert>
             )}
-            
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '1px solid #eee' }}>
-                    <th style={{ textAlign: 'left', padding: '10px', color: '#555', fontWeight: '500' }}>Task Name</th>
-                    <th style={{ textAlign: 'right', padding: '10px', color: '#555', fontWeight: '500' }}>Completion Date</th>
-                  </tr>
-                </thead>
-                <TableBody>
-                  {items
-                    .filter(item => item.estado && item.estado.estado === 'Completada')
-                    .map(item => (
-                      <tr key={item.idTarea} style={{ borderBottom: '1px solid #f5f5f5' }}>
-                        <td style={{ padding: '12px 10px', color: '#333' }}>{item.nombreTarea}</td>
-                        <td style={{ padding: '12px 10px', color: '#666', textAlign: 'right' }}>
-                          <Moment format="DD/MM/YYYY">{item.fechaRegistro}</Moment>
-                        </td>
-                      </tr>
-                    ))}
-                </TableBody>
-              </table>
+
+            {!isLoading && !error && (
+              <>
+                {sprints.map((sprint) => {
+                  const tareasSprint = items
+                    .filter(item =>
+                      item.estado?.estado === 'Completada' &&
+                      isWithinInterval(new Date(item.fechaRegistro), {
+                        start: sprint.start,
+                        end: sprint.end
+                      })
+                    );
+
+                  return tareasSprint.length > 0 ? (
+                    <Box key={sprint.name} sx={{ mb: 3 }}>
+                      <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                        {sprint.name}
+                      </Typography>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ borderBottom: '1px solid #eee' }}>
+                            <th style={{ textAlign: 'left', padding: '10px', color: '#555' }}>Task Name</th>
+                            <th style={{ textAlign: 'right', padding: '10px', color: '#555' }}>Completion Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {tareasSprint.map((item) => (
+                            <tr key={item.idTarea} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                              <td style={{ padding: '12px 10px', color: '#333' }}>{item.nombreTarea}</td>
+                              <td style={{ padding: '12px 10px', color: '#666', textAlign: 'right' }}>
+                                <Moment format="DD/MM/YYYY">{item.fechaRegistro}</Moment>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </Box>
+                  ) : null;
+                })}
+              </>
+            )}
           </CardContent>
         </Card>
       </Box>

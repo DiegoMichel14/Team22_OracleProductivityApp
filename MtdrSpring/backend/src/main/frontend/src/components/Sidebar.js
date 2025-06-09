@@ -28,7 +28,6 @@ const Sidebar = ({ open }) => {
     { text: 'Tasks', icon: <AssignmentIcon />, path: '/developer' },
     { text: 'Team', icon: <PeopleIcon />, path: '/manager' },
     { text: 'Reports', icon: <BarChartIcon />, path: '/reports' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ];
 
   const isActive = (path) => {
@@ -38,7 +37,7 @@ const Sidebar = ({ open }) => {
 
   const handleLogout = () => {
     // Handle logout logic here
-    navigate('/login');
+    navigate('/');
   };
 
   return (

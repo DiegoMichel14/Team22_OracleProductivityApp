@@ -36,6 +36,8 @@ function ReportePage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isMedium = useMediaQuery(theme.breakpoints.down('md'));
+  const user = JSON.parse(localStorage.getItem('usuario')) || {};
+
   
   // State
   const [loading, setLoading] = useState(true);
@@ -162,7 +164,7 @@ function ReportePage() {
       >
         <Tab 
           icon={<BarChartIcon />} 
-          label="Productivity" 
+          label="Developer Hours" 
           iconPosition="start"
         />
         <Tab 
@@ -170,16 +172,20 @@ function ReportePage() {
           label="Task Distribution" 
           iconPosition="start"
         />
-        <Tab 
-          icon={<TimelineIcon />} 
-          label="Sprint Hours" 
-          iconPosition="start"
-        />
-        <Tab 
-          icon={<BarChartIcon />} 
-          label="Developer Hours" 
-          iconPosition="start"
-        />
+        {user?.nombre === 'Diego' && (
+          <Tab 
+            icon={<BarChartIcon />} 
+            label="Productivity" 
+            iconPosition="start"
+          />
+        )}
+        {user?.nombre === 'Diego' && (
+          <Tab 
+            icon={<TimelineIcon />} 
+            label="Sprint Hours" 
+            iconPosition="start"
+          />
+        )}
       </Tabs>
 
       {/* Loading state */}
@@ -200,7 +206,7 @@ function ReportePage() {
         <>
           {/* Tab content */}
           {/* Tab 1: Team Productivity */}
-          {tabValue === 0 && (
+          {tabValue === 2 && user?.nombre === 'Diego' && (
             <Box>
               <Typography variant="h5" gutterBottom>Team Productivity by Sprint</Typography>
               
@@ -259,7 +265,7 @@ function ReportePage() {
               {sprintSeleccionado && datosPastel[sprintSeleccionado] && (
                 <Card sx={{ mb: 4, overflow: 'hidden' }}>
                   <CardContent>
-                    <GraficoPastel datos={datosPastel[sprintSeleccionado]} />
+                    <GraficoPastel datos={datosPastel[sprintSeleccionado]} usuario={user.nombre}/>
                   </CardContent>
                 </Card>
               )}
@@ -268,7 +274,7 @@ function ReportePage() {
 
 
           {/* Tab 3: Hours by Sprint */}
-          {tabValue === 2 && (
+          {tabValue === 3 && user?.nombre === 'Diego' && (
             <Box>
               <Typography variant="h5" gutterBottom>Hours Worked by Sprint</Typography>
               <Card sx={{ mb: 4, overflow: 'hidden' }}>
@@ -280,12 +286,12 @@ function ReportePage() {
           )}
           
           {/* Tab 4: Hours by Developer */}
-          {tabValue === 3 && (
+          {tabValue === 0 && (
             <Box>
               <Typography variant="h5" gutterBottom>Hours Worked by Developer</Typography>
               <Card sx={{ mb: 4, overflow: 'hidden' }}>
                 <CardContent>
-                  <HorasPorDeveloperGrafico datos={datosHorasDeveloper} />
+                  <HorasPorDeveloperGrafico datos={datosHorasDeveloper} usuario={user.nombre}/>
                 </CardContent>
               </Card>
             </Box>
