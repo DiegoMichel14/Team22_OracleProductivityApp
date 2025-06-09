@@ -12,5 +12,5 @@ spring:
     show-sql: true
   security:
     user:
-      name: ${ui_username}
-      password: ${ui_password}
+      name: ${ui_username:admin}
+      password: ${ui_password:admin123}
