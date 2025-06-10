@@ -70,22 +70,24 @@ public class DeveloperController {
     @GetMapping(value = "/login")
     public ResponseEntity<Developer> login(@RequestParam String telefono, @RequestParam String contrasena) {
         try {
-            System.out.println("Login attempt - telefono: " + telefono);
+            System.out.println("🔍 Login attempt - telefono: " + telefono + ", contrasena: " + contrasena);
+            
+            // Test básico de conexión antes del login
+            System.out.println("🔍 Testing service availability...");
             
             Developer developer = developerService.findByTelefonoAndContrasena(telefono, contrasena);
             
             if (developer != null) {
-                System.out.println("Login successful for: " + telefono);
+                System.out.println("✅ Login successful for: " + telefono);
                 return ResponseEntity.ok(developer);
             } else {
-                System.out.println("Login failed - invalid credentials for: " + telefono);
+                System.out.println("❌ Login failed - no user found for telefono: " + telefono);
                 return ResponseEntity.status(401).body(null);
             }
         } catch (Exception e) {
-            System.err.println("Login error: " + e.getMessage());
+            System.err.println("💥 Login error for telefono " + telefono + ": " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
         }
     }
-
 }
