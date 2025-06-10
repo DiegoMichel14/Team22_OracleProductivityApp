@@ -22,13 +22,13 @@ test("API_DEVELOPER contiene el endpoint correcto", () => {
 });
 
 it("verificar API DEVELOPERS", async () => {
-  const response = await request("http://220.158.67.237").get("/developers");
+  const response = await request("http://localhost:8080").get("/developers");
 
 });
 
 // Pruebas para verificar las rutas de la API
 it("verificar API EQUIPOS", async () => {
-  const response = await request("http://220.158.67.237").get(API_EQUIPO);
+  const response = await request("http://localhost:8080").get(API_EQUIPO);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
@@ -36,35 +36,35 @@ it("verificar API EQUIPOS", async () => {
 
 
 it("verificar API MANAGERS", async () => {
-  const response = await request("http://220.158.67.237").get(API_MANAGER);
+  const response = await request("http://localhost:8080").get(API_MANAGER);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
 
 it("verificar API PRIORIDADES", async () => {
-  const response = await request("http://220.158.67.237").get(API_PRIORIDAD);
+  const response = await request("http://localhost:8080").get(API_PRIORIDAD);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
 
 it("verificar API SPRINTS", async () => {
-  const response = await request("http://220.158.67.237").get(API_SPRINT);
+  const response = await request("http://localhost:8080").get(API_SPRINT);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
 
 it("verificar API TAREAS", async () => {
-  const response = await request("http://220.158.67.237").get(API_TAREATest);
+  const response = await request("http://localhost:8080").get(API_TAREATest);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");
 });
 
 it("verificar API TODOLIST", async () => {
-  const response = await request("http://220.158.67.237").get(API_LIST);
+  const response = await request("http://localhost:8080").get(API_LIST);
 
   // Verifica que la respuesta sea JSON
   expect(response.headers["content-type"]).toContain("application/json");

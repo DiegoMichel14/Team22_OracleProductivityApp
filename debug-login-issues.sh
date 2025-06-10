@@ -2,7 +2,7 @@
 # Debug script for login issues in the deployed TodoList application
 
 echo "=== TodoList Application Login Debug ==="
-echo "Application URL: http://220.158.67.237"
+echo "Application URL: http://localhost:8080"
 echo "Issue: HTTP 500 errors on login attempts"
 echo ""
 

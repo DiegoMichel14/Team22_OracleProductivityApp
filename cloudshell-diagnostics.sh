@@ -28,8 +28,8 @@ oci lb load-balancer list --compartment-id $COMPARTMENT_ID --query "data[].{Name
 
 echo ""
 echo "🔍 Step 5: Test connectivity from Cloud Shell..."
-echo "Testing direct IP (220.158.67.237):"
-curl -I http://220.158.67.237 || echo "Direct IP not accessible from Cloud Shell"
+echo "Testing direct IP (localhost:8080):"
+curl -I http://localhost:8080 || echo "Direct IP not accessible from Cloud Shell"
 
 echo "Testing load balancer IP (159.54.140.95):"
 curl -I http://159.54.140.95 || echo "Load balancer IP not accessible from Cloud Shell"

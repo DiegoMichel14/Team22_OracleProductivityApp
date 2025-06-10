@@ -11,7 +11,7 @@ echo "================================="
 
 # Test if app responds to basic health check
 echo "Testing basic health endpoint..."
-HEALTH_RESPONSE=$(curl -s -w "%{http_code}" "http://220.158.67.237/health" -o /tmp/health_response.json)
+HEALTH_RESPONSE=$(curl -s -w "%{http_code}" "http://localhost:8080/health" -o /tmp/health_response.json)
 HTTP_CODE="${HEALTH_RESPONSE: -3}"
 
 if [ "$HTTP_CODE" = "200" ]; then
@@ -28,7 +28,7 @@ echo "================================="
 
 # Check status endpoint for environment details
 echo "Testing status endpoint for environment details..."
-STATUS_RESPONSE=$(curl -s "http://220.158.67.237/status")
+STATUS_RESPONSE=$(curl -s "http://localhost:8080/status")
 echo "Status response: $STATUS_RESPONSE"
 
 # Extract specific environment details
@@ -47,7 +47,7 @@ ENDPOINTS=("/developers" "/login?telefono=test&contrasena=test" "/todoitems")
 
 for endpoint in "${ENDPOINTS[@]}"; do
     echo "Testing: $endpoint"
-    RESPONSE=$(curl -s -w "%{http_code}" "http://220.158.67.237$endpoint" -o /tmp/endpoint_response.json)
+    RESPONSE=$(curl -s -w "%{http_code}" "http://localhost:8080$endpoint" -o /tmp/endpoint_response.json)
     HTTP_CODE="${RESPONSE: -3}"
     
     if [ "$HTTP_CODE" = "500" ]; then
@@ -75,7 +75,7 @@ echo "Checking if diagnostic endpoints are available..."
 DIAGNOSTIC_ENDPOINTS=("/actuator/health" "/actuator/info" "/actuator/env" "/management/health")
 
 for endpoint in "${DIAGNOSTIC_ENDPOINTS[@]}"; do
-    RESPONSE=$(curl -s -w "%{http_code}" "http://220.158.67.237$endpoint" -o /tmp/diagnostic_response.json)
+    RESPONSE=$(curl -s -w "%{http_code}" "http://localhost:8080$endpoint" -o /tmp/diagnostic_response.json)
     HTTP_CODE="${RESPONSE: -3}"
     
     if [ "$HTTP_CODE" = "200" ]; then
@@ -105,7 +105,7 @@ echo "✅ CONFIRMED: Application starts successfully"
 echo "✅ CONFIRMED: Environment variables are set"
 echo ""
 
-if curl -s "http://220.158.67.237/status" | grep -q '"TNS_ADMIN":"/tmp/wallet"'; then
+if curl -s "http://localhost:8080/status" | grep -q '"TNS_ADMIN":"/tmp/wallet"'; then
     echo "✅ TNS_ADMIN path is correct: /tmp/wallet"
 else
     echo "❌ TNS_ADMIN path may be incorrect"

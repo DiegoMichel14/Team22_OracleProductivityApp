@@ -24,7 +24,7 @@ steps:
       
       JAVA11_DIR=$(find /opt -maxdepth 1 -name "amazon-corretto-11*" -type d | head -1)
       ln -sf "$JAVA11_DIR" /opt/java11
-      echo "Java 11 installed successfully"
+      echo "✓ Java 11 installed successfully"
       
   - type: Command
     name: "Setup wallet files"
@@ -32,87 +32,19 @@ steps:
     command: |
       echo "Setting up wallet files..."
       
-      # Check if wallet already exists in the backend directory
       if [ -d "MtdrSpring/backend/wallet" ]; then
-        echo "Wallet directory already exists in backend"
-        echo "Current wallet contents:"
+        echo "✓ Wallet directory found"
         ls -la MtdrSpring/backend/wallet/
         
-        # Verify we have essential wallet files
         if [ -f "MtdrSpring/backend/wallet/tnsnames.ora" ]; then
-          echo "tnsnames.ora found - wallet setup is complete"
+          echo "✓ tnsnames.ora found - wallet setup complete"
         else
-          echo "tnsnames.ora not found in existing wallet!"
-          echo "Available files in wallet:"
-          ls -la MtdrSpring/backend/wallet/
+          echo "✗ tnsnames.ora not found!"
           exit 1
         fi
       else
-        echo "Wallet directory not found in expected location!"
-        echo "Checking available directories:"
-        find . -name "*wallet*" -type d 2>/dev/null || echo "No wallet directories found"
+        echo "✗ Wallet directory not found!"
         exit 1
-      fi
-      
-      echo "Wallet setup completed successfully"
-      
-  - type: Command
-    name: "Test Oracle DB Connection"
-    timeoutInSeconds: 300
-    command: |
-      echo "Testing Oracle DB connection..."
-      
-      # Navigate to backend directory
-      cd MtdrSpring/backend
-      
-      # Check for application.properties for connection details
-      if [ -f "src/main/resources/application.properties" ]; then
-        echo "Found application.properties"
-        
-        # Extract connection details (without showing sensitive data)
-        DB_URL=$(grep "^spring.datasource.url" src/main/resources/application.properties | cut -d'=' -f2- | tr -d ' ')
-        DB_USER=$(grep "^spring.datasource.username" src/main/resources/application.properties | cut -d'=' -f2- | tr -d ' ')
-        
-        echo "Found DB URL: ${DB_URL//?/*}"  # Mask the actual URL
-        echo "Found DB user: ${DB_USER//?/*}"  # Mask the actual username
-        
-        # Use sqlplus to test connection (requires Oracle client)
-        if command -v sqlplus >/dev/null 2>&1; then
-          echo "Testing connection with sqlplus..."
-          echo "exit" | ORACLE_HOME=/opt/oracle/instantclient_19_11 TNS_ADMIN=$(pwd)/wallet sqlplus -L "${DB_USER}/[PASSWORD]@$(echo $DB_URL | awk -F':@' '{print $2}')" 2>&1 | tee connection_test.log
-          
-          if grep -q "Connected to:" connection_test.log; then
-            echo "Database connection successful!"
-          else
-            echo "Database connection failed. See connection_test.log for details"
-            cat connection_test.log
-            echo "Wallet contents:"
-            ls -la wallet/
-            echo "TNS entries:"
-            cat wallet/tnsnames.ora
-            echo "Warning: Connection test failed but continuing build..."
-          fi
-        else
-          echo "sqlplus not found, skipping Oracle client test"
-          echo "Checking wallet configuration instead..."
-          
-          if [ -f "wallet/tnsnames.ora" ]; then
-            echo "Wallet files are present:"
-            ls -la wallet/
-            echo "TNS configuration found:"
-            head -5 wallet/tnsnames.ora
-            echo "Wallet configuration appears valid"
-          else
-            echo "WARNING: No wallet files found for DB connection"
-          fi
-          
-          echo "NOTE: DB connection test skipped - Oracle client not available"
-        fi
-      else
-        echo "application.properties not found!"
-        echo "Available files in resources:"
-        ls -la src/main/resources/
-        echo "Warning: Cannot test DB connection but continuing build..."
       fi
       
   - type: Command
@@ -123,122 +55,47 @@ steps:
       export PATH=$JAVA_HOME/bin:$PATH
       
       echo "Building with Maven..."
-      echo "Java version: $(java -version 2>&1 | head -1)"
-      
-      # Navigate to backend directory
       cd MtdrSpring/backend
       
-      # Build with Maven
+      # Build JAR (frontend ya está integrado)
       mvn clean package spring-boot:repackage -DskipTests
       
-      echo "Checking build results:"
-      ls -la target/
-      
+      # Verify JAR exists
       if [ ! -f "target/MyTodoList-0.0.1-SNAPSHOT.jar" ]; then
-        echo "JAR file not found!"
+        echo "✗ JAR file not found!"
+        ls -la target/
         exit 1
       fi
       
-      jar_size=$(stat -c%s "target/MyTodoList-0.0.1-SNAPSHOT.jar" 2>/dev/null || stat -f%z "target/MyTodoList-0.0.1-SNAPSHOT.jar")
-      echo "JAR built successfully: ${jar_size} bytes"
+      echo "✓ JAR built successfully"
       
   - type: Command
-    name: "Login to OCIR"
-    timeoutInSeconds: 300
-    command: |
-      echo "Logging into Oracle Container Image Registry..."
-      
-      # Login to OCIR using secure password-stdin method (non-interactive)
-      echo "${AUTH_TOKEN}" | docker login ${REGISTRY} --username "${TENANCY_NAMESPACE}/${USERNAME}" --password-stdin
-      
-      if [ $? -eq 0 ]; then
-        echo "✅ Successfully logged into OCIR"
-      else
-        echo "❌ Failed to login to OCIR"
-        echo "Registry: ${REGISTRY}"
-        echo "Username: ${TENANCY_NAMESPACE}/${USERNAME}"
-        echo "Please check your authentication credentials"
-        exit 1
-      fi
-
-  - type: Command
-    name: "Build Docker image"
+    name: "Build Docker Image"
     timeoutInSeconds: 600
     command: |
       cd MtdrSpring/backend
       
-      # Generate version based on timestamp
+      # Generate version
       VERSION="$(date +'%Y%m%d-%H%M%S')"
-      if [ -d ".git" ]; then
-        COMMIT_SHORT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
-        VERSION="${VERSION}-${COMMIT_SHORT}"
-      else
-        VERSION="${VERSION}-${IMAGE_VERSION}"
-      fi
-      
       IMAGE_TAG="${REGISTRY}/${NAMESPACE}/${REPOSITORY}/${IMAGE_NAME}:${VERSION}"
       
-      echo "Building Docker image: ${IMAGE_TAG}"
-      
-      # Create wallet directory if not exists (relative to current dir)
-      mkdir -p wallet
-      
-      # Copy wallet files to wallet/ directory (for Docker build)
-      echo "Copying wallet files to build context location..."
-      
-      # The wallet is in MtdrSpring/backend/wallet, and we're currently in MtdrSpring/backend
-      # So we need to copy from ./wallet/ to ./wallet/ (current directory)
-      if [ -d "./wallet" ]; then
-        echo "Wallet directory already exists in current location"
-        ls -la ./wallet/
-      else
-        echo "ERROR: Wallet directory not found in $(pwd)"
-        echo "Available directories:"
-        ls -la .
-        exit 1
-      fi
-      
-      # Verify wallet is present before building
-      echo "Wallet files before Docker build:"
-      ls -la wallet/
-      
-      # Set correct permissions
-      chmod -R 755 wallet/
-      
-      # Build Docker image (OCIR login already done in previous step)
-      echo "Building Docker image: ${IMAGE_TAG}"
+      # Build image
       docker build -f Dockerfile -t "${IMAGE_TAG}" .
       
       if [ $? -ne 0 ]; then
-        echo "Docker build failed!"
+        echo "✗ Docker build failed!"
         exit 1
       fi
       
-      echo "Docker image built successfully: ${IMAGE_TAG}"
+      echo "✓ Docker image built: ${IMAGE_TAG}"
       
-      # Push Docker image to OCIR
-      echo "Pushing image to OCIR..."
-      docker push "${IMAGE_TAG}"
-      
-      if [ $? -ne 0 ]; then
-        echo "Docker push failed!"
-        exit 1
-      fi
-      
-      echo "✅ Docker image pushed successfully to OCIR!"
-      
-      # Export variables
+      # Export for next stage
       export IMAGE_FULL_NAME="${IMAGE_TAG}"
       export VERSION="${VERSION}"
       
-      echo "============================================"
-      echo "Image successfully built and pushed!"
-      echo "Image: ${IMAGE_TAG}"
-      echo "============================================"
-      
-      # Create build-output.json in root directory
+      # Create output for deployment stage
       cd ../..
-      echo "{\"image\":\"${IMAGE_TAG}\",\"imageVersion\":\"${VERSION}\",\"repository\":\"${REPOSITORY}\",\"imageName\":\"${IMAGE_NAME}\"}" > build-output.json
+      echo "{\"image\":\"${IMAGE_TAG}\",\"imageVersion\":\"${VERSION}\"}" > build-output.json
 
 outputArtifacts:
   - name: todolist-springboot-image

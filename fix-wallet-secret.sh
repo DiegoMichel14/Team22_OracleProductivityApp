@@ -37,4 +37,4 @@ kubectl rollout status deployment agile-deployment
 echo ""
 echo "✅ WALLET SECRET FIXED!"
 echo "The application should now be able to connect to the database."
-echo "Test the login endpoint: curl 'http://220.158.67.237/login?telefono=3121539670&contrasena=contrasenaSegura1'"
+echo "Test the login endpoint: curl 'http://localhost:8080/login?telefono=3121539670&contrasena=contrasenaSegura1'"

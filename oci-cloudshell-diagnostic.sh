@@ -20,7 +20,7 @@ oci lb load-balancer list --compartment-id $(oci iam compartment list --query "d
 echo ""
 echo "🔍 Step 3: Test from inside OCI network"
 echo "Testing direct connection to working IP..."
-curl -I http://220.158.67.237 || echo "Direct IP still not accessible from OCI"
+curl -I http://localhost:8080 || echo "Direct IP still not accessible from OCI"
 
 echo ""
 echo "🔍 Step 4: Check Security Lists"

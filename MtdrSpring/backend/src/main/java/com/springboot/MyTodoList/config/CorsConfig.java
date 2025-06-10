@@ -21,9 +21,9 @@ public class CorsConfig {
         // Add your actual server URL
         config.setAllowedOrigins(List.of(
             "http://localhost:3000",
-            "http://220.158.67.237",      // <-- Add your server
-            "http://220.158.67.237:8080", // <-- Add with port too
-            "https://220.158.67.237",     // <-- HTTPS version
+            "http://localhost:8080",      // <-- Add your server
+            "http://localhost:8080:8080", // <-- Add with port too
+            "https://localhost:8080",     // <-- HTTPS version
             "https://objectstorage.us-phoenix-1.oraclecloud.com",
             "https://petstore.swagger.io"
         ));
