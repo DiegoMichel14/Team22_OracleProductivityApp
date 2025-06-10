@@ -1,14 +1,22 @@
 package com.springboot.MyTodoList.controller;
 
-import com.springboot.MyTodoList.model.Developer;
-import com.springboot.MyTodoList.service.DeveloperService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.springboot.MyTodoList.model.Developer;
+import com.springboot.MyTodoList.service.DeveloperService;
 
 @RestController
 public class DeveloperController { 
@@ -61,11 +69,22 @@ public class DeveloperController {
     // Obtener un developer por teléfono y contraseña
     @GetMapping(value = "/login")
     public ResponseEntity<Developer> login(@RequestParam String telefono, @RequestParam String contrasena) {
-        Developer developer = developerService.findByTelefonoAndContrasena(telefono, contrasena);
-        if (developer != null) {
-            return ResponseEntity.ok(developer); // Devuelve el Developer si las credenciales son correctas
-        } else {
-            return ResponseEntity.status(401).body(null); // Devuelve un error 401 si las credenciales son incorrectas
+        try {
+            System.out.println("Login attempt - telefono: " + telefono);
+            
+            Developer developer = developerService.findByTelefonoAndContrasena(telefono, contrasena);
+            
+            if (developer != null) {
+                System.out.println("Login successful for: " + telefono);
+                return ResponseEntity.ok(developer);
+            } else {
+                System.out.println("Login failed - invalid credentials for: " + telefono);
+                return ResponseEntity.status(401).body(null);
+            }
+        } catch (Exception e) {
+            System.err.println("Login error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null);
         }
     }
 
