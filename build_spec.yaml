@@ -203,7 +203,21 @@ steps:
       # Set correct permissions
       chmod -R 755 wallet/
       
+      # Login to OCIR BEFORE building/pushing
+      echo "Logging into OCIR before build and push..."
+      echo "${AUTH_TOKEN}" | docker login ${REGISTRY} --username "${TENANCY_NAMESPACE}/${USERNAME}" --password-stdin
+      
+      if [ $? -ne 0 ]; then
+        echo "❌ Failed to login to OCIR"
+        echo "Registry: ${REGISTRY}"
+        echo "Username: ${TENANCY_NAMESPACE}/${USERNAME}"
+        exit 1
+      fi
+      
+      echo "✅ Successfully logged into OCIR"
+      
       # Build Docker image
+      echo "Building Docker image: ${IMAGE_TAG}"
       docker build -f Dockerfile -t "${IMAGE_TAG}" .
       
       if [ $? -ne 0 ]; then
@@ -212,17 +226,6 @@ steps:
       fi
       
       echo "Docker image built successfully: ${IMAGE_TAG}"
-      
-      # Login to OCIR before pushing
-      echo "Logging into OCIR for push..."
-      docker login ${REGISTRY} -u "${TENANCY_NAMESPACE}/${USERNAME}" -p "${AUTH_TOKEN}"
-      
-      if [ $? -ne 0 ]; then
-        echo "❌ Failed to login to OCIR"
-        exit 1
-      fi
-      
-      echo "✅ Successfully logged into OCIR"
       
       # Push Docker image to OCIR
       echo "Pushing image to OCIR..."
