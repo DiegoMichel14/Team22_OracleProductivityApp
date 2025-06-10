@@ -148,13 +148,15 @@ steps:
     command: |
       echo "Logging into Oracle Container Image Registry..."
       
-      # Login to OCIR using OCI CLI authentication
-      docker login ${REGISTRY} -u "${TENANCY_NAMESPACE}/${USERNAME}" -p "${AUTH_TOKEN}"
+      # Login to OCIR using secure password-stdin method (non-interactive)
+      echo "${AUTH_TOKEN}" | docker login ${REGISTRY} --username "${TENANCY_NAMESPACE}/${USERNAME}" --password-stdin
       
       if [ $? -eq 0 ]; then
         echo "✅ Successfully logged into OCIR"
       else
         echo "❌ Failed to login to OCIR"
+        echo "Registry: ${REGISTRY}"
+        echo "Username: ${TENANCY_NAMESPACE}/${USERNAME}"
         echo "Please check your authentication credentials"
         exit 1
       fi
@@ -203,20 +205,7 @@ steps:
       # Set correct permissions
       chmod -R 755 wallet/
       
-      # Login to OCIR BEFORE building/pushing
-      echo "Logging into OCIR before build and push..."
-      echo "${AUTH_TOKEN}" | docker login ${REGISTRY} --username "${TENANCY_NAMESPACE}/${USERNAME}" --password-stdin
-      
-      if [ $? -ne 0 ]; then
-        echo "❌ Failed to login to OCIR"
-        echo "Registry: ${REGISTRY}"
-        echo "Username: ${TENANCY_NAMESPACE}/${USERNAME}"
-        exit 1
-      fi
-      
-      echo "✅ Successfully logged into OCIR"
-      
-      # Build Docker image
+      # Build Docker image (OCIR login already done in previous step)
       echo "Building Docker image: ${IMAGE_TAG}"
       docker build -f Dockerfile -t "${IMAGE_TAG}" .
       
