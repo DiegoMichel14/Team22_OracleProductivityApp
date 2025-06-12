@@ -115,7 +115,7 @@ function ReportePage() {
           tareasCompletadas: total, // si solo llegan las completadas
           porcentajeCompletadas: 100, // si son todas completadas
           horasTotales: horasTotales,
-          sprintsCompletados: 4
+          sprintsCompletados: 5
         });
 
     };
