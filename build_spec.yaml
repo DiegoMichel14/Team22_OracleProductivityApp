@@ -27,6 +27,39 @@ steps:
       echo "✅ Java 11 installed successfully"
       
   - type: Command
+    name: "Create Kubernetes Secrets"
+    timeoutInSeconds: 300
+    command: |
+      echo "🔐 Creating required Kubernetes secrets..."
+      
+      # Check if secrets already exist
+      if kubectl get secret db-wallet-secret -n default >/dev/null 2>&1; then
+        echo "✅ Secrets already exist, skipping creation"
+      else
+        echo "Creating new secrets..."
+        
+        # Create wallet secret
+        kubectl create secret generic db-wallet-secret \
+          --from-file=MtdrSpring/backend/wallet/ \
+          -n default
+        
+        # Create database user secret
+        kubectl create secret generic dbuser \
+          --from-literal=dbpassword=WELcome__12345 \
+          -n default
+        
+        # Create frontend admin secret
+        kubectl create secret generic frontendadmin \
+          --from-literal=password=WELcome__12345 \
+          -n default
+        
+        echo "✅ Kubernetes secrets created successfully"
+      fi
+      
+      # Verify secrets exist
+      kubectl get secrets -n default
+      
+  - type: Command
     name: "Setup wallet files"
     timeoutInSeconds: 300
     command: |
@@ -138,39 +171,6 @@ steps:
       # Create build-output.json in root directory
       cd ../..
       echo "{\"image\":\"${IMAGE_TAG}\",\"imageVersion\":\"${VERSION}\",\"repository\":\"${REPOSITORY}\",\"imageName\":\"${IMAGE_NAME}\"}" > build-output.json
-      
-  - type: Command
-    name: "Create Kubernetes Secrets"
-    timeoutInSeconds: 300
-    command: |
-      echo "🔐 Creating required Kubernetes secrets..."
-      
-      # Check if secrets already exist
-      if kubectl get secret db-wallet-secret -n default >/dev/null 2>&1; then
-        echo "✅ Secrets already exist, skipping creation"
-      else
-        echo "Creating new secrets..."
-        
-        # Create wallet secret
-        kubectl create secret generic db-wallet-secret \
-          --from-file=MtdrSpring/backend/wallet/ \
-          -n default
-        
-        # Create database user secret
-        kubectl create secret generic dbuser \
-          --from-literal=dbpassword=WELcome__12345 \
-          -n default
-        
-        # Create frontend admin secret
-        kubectl create secret generic frontendadmin \
-          --from-literal=password=WELcome__12345 \
-          -n default
-        
-        echo "✅ Kubernetes secrets created successfully"
-      fi
-      
-      # Verify secrets exist
-      kubectl get secrets -n default
       
 outputArtifacts:
   - name: todolist-springboot-image
