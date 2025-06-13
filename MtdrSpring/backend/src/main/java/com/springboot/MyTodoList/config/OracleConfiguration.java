@@ -23,9 +23,7 @@ import oracle.jdbc.pool.OracleDataSource;
 //
 @Configuration
 public class OracleConfiguration {
-    Logger logger = LoggerFactory.getLogger(DbSettings.class);
-    @Autowired
-    private DbSettings dbSettings;
+    Logger logger = LoggerFactory.getLogger(OracleConfiguration.class);
     @Autowired
     private Environment env;
     @Bean
@@ -57,15 +55,27 @@ public class OracleConfiguration {
             ds.setPassword(dbPassword);
             logger.info("Database configuration loaded from environment variables");
         } else {
-            // Fall back to application.properties (local testing)
-            ds.setDriverType(dbSettings.getDriver_class_name());
-            logger.info("Using Driver from properties: " + dbSettings.getDriver_class_name());
-            ds.setURL(dbSettings.getUrl());
-            logger.info("Using URL from properties: " + dbSettings.getUrl());
-            ds.setUser(dbSettings.getUsername());
-            logger.info("Using Username from properties: " + dbSettings.getUsername());
-            ds.setPassword(dbSettings.getPassword());
-            logger.info("Database configuration loaded from application.properties");
+            // Fall back to Spring Boot properties (local testing)
+            String fallbackUrl = env.getProperty("spring.datasource.url");
+            String fallbackUser = env.getProperty("spring.datasource.username"); 
+            String fallbackPassword = env.getProperty("spring.datasource.password");
+            String fallbackDriver = env.getProperty("spring.datasource.driver-class-name");
+            
+            if (fallbackUrl != null && fallbackUser != null && fallbackPassword != null) {
+                if (fallbackDriver != null) {
+                    ds.setDriverType(fallbackDriver);
+                    logger.info("Using Driver from properties: " + fallbackDriver);
+                }
+                ds.setURL(fallbackUrl);
+                logger.info("Using URL from properties: " + fallbackUrl);
+                ds.setUser(fallbackUser);
+                logger.info("Using Username from properties: " + fallbackUser);
+                ds.setPassword(fallbackPassword);
+                logger.info("Database configuration loaded from application.properties");
+            } else {
+                logger.error("No database configuration found in environment variables or properties!");
+                throw new SQLException("Database configuration is missing");
+            }
         }
         
         return ds;
