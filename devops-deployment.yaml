@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: agile-deployment
+  name: team22-agile-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: agile-app
+      app: team22-agile-app
   template:
     metadata:
       labels:
-        app: agile-app
+        app: team22-agile-app
         version: v1
     spec:
       containers:
@@ -31,7 +31,7 @@ spec:
             - name: dbpassword
               valueFrom:
                 secretKeyRef:
-                  name: dbuser
+                  name: team22-dbuser
                   key: dbpassword
                   optional: true
             - name: ui_username
@@ -39,7 +39,7 @@ spec:
             - name: ui_password
               valueFrom:
                 secretKeyRef:
-                  name: frontendadmin
+                  name: team22-frontendadmin
                   key: password
                   optional: true
           volumeMounts:
@@ -65,26 +65,26 @@ spec:
       volumes:
         - name: creds
           secret:
-            secretName: db-wallet-secret
+            secretName: team22-db-wallet-secret
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname 
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
-              app: agile-app
+              app: team22-agile-app
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: agile-service
+  name: team22-agile-service
   annotations:
     oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
 spec:
   type: LoadBalancer
   selector:
-    app: agile-app
+    app: team22-agile-app
   ports:
     - port: 80
       protocol: TCP
