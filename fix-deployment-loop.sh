@@ -91,7 +91,7 @@ spec:
             - containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /
+              path: /test-simple
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -99,7 +99,7 @@ spec:
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 30

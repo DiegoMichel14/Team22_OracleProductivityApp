@@ -221,16 +221,20 @@ steps:
                   - containerPort: 8080
                 readinessProbe:
                   httpGet:
-                    path: /
+                    path: /test-simple
                     port: 8080
-                  initialDelaySeconds: 60
+                  initialDelaySeconds: 30
                   periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 3
                 livenessProbe:
                   httpGet:
-                    path: /
+                    path: /health
                     port: 8080
-                  initialDelaySeconds: 90
+                  initialDelaySeconds: 60
                   periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
             restartPolicy: Always
             volumes:
               - name: creds
