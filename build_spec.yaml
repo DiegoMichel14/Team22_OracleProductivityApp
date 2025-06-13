@@ -56,8 +56,6 @@ steps:
       
       echo "✅ Wallet setup completed successfully"
       
-  - type: Command
-    name: "Test Oracle DB Connection"
     timeoutInSeconds: 300
     command: |
       echo "🔌 Testing Oracle DB connection..."
