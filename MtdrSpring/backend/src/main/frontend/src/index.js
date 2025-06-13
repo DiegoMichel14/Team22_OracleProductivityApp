@@ -19,13 +19,12 @@ import VistaManager from './components/VistaManager';
 ReactDOM.render(
   <BrowserRouter>
     <Routes>
-      {/* Temporarily change the root path to go directly to App for testing */}
-      <Route path="/" element={<Login />} />
+      {/* Make the main app visible at root path for better user experience */}
+      <Route path="/" element={<App />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/App" element={<App />} />
       <Route path="/developer" element={<VistaDeveloper />} />
       <Route path="/manager" element={<VistaManager />} />
-      {/* Keep this commented out until you're done testing */}
-      {/* <Route path="/" element={<Login />} /> */}
     </Routes>
   </BrowserRouter>,
   document.getElementById('root')
