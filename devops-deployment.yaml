@@ -62,6 +62,8 @@ spec:
             periodSeconds: 30
             failureThreshold: 3
       restartPolicy: Always
+      imagePullSecrets:
+        - name: ocir-secret
       volumes:
         - name: creds
           secret:
