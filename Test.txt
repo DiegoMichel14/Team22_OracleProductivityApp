@@ -1,1 +1,520 @@
-Test Oracle Continious
+2025-06-13T04:53:43.634Z Deployment started. Deployment name: devopsdeployment20250613045322.
+2025-06-13T04:53:43.634Z TodolistApp Artifact snapshot: {"id":"ocid1.devopsdeployartifact.oc1.mx-queretaro-1.amaaaaaaj7txo5aabdnq5rkcxtpa4w4clnvywsdl6dtityaj2tltrov7hrxa","displayName":"TodolistApp","projectId":"ocid1.devopsproject.oc1.mx-queretaro-1.amaaaaaaj7txo5aaat4lm4j3sxij2lcbdkz5pmkuowbu4b6yz4a2fqlzcjpq","compartmentId":"ocid1.compartment.oc1..aaaaaaaa5rslgb35trmhnivdf54hjtecmw6soltshajlg7bwty362vr6iqda","deployArtifactType":"KUBERNETES_MANIFEST","argumentSubstitutionMode":"SUBSTITUTE_PLACEHOLDERS","deployArtifactSource":{"deployArtifactSourceType":"INLINE","base64EncodedContent":"YXBpVmVyc2lvbjogYXBwcy92MQpraW5kOiBEZXBsb3ltZW50Cm1ldGFkYXRhOgogIG5hbWU6IGFnaWxlLWRlcGxveW1lbnQKc3BlYzoKICByZXBsaWNhczogMQogIHNlbGVjdG9yOgogICAgbWF0Y2hMYWJlbHM6CiAgICAgIGFwcDogYWdpbGUtYXBwCiAgdGVtcGxhdGU6CiAgICBtZXRhZGF0YToKICAgICAgbGFiZWxzOgogICAgICAgIGFwcDogYWdpbGUtYXBwCiAgICBzcGVjOgogICAgICBjb250YWluZXJzOgogICAgICAgIC0gbmFtZTogYWdpbGUtY29udGFpbmVyCiAgICAgICAgICBpbWFnZTogJHtJTUFHRV9GVUxMX05BTUV9CiAgICAgICAgICBpbWFnZVB1bGxQb2xpY3k6IEFsd2F5cwogICAgICAgICAgcG9ydHM6CiAgICAgICAgICAgIC0gY29udGFpbmVyUG9ydDogODA4MAoKLS0tCmFwaVZlcnNpb246IHYxCmtpbmQ6IFNlcnZpY2UKbWV0YWRhdGE6CiAgbmFtZTogYWdpbGUtc2VydmljZQpzcGVjOgogIHR5cGU6IExvYWRCYWxhbmNlcgogIHNlbGVjdG9yOgogICAgYXBwOiBhZ2lsZS1hcHAKICBwb3J0czoKICAgIC0gcG9ydDogODAKICAgICAgcHJvdG9jb2w6IFRDUAogICAgICB0YXJnZXRQb3J0OiA4MDgw"},"timeCreated":"2025-06-07T03:10:24.763Z","timeUpdated":"2025-06-10T04:40:09.895Z","lifecycleState":"ACTIVE"}
+2025-06-13T04:53:43.634Z XDenvironment Environment snapshot: {"deployEnvironmentType":"OKE_CLUSTER","id":"ocid1.devopsdeployenvironment.oc1.mx-queretaro-1.amaaaaaaj7txo5aawgnsosm5tzphfwzxypje2hvulxdkby2pylw6a5tgqj2q","displayName":"XDenvironment","projectId":"ocid1.devopsproject.oc1.mx-queretaro-1.amaaaaaaj7txo5aaat4lm4j3sxij2lcbdkz5pmkuowbu4b6yz4a2fqlzcjpq","compartmentId":"ocid1.compartment.oc1..aaaaaaaa5rslgb35trmhnivdf54hjtecmw6soltshajlg7bwty362vr6iqda","timeCreated":"2025-06-07T04:32:41.621Z","timeUpdated":"2025-06-07T04:32:41.621Z","lifecycleState":"ACTIVE","clusterId":"ocid1.cluster.oc1.mx-queretaro-1.aaaaaaaaszrvwhqichcmeekkvfv5gf3gmch4otamre55neh3gcvephjwucfa"}
+2025-06-13T04:53:43.634Z deployment-pipeline Stage snapshot: {"deployStageType":"OKE_DEPLOYMENT","id":"ocid1.devopsdeploystage.oc1.mx-queretaro-1.amaaaaaaj7txo5aa2jpdbxxhcbf3wjlv7rgq6ias4edromaffazpfsdgblra","displayName":"deployment-pipeline","projectId":"ocid1.devopsproject.oc1.mx-queretaro-1.amaaaaaaj7txo5aaat4lm4j3sxij2lcbdkz5pmkuowbu4b6yz4a2fqlzcjpq","deployPipelineId":"ocid1.devopsdeploypipeline.oc1.mx-queretaro-1.amaaaaaaj7txo5aamujtuipt2i6jcnvm7z3gde7xdp5ocic555qzy3vzpv3a","compartmentId":"ocid1.compartment.oc1..aaaaaaaa5rslgb35trmhnivdf54hjtecmw6soltshajlg7bwty362vr6iqda","timeCreated":"2025-06-07T04:33:19.618Z","timeUpdated":"2025-06-08T22:57:46.681Z","lifecycleState":"ACTIVE","deployStagePredecessorCollection":{"items":[{"id":"ocid1.devopsdeploypipeline.oc1.mx-queretaro-1.amaaaaaaj7txo5aamujtuipt2i6jcnvm7z3gde7xdp5ocic555qzy3vzpv3a"}]},"okeClusterDeployEnvironmentId":"ocid1.devopsdeployenvironment.oc1.mx-queretaro-1.amaaaaaaj7txo5aawgnsosm5tzphfwzxypje2hvulxdkby2pylw6a5tgqj2q","okeEnvironmentDetails":{"environmentType":"OKE_CLUSTER","clusterEnvironmentId":"ocid1.devopsdeployenvironment.oc1.mx-queretaro-1.amaaaaaaj7txo5aawgnsosm5tzphfwzxypje2hvulxdkby2pylw6a5tgqj2q"},"kubernetesManifestDeployArtifactIds":["ocid1.devopsdeployartifact.oc1.mx-queretaro-1.amaaaaaaj7txo5aabdnq5rkcxtpa4w4clnvywsdl6dtityaj2tltrov7hrxa"],"namespace":"default","rollbackPolicy":{"policyType":"AUTOMATED_STAGE_ROLLBACK_POLICY"}}
+2025-06-13T04:53:46.127Z Deployment execution starting stage: deployment-pipeline.
+2025-06-13T04:53:51.413Z Starting to execute OKE deployment.  Stage name:  deployment-pipeline, Cluster name: cluster1
+2025-06-13T04:53:56.736Z Invoked apply command for resource: agile-deployment of kind: Deployment in namespace: default
+2025-06-13T04:53:56.930Z Invoked apply command for resource: agile-service of kind: Service in namespace: default
+2025-06-13T04:53:56.930Z Apply manifest succeeded. ArtifactId: ocid1.devopsdeployartifact.oc1.mx-queretaro-1.amaaaaaaj7txo5aabdnq5rkcxtpa4w4clnvywsdl6dtityaj2tltrov7hrxa
+2025-06-13T04:53:57.062Z Checking OKE deployment status
+2025-06-13T04:54:18.116Z Checking OKE deployment status
+2025-06-13T04:54:32.384Z Checking OKE deployment status
+2025-06-13T04:54:46.741Z Checking OKE deployment status
+2025-06-13T04:55:01.563Z Checking OKE deployment status
+2025-06-13T04:55:15.851Z Checking OKE deployment status
+2025-06-13T04:55:30.031Z Checking OKE deployment status
+2025-06-13T04:55:46.442Z Checking OKE deployment status
+2025-06-13T04:56:01.119Z Checking OKE deployment status
+2025-06-13T04:56:15.316Z Checking OKE deployment status
+2025-06-13T04:56:28.713Z Checking OKE deployment status
+2025-06-13T04:56:42.949Z Checking OKE deployment status
+2025-06-13T04:56:57.832Z Checking OKE deployment status
+2025-06-13T04:57:12.328Z Checking OKE deployment status
+2025-06-13T04:57:26.515Z Checking OKE deployment status
+2025-06-13T04:57:42.373Z Checking OKE deployment status
+2025-06-13T04:57:58.778Z Checking OKE deployment status
+2025-06-13T04:58:13.230Z Checking OKE deployment status
+2025-06-13T04:58:39.932Z Checking OKE deployment status
+2025-06-13T04:58:54.939Z Checking OKE deployment status
+2025-06-13T04:59:09.797Z Checking OKE deployment status
+2025-06-13T04:59:24.095Z Checking OKE deployment status
+2025-06-13T04:59:38.985Z Checking OKE deployment status
+2025-06-13T04:59:53.101Z Checking OKE deployment status
+2025-06-13T05:00:07.952Z Checking OKE deployment status
+2025-06-13T05:00:22.073Z Checking OKE deployment status
+2025-06-13T05:00:36.837Z Checking OKE deployment status
+2025-06-13T05:00:51.453Z Checking OKE deployment status
+2025-06-13T05:01:05.498Z Checking OKE deployment status
+2025-06-13T05:01:20.336Z Checking OKE deployment status
+2025-06-13T05:01:35.271Z Checking OKE deployment status
+2025-06-13T05:01:48.966Z Checking OKE deployment status
+2025-06-13T05:02:17.726Z Checking OKE deployment status
+2025-06-13T05:02:32.674Z Checking OKE deployment status
+2025-06-13T05:02:47.288Z Checking OKE deployment status
+2025-06-13T05:03:01.843Z Checking OKE deployment status
+2025-06-13T05:03:16.300Z Checking OKE deployment status
+2025-06-13T05:03:30.897Z Checking OKE deployment status
+2025-06-13T05:03:45.124Z Checking OKE deployment status
+2025-06-13T05:03:59.408Z Checking OKE deployment status
+2025-06-13T05:04:06.453Z OKE deployment exceeded its progress deadline
+2025-06-13T05:04:06.635Z Failed to check OKE deployment status. Error Message: Unable to check status of resource: agile-deployment of kind: Deployment in namespace: default, Server Resource: class V1Deployment {
+2025-06-13T05:04:06.635Z     apiVersion: apps/v1
+2025-06-13T05:04:06.635Z     kind: Deployment
+2025-06-13T05:04:06.635Z     metadata: class V1ObjectMeta {
+2025-06-13T05:04:06.635Z         annotations: {deployment.kubernetes.io/revision=47, kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"apps/v1","kind":"Deployment","metadata":{"name":"agile-deployment"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"agile-app"}},"template":{"metadata":{"labels":{"app":"agile-app"}},"spec":{"containers":[{"image":"mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:20250613-044812","imagePullPolicy":"Always","name":"agile-container","ports":[{"containerPort":8080}]}]}}}}
+2025-06-13T05:04:06.635Z         }
+2025-06-13T05:04:06.635Z         creationTimestamp: 2025-06-07T07:44:36Z
+2025-06-13T05:04:06.635Z         deletionGracePeriodSeconds: null
+2025-06-13T05:04:06.635Z         deletionTimestamp: null
+2025-06-13T05:04:06.635Z         finalizers: null
+2025-06-13T05:04:06.635Z         generateName: null
+2025-06-13T05:04:06.635Z         generation: 47
+2025-06-13T05:04:06.635Z         labels: null
+2025-06-13T05:04:06.635Z         managedFields: [class V1ManagedFieldsEntry {
+2025-06-13T05:04:06.635Z             apiVersion: apps/v1
+2025-06-13T05:04:06.635Z             fieldsType: FieldsV1
+2025-06-13T05:04:06.635Z             fieldsV1: {f:spec={f:replicas={}, f:selector={}, f:template={f:metadata={f:labels={f:app={}}}, f:spec={f:containers={k:{"name":"agile-container"}={.={}, f:image={}, f:imagePullPolicy={}, f:name={}, f:ports={k:{"containerPort":8080,"protocol":"TCP"}={.={}, f:containerPort={}}}}}}}}}
+2025-06-13T05:04:06.635Z             manager: kubectl
+2025-06-13T05:04:06.635Z             operation: Apply
+2025-06-13T05:04:06.635Z             subresource: null
+2025-06-13T05:04:06.635Z             time: 2025-06-13T04:53:56Z
+2025-06-13T05:04:06.635Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:06.635Z             apiVersion: apps/v1
+2025-06-13T05:04:06.635Z             fieldsType: FieldsV1
+2025-06-13T05:04:06.635Z             fieldsV1: {f:spec={f:template={f:spec={f:imagePullSecrets={.={}, k:{"name":"ocir-secret"}={}}}}}}
+2025-06-13T05:04:06.635Z             manager: kubectl-patch
+2025-06-13T05:04:06.635Z             operation: Update
+2025-06-13T05:04:06.635Z             subresource: null
+2025-06-13T05:04:06.635Z             time: 2025-06-07T19:31:42Z
+2025-06-13T05:04:06.635Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:06.635Z             apiVersion: apps/v1
+2025-06-13T05:04:06.635Z             fieldsType: FieldsV1
+2025-06-13T05:04:06.635Z             fieldsV1: {f:metadata={f:annotations={f:kubectl.kubernetes.io/last-applied-configuration={}}}, f:spec={f:template={f:metadata={f:labels={f:version={}}}, f:spec={f:containers={k:{"name":"agile-container"}={f:env={.={}, k:{"name":"OCI_REGION"}={.={}, f:name={}, f:value={}}, k:{"name":"db_url"}={.={}, f:name={}}, k:{"name":"db_user"}={.={}, f:name={}, f:value={}}, k:{"name":"dbpassword"}={.={}, f:name={}, f:valueFrom={.={}, f:secretKeyRef={}}}, k:{"name":"driver_class_name"}={.={}, f:name={}, f:value={}}, k:{"name":"todo.table.name"}={.={}, f:name={}, f:value={}}, k:{"name":"ui_password"}={.={}, f:name={}, f:valueFrom={.={}, f:secretKeyRef={}}}, k:{"name":"ui_username"}={.={}, f:name={}, f:value={}}}, f:imagePullPolicy={}, f:livenessProbe={.={}, f:failureThreshold={}, f:httpGet={.={}, f:port={}, f:scheme={}}, f:periodSeconds={}, f:successThreshold={}, f:timeoutSeconds={}}, f:readinessProbe={.={}, f:failureThreshold={}, f:httpGet={.={}, f:port={}, f:scheme={}}, f:periodSeconds={}, f:successThreshold={}, f:timeoutSeconds={}}, f:volumeMounts={.={}, k:{"mountPath":"/mtdrworkshop/creds"}={.={}, f:mountPath={}, f:name={}}}}}, f:topologySpreadConstraints={.={}, k:{"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}={.={}, f:labelSelector={}, f:maxSkew={}, f:topologyKey={}, f:whenUnsatisfiable={}}}, f:volumes={.={}, k:{"name":"creds"}={.={}, f:name={}, f:secret={.={}, f:defaultMode={}, f:secretName={}}}}}}}}
+2025-06-13T05:04:06.635Z             manager: kubectl-client-side-apply
+2025-06-13T05:04:06.635Z             operation: Update
+2025-06-13T05:04:06.635Z             subresource: null
+2025-06-13T05:04:06.635Z             time: 2025-06-08T22:49:59Z
+2025-06-13T05:04:06.635Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:06.635Z             apiVersion: apps/v1
+2025-06-13T05:04:06.635Z             fieldsType: FieldsV1
+2025-06-13T05:04:06.635Z             fieldsV1: {f:spec={f:template={f:spec={f:containers={k:{"name":"agile-container"}={f:livenessProbe={f:httpGet={f:path={}}}, f:readinessProbe={f:httpGet={f:path={}}}}}}}}}
+2025-06-13T05:04:06.635Z             manager: kubectl
+2025-06-13T05:04:06.635Z             operation: Update
+2025-06-13T05:04:06.635Z             subresource: null
+2025-06-13T05:04:06.635Z             time: 2025-06-10T02:26:18Z
+2025-06-13T05:04:06.635Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:06.635Z             apiVersion: apps/v1
+2025-06-13T05:04:06.635Z             fieldsType: FieldsV1
+2025-06-13T05:04:06.635Z             fieldsV1: {f:metadata={f:annotations={.={}, f:deployment.kubernetes.io/revision={}}}, f:status={f:availableReplicas={}, f:conditions={.={}, k:{"type":"Available"}={.={}, f:lastTransitionTime={}, f:lastUpdateTime={}, f:message={}, f:reason={}, f:status={}, f:type={}}, k:{"type":"Progressing"}={.={}, f:lastTransitionTime={}, f:lastUpdateTime={}, f:message={}, f:reason={}, f:status={}, f:type={}}}, f:observedGeneration={}, f:readyReplicas={}, f:replicas={}, f:unavailableReplicas={}, f:updatedReplicas={}}}
+2025-06-13T05:04:06.635Z             manager: kube-controller-manager
+2025-06-13T05:04:06.635Z             operation: Update
+2025-06-13T05:04:06.635Z             subresource: status
+2025-06-13T05:04:06.635Z             time: 2025-06-13T05:03:57Z
+2025-06-13T05:04:06.635Z         }]
+2025-06-13T05:04:06.635Z         name: agile-deployment
+2025-06-13T05:04:06.635Z         namespace: default
+2025-06-13T05:04:06.635Z         ownerReferences: null
+2025-06-13T05:04:06.635Z         resourceVersion: 4032013
+2025-06-13T05:04:06.635Z         selfLink: null
+2025-06-13T05:04:06.635Z         uid: 6fc7bb87-7ebf-484d-b7f3-c40912d7c7ac
+2025-06-13T05:04:06.635Z     }
+2025-06-13T05:04:06.635Z     spec: class V1DeploymentSpec {
+2025-06-13T05:04:06.635Z         minReadySeconds: null
+2025-06-13T05:04:06.635Z         paused: null
+2025-06-13T05:04:06.635Z         progressDeadlineSeconds: 600
+2025-06-13T05:04:06.635Z         replicas: 1
+2025-06-13T05:04:06.635Z         revisionHistoryLimit: 10
+2025-06-13T05:04:06.635Z         selector: class V1LabelSelector {
+2025-06-13T05:04:06.635Z             matchExpressions: null
+2025-06-13T05:04:06.635Z             matchLabels: {app=agile-app}
+2025-06-13T05:04:06.635Z         }
+2025-06-13T05:04:06.635Z         strategy: class V1DeploymentStrategy {
+2025-06-13T05:04:06.635Z             rollingUpdate: class V1RollingUpdateDeployment {
+2025-06-13T05:04:06.635Z                 maxSurge: 25%
+2025-06-13T05:04:06.635Z                 maxUnavailable: 25%
+2025-06-13T05:04:06.635Z             }
+2025-06-13T05:04:06.635Z             type: RollingUpdate
+2025-06-13T05:04:06.635Z         }
+2025-06-13T05:04:06.635Z         template: class V1PodTemplateSpec {
+2025-06-13T05:04:06.635Z             metadata: class V1ObjectMeta {
+2025-06-13T05:04:06.635Z                 annotations: null
+2025-06-13T05:04:06.635Z                 creationTimestamp: null
+2025-06-13T05:04:06.635Z                 deletionGracePeriodSeconds: null
+2025-06-13T05:04:06.635Z                 deletionTimestamp: null
+2025-06-13T05:04:06.635Z                 finalizers: null
+2025-06-13T05:04:06.635Z                 generateName: null
+2025-06-13T05:04:06.635Z                 generation: null
+2025-06-13T05:04:06.635Z                 labels: {app=agile-app, version=v1}
+2025-06-13T05:04:06.635Z                 managedFields: null
+2025-06-13T05:04:06.635Z                 name: null
+2025-06-13T05:04:06.635Z                 namespace: null
+2025-06-13T05:04:06.635Z                 ownerReferences: null
+2025-06-13T05:04:06.635Z                 resourceVersion: null
+2025-06-13T05:04:06.635Z                 selfLink: null
+2025-06-13T05:04:06.635Z                 uid: null
+2025-06-13T05:04:06.635Z             }
+2025-06-13T05:04:06.635Z             spec: class V1PodSpec {
+2025-06-13T05:04:06.635Z                 activeDeadlineSeconds: null
+2025-06-13T05:04:06.635Z                 affinity: null
+2025-06-13T05:04:06.635Z                 automountServiceAccountToken: null
+2025-06-13T05:04:06.635Z                 containers: [class V1Container {
+2025-06-13T05:04:06.635Z                     args: null
+2025-06-13T05:04:06.635Z                     command: null
+2025-06-13T05:04:06.635Z                     env: [class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: db_user
+2025-06-13T05:04:06.635Z                         value: TODOUSER
+2025-06-13T05:04:06.635Z                         valueFrom: null
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: db_url
+2025-06-13T05:04:06.635Z                         value: null
+2025-06-13T05:04:06.635Z                         valueFrom: null
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: todo.table.name
+2025-06-13T05:04:06.635Z                         value: todoitem
+2025-06-13T05:04:06.635Z                         valueFrom: null
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: driver_class_name
+2025-06-13T05:04:06.635Z                         value: oracle.jdbc.OracleDriver
+2025-06-13T05:04:06.635Z                         valueFrom: null
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: OCI_REGION
+2025-06-13T05:04:06.635Z                         value: %OCI_REGION%
+2025-06-13T05:04:06.635Z                         valueFrom: null
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: dbpassword
+2025-06-13T05:04:06.635Z                         value: null
+2025-06-13T05:04:06.635Z                         valueFrom: class V1EnvVarSource {
+2025-06-13T05:04:06.635Z                             configMapKeyRef: null
+2025-06-13T05:04:06.635Z                             fieldRef: null
+2025-06-13T05:04:06.635Z                             resourceFieldRef: null
+2025-06-13T05:04:06.635Z                             secretKeyRef: class V1SecretKeySelector {
+2025-06-13T05:04:06.635Z                                 key: dbpassword
+2025-06-13T05:04:06.635Z                                 name: dbuser
+2025-06-13T05:04:06.635Z                                 optional: true
+2025-06-13T05:04:06.635Z                             }
+2025-06-13T05:04:06.635Z                         }
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: ui_username
+2025-06-13T05:04:06.635Z                         value: %UI_USERNAME%
+2025-06-13T05:04:06.635Z                         valueFrom: null
+2025-06-13T05:04:06.635Z                     }, class V1EnvVar {
+2025-06-13T05:04:06.635Z                         name: ui_password
+2025-06-13T05:04:06.635Z                         value: null
+2025-06-13T05:04:06.635Z                         valueFrom: class V1EnvVarSource {
+2025-06-13T05:04:06.635Z                             configMapKeyRef: null
+2025-06-13T05:04:06.635Z                             fieldRef: null
+2025-06-13T05:04:06.635Z                             resourceFieldRef: null
+2025-06-13T05:04:06.635Z                             secretKeyRef: class V1SecretKeySelector {
+2025-06-13T05:04:06.635Z                                 key: password
+2025-06-13T05:04:06.635Z                                 name: frontendadmin
+2025-06-13T05:04:06.635Z                                 optional: true
+2025-06-13T05:04:06.635Z                             }
+2025-06-13T05:04:06.635Z                         }
+2025-06-13T05:04:06.635Z                     }]
+2025-06-13T05:04:06.635Z                     envFrom: null
+2025-06-13T05:04:06.635Z                     image: mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:20250613-044812
+2025-06-13T05:04:06.635Z                     imagePullPolicy: Always
+2025-06-13T05:04:06.635Z                     lifecycle: null
+2025-06-13T05:04:06.635Z                     livenessProbe: class V1Probe {
+2025-06-13T05:04:06.635Z                         exec: null
+2025-06-13T05:04:06.635Z                         failureThreshold: 3
+2025-06-13T05:04:06.635Z                         grpc: null
+2025-06-13T05:04:06.635Z                         httpGet: class V1HTTPGetAction {
+2025-06-13T05:04:06.635Z                             host: null
+2025-06-13T05:04:06.635Z                             httpHeaders: null
+2025-06-13T05:04:06.635Z                             path: /
+2025-06-13T05:04:06.635Z                             port: 8080
+2025-06-13T05:04:06.635Z                             scheme: HTTP
+2025-06-13T05:04:06.635Z                         }
+2025-06-13T05:04:06.635Z                         initialDelaySeconds: null
+2025-06-13T05:04:06.635Z                         periodSeconds: 30
+2025-06-13T05:04:06.635Z                         successThreshold: 1
+2025-06-13T05:04:06.635Z                         tcpSocket: null
+2025-06-13T05:04:06.635Z                         terminationGracePeriodSeconds: null
+2025-06-13T05:04:06.635Z                         timeoutSeconds: 1
+2025-06-13T05:04:06.635Z                     }
+2025-06-13T05:04:06.635Z                     name: agile-container
+2025-06-13T05:04:06.635Z                     ports: [class V1ContainerPort {
+2025-06-13T05:04:06.635Z                         containerPort: 8080
+2025-06-13T05:04:06.635Z                         hostIP: null
+2025-06-13T05:04:06.635Z                         hostPort: null
+2025-06-13T05:04:06.635Z                         name: null
+2025-06-13T05:04:06.635Z                         protocol: TCP
+2025-06-13T05:04:06.635Z                     }]
+2025-06-13T05:04:06.635Z                     readinessProbe: class V1P...
+2025-06-13T05:04:09.000Z Starting to rollback OKE deployment  Stage name:  deployment-pipeline, Cluster name: cluster1
+2025-06-13T05:04:09.078Z Started rollbacking OKE deployment to deploymentId: ocid1.devopsdeployment.oc1.mx-queretaro-1.amaaaaaaj7txo5aauaimgritrhke5uuhflo4l4v3aj3esn26rougsi25eova and deployment parameter values: {UI_USERNAME=UI admin username, REGION=OCI Region identifier, TODO_PDB_NAME=Database PDB name, IMAGE_FULL_NAME=mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:20250610-044229, VERSION=20250610-044229, OCI_DEPLOYMENT_ID=ocid1.devopsdeployment.oc1.mx-queretaro-1.amaaaaaaj7txo5aauaimgritrhke5uuhflo4l4v3aj3esn26rougsi25eova, OCI_PIPELINE_ID=ocid1.devopsdeploypipeline.oc1.mx-queretaro-1.amaaaaaaj7txo5aamujtuipt2i6jcnvm7z3gde7xdp5ocic555qzy3vzpv3a}
+2025-06-13T05:04:14.926Z Invoked apply command for resource: agile-deployment of kind: Deployment in namespace: default
+2025-06-13T05:04:15.054Z Invoked apply command for resource: agile-service of kind: Service in namespace: default
+2025-06-13T05:04:15.054Z Apply manifest succeeded. ArtifactId: ocid1.devopsdeployartifact.oc1.mx-queretaro-1.amaaaaaaj7txo5aabdnq5rkcxtpa4w4clnvywsdl6dtityaj2tltrov7hrxa
+2025-06-13T05:04:15.121Z Checking OKE deployment rollback status
+2025-06-13T05:04:18.695Z Deployment is failing. One or more stages in the deployment have failed. Deployment name: ocid1.devopsdeployment.oc1.mx-queretaro-1.amaaaaaaj7txo5aarwvn2rnxubf5cpfnykh354775brzvxfhrdx22yax4yxq.
+2025-06-13T05:04:18.723Z Waiting for in progress stages to complete.
+2025-06-13T05:04:19.884Z Current state of resource: agile-deployment 
+2025-06-13T05:04:19.884Z  class V1Deployment {
+2025-06-13T05:04:19.884Z     apiVersion: apps/v1
+2025-06-13T05:04:19.884Z     kind: Deployment
+2025-06-13T05:04:19.884Z     metadata: class V1ObjectMeta {
+2025-06-13T05:04:19.884Z         annotations: {deployment.kubernetes.io/revision=48, kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"apps/v1","kind":"Deployment","metadata":{"name":"agile-deployment"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"agile-app"}},"template":{"metadata":{"labels":{"app":"agile-app"}},"spec":{"containers":[{"image":"mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:20250610-044229","imagePullPolicy":"Always","name":"agile-container","ports":[{"containerPort":8080}]}]}}}}
+2025-06-13T05:04:19.884Z         }
+2025-06-13T05:04:19.884Z         creationTimestamp: 2025-06-07T07:44:36Z
+2025-06-13T05:04:19.884Z         deletionGracePeriodSeconds: null
+2025-06-13T05:04:19.884Z         deletionTimestamp: null
+2025-06-13T05:04:19.884Z         finalizers: null
+2025-06-13T05:04:19.884Z         generateName: null
+2025-06-13T05:04:19.884Z         generation: 48
+2025-06-13T05:04:19.884Z         labels: null
+2025-06-13T05:04:19.884Z         managedFields: [class V1ManagedFieldsEntry {
+2025-06-13T05:04:19.884Z             apiVersion: apps/v1
+2025-06-13T05:04:19.884Z             fieldsType: FieldsV1
+2025-06-13T05:04:19.884Z             fieldsV1: {f:spec={f:replicas={}, f:selector={}, f:template={f:metadata={f:labels={f:app={}}}, f:spec={f:containers={k:{"name":"agile-container"}={.={}, f:image={}, f:imagePullPolicy={}, f:name={}, f:ports={k:{"containerPort":8080,"protocol":"TCP"}={.={}, f:containerPort={}}}}}}}}}
+2025-06-13T05:04:19.884Z             manager: kubectl
+2025-06-13T05:04:19.884Z             operation: Apply
+2025-06-13T05:04:19.884Z             subresource: null
+2025-06-13T05:04:19.884Z             time: 2025-06-13T05:04:14Z
+2025-06-13T05:04:19.884Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:19.884Z             apiVersion: apps/v1
+2025-06-13T05:04:19.884Z             fieldsType: FieldsV1
+2025-06-13T05:04:19.884Z             fieldsV1: {f:spec={f:template={f:spec={f:imagePullSecrets={.={}, k:{"name":"ocir-secret"}={}}}}}}
+2025-06-13T05:04:19.884Z             manager: kubectl-patch
+2025-06-13T05:04:19.884Z             operation: Update
+2025-06-13T05:04:19.884Z             subresource: null
+2025-06-13T05:04:19.884Z             time: 2025-06-07T19:31:42Z
+2025-06-13T05:04:19.884Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:19.884Z             apiVersion: apps/v1
+2025-06-13T05:04:19.884Z             fieldsType: FieldsV1
+2025-06-13T05:04:19.884Z             fieldsV1: {f:metadata={f:annotations={f:kubectl.kubernetes.io/last-applied-configuration={}}}, f:spec={f:template={f:metadata={f:labels={f:version={}}}, f:spec={f:containers={k:{"name":"agile-container"}={f:env={.={}, k:{"name":"OCI_REGION"}={.={}, f:name={}, f:value={}}, k:{"name":"db_url"}={.={}, f:name={}}, k:{"name":"db_user"}={.={}, f:name={}, f:value={}}, k:{"name":"dbpassword"}={.={}, f:name={}, f:valueFrom={.={}, f:secretKeyRef={}}}, k:{"name":"driver_class_name"}={.={}, f:name={}, f:value={}}, k:{"name":"todo.table.name"}={.={}, f:name={}, f:value={}}, k:{"name":"ui_password"}={.={}, f:name={}, f:valueFrom={.={}, f:secretKeyRef={}}}, k:{"name":"ui_username"}={.={}, f:name={}, f:value={}}}, f:imagePullPolicy={}, f:livenessProbe={.={}, f:failureThreshold={}, f:httpGet={.={}, f:port={}, f:scheme={}}, f:periodSeconds={}, f:successThreshold={}, f:timeoutSeconds={}}, f:readinessProbe={.={}, f:failureThreshold={}, f:httpGet={.={}, f:port={}, f:scheme={}}, f:periodSeconds={}, f:successThreshold={}, f:timeoutSeconds={}}, f:volumeMounts={.={}, k:{"mountPath":"/mtdrworkshop/creds"}={.={}, f:mountPath={}, f:name={}}}}}, f:topologySpreadConstraints={.={}, k:{"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"DoNotSchedule"}={.={}, f:labelSelector={}, f:maxSkew={}, f:topologyKey={}, f:whenUnsatisfiable={}}}, f:volumes={.={}, k:{"name":"creds"}={.={}, f:name={}, f:secret={.={}, f:defaultMode={}, f:secretName={}}}}}}}}
+2025-06-13T05:04:19.884Z             manager: kubectl-client-side-apply
+2025-06-13T05:04:19.884Z             operation: Update
+2025-06-13T05:04:19.884Z             subresource: null
+2025-06-13T05:04:19.884Z             time: 2025-06-08T22:49:59Z
+2025-06-13T05:04:19.884Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:19.884Z             apiVersion: apps/v1
+2025-06-13T05:04:19.884Z             fieldsType: FieldsV1
+2025-06-13T05:04:19.884Z             fieldsV1: {f:spec={f:template={f:spec={f:containers={k:{"name":"agile-container"}={f:livenessProbe={f:httpGet={f:path={}}}, f:readinessProbe={f:httpGet={f:path={}}}}}}}}}
+2025-06-13T05:04:19.884Z             manager: kubectl
+2025-06-13T05:04:19.884Z             operation: Update
+2025-06-13T05:04:19.884Z             subresource: null
+2025-06-13T05:04:19.884Z             time: 2025-06-10T02:26:18Z
+2025-06-13T05:04:19.884Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:19.884Z             apiVersion: apps/v1
+2025-06-13T05:04:19.884Z             fieldsType: FieldsV1
+2025-06-13T05:04:19.884Z             fieldsV1: {f:metadata={f:annotations={.={}, f:deployment.kubernetes.io/revision={}}}, f:status={f:availableReplicas={}, f:conditions={.={}, k:{"type":"Available"}={.={}, f:lastTransitionTime={}, f:lastUpdateTime={}, f:message={}, f:reason={}, f:status={}, f:type={}}, k:{"type":"Progressing"}={.={}, f:lastTransitionTime={}, f:lastUpdateTime={}, f:message={}, f:reason={}, f:status={}, f:type={}}}, f:observedGeneration={}, f:readyReplicas={}, f:replicas={}, f:updatedReplicas={}}}
+2025-06-13T05:04:19.884Z             manager: kube-controller-manager
+2025-06-13T05:04:19.884Z             operation: Update
+2025-06-13T05:04:19.884Z             subresource: status
+2025-06-13T05:04:19.884Z             time: 2025-06-13T05:04:15Z
+2025-06-13T05:04:19.884Z         }]
+2025-06-13T05:04:19.884Z         name: agile-deployment
+2025-06-13T05:04:19.884Z         namespace: default
+2025-06-13T05:04:19.884Z         ownerReferences: null
+2025-06-13T05:04:19.884Z         resourceVersion: 4032111
+2025-06-13T05:04:19.884Z         selfLink: null
+2025-06-13T05:04:19.884Z         uid: 6fc7bb87-7ebf-484d-b7f3-c40912d7c7ac
+2025-06-13T05:04:19.884Z     }
+2025-06-13T05:04:19.884Z     spec: class V1DeploymentSpec {
+2025-06-13T05:04:19.884Z         minReadySeconds: null
+2025-06-13T05:04:19.884Z         paused: null
+2025-06-13T05:04:19.884Z         progressDeadlineSeconds: 600
+2025-06-13T05:04:19.884Z         replicas: 1
+2025-06-13T05:04:19.884Z         revisionHistoryLimit: 10
+2025-06-13T05:04:19.884Z         selector: class V1LabelSelector {
+2025-06-13T05:04:19.884Z             matchExpressions: null
+2025-06-13T05:04:19.884Z             matchLabels: {app=agile-app}
+2025-06-13T05:04:19.884Z         }
+2025-06-13T05:04:19.884Z         strategy: class V1DeploymentStrategy {
+2025-06-13T05:04:19.884Z             rollingUpdate: class V1RollingUpdateDeployment {
+2025-06-13T05:04:19.884Z                 maxSurge: 25%
+2025-06-13T05:04:19.884Z                 maxUnavailable: 25%
+2025-06-13T05:04:19.884Z             }
+2025-06-13T05:04:19.884Z             type: RollingUpdate
+2025-06-13T05:04:19.884Z         }
+2025-06-13T05:04:19.884Z         template: class V1PodTemplateSpec {
+2025-06-13T05:04:19.884Z             metadata: class V1ObjectMeta {
+2025-06-13T05:04:19.884Z                 annotations: null
+2025-06-13T05:04:19.884Z                 creationTimestamp: null
+2025-06-13T05:04:19.884Z                 deletionGracePeriodSeconds: null
+2025-06-13T05:04:19.884Z                 deletionTimestamp: null
+2025-06-13T05:04:19.884Z                 finalizers: null
+2025-06-13T05:04:19.884Z                 generateName: null
+2025-06-13T05:04:19.884Z                 generation: null
+2025-06-13T05:04:19.884Z                 labels: {app=agile-app, version=v1}
+2025-06-13T05:04:19.884Z                 managedFields: null
+2025-06-13T05:04:19.884Z                 name: null
+2025-06-13T05:04:19.884Z                 namespace: null
+2025-06-13T05:04:19.884Z                 ownerReferences: null
+2025-06-13T05:04:19.884Z                 resourceVersion: null
+2025-06-13T05:04:19.884Z                 selfLink: null
+2025-06-13T05:04:19.884Z                 uid: null
+2025-06-13T05:04:19.884Z             }
+2025-06-13T05:04:19.884Z             spec: class V1PodSpec {
+2025-06-13T05:04:19.884Z                 activeDeadlineSeconds: null
+2025-06-13T05:04:19.884Z                 affinity: null
+2025-06-13T05:04:19.884Z                 automountServiceAccountToken: null
+2025-06-13T05:04:19.884Z                 containers: [class V1Container {
+2025-06-13T05:04:19.884Z                     args: null
+2025-06-13T05:04:19.884Z                     command: null
+2025-06-13T05:04:19.884Z                     env: [class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: db_user
+2025-06-13T05:04:19.884Z                         value: TODOUSER
+2025-06-13T05:04:19.884Z                         valueFrom: null
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: db_url
+2025-06-13T05:04:19.884Z                         value: null
+2025-06-13T05:04:19.884Z                         valueFrom: null
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: todo.table.name
+2025-06-13T05:04:19.884Z                         value: todoitem
+2025-06-13T05:04:19.884Z                         valueFrom: null
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: driver_class_name
+2025-06-13T05:04:19.884Z                         value: oracle.jdbc.OracleDriver
+2025-06-13T05:04:19.884Z                         valueFrom: null
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: OCI_REGION
+2025-06-13T05:04:19.884Z                         value: %OCI_REGION%
+2025-06-13T05:04:19.884Z                         valueFrom: null
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: dbpassword
+2025-06-13T05:04:19.884Z                         value: null
+2025-06-13T05:04:19.884Z                         valueFrom: class V1EnvVarSource {
+2025-06-13T05:04:19.884Z                             configMapKeyRef: null
+2025-06-13T05:04:19.884Z                             fieldRef: null
+2025-06-13T05:04:19.884Z                             resourceFieldRef: null
+2025-06-13T05:04:19.884Z                             secretKeyRef: class V1SecretKeySelector {
+2025-06-13T05:04:19.884Z                                 key: dbpassword
+2025-06-13T05:04:19.884Z                                 name: dbuser
+2025-06-13T05:04:19.884Z                                 optional: true
+2025-06-13T05:04:19.884Z                             }
+2025-06-13T05:04:19.884Z                         }
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: ui_username
+2025-06-13T05:04:19.884Z                         value: %UI_USERNAME%
+2025-06-13T05:04:19.884Z                         valueFrom: null
+2025-06-13T05:04:19.884Z                     }, class V1EnvVar {
+2025-06-13T05:04:19.884Z                         name: ui_password
+2025-06-13T05:04:19.884Z                         value: null
+2025-06-13T05:04:19.884Z                         valueFrom: class V1EnvVarSource {
+2025-06-13T05:04:19.884Z                             configMapKeyRef: null
+2025-06-13T05:04:19.884Z                             fieldRef: null
+2025-06-13T05:04:19.884Z                             resourceFieldRef: null
+2025-06-13T05:04:19.884Z                             secretKeyRef: class V1SecretKeySelector {
+2025-06-13T05:04:19.884Z                                 key: password
+2025-06-13T05:04:19.884Z                                 name: frontendadmin
+2025-06-13T05:04:19.884Z                                 optional: true
+2025-06-13T05:04:19.884Z                             }
+2025-06-13T05:04:19.884Z                         }
+2025-06-13T05:04:19.884Z                     }]
+2025-06-13T05:04:19.884Z                     envFrom: null
+2025-06-13T05:04:19.884Z                     image: mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:20250610-044229
+2025-06-13T05:04:19.884Z                     imagePullPolicy: Always
+2025-06-13T05:04:19.884Z                     lifecycle: null
+2025-06-13T05:04:19.884Z                     livenessProbe: class V1Probe {
+2025-06-13T05:04:19.884Z                         exec: null
+2025-06-13T05:04:19.884Z                         failureThreshold: 3
+2025-06-13T05:04:19.884Z                         grpc: null
+2025-06-13T05:04:19.884Z                         httpGet: class V1HTTPGetAction {
+2025-06-13T05:04:19.884Z                             host: null
+2025-06-13T05:04:19.884Z                             httpHeaders: null
+2025-06-13T05:04:19.884Z                             path: /
+2025-06-13T05:04:19.884Z                             port: 8080
+2025-06-13T05:04:19.884Z                             scheme: HTTP
+2025-06-13T05:04:19.884Z                         }
+2025-06-13T05:04:19.884Z                         initialDelaySeconds: null
+2025-06-13T05:04:19.884Z                         periodSeconds: 30
+2025-06-13T05:04:19.884Z                         successThreshold: 1
+2025-06-13T05:04:19.884Z                         tcpSocket: null
+2025-06-13T05:04:19.884Z                         terminationGracePeriodSeconds: null
+2025-06-13T05:04:19.884Z                         timeoutSeconds: 1
+2025-06-13T05:04:19.884Z                     }
+2025-06-13T05:04:19.884Z                     name: agile-container
+2025-06-13T05:04:19.884Z                     ports: [class V1ContainerPort {
+2025-06-13T05:04:19.884Z                         containerPort: 8080
+2025-06-13T05:04:19.884Z                         hostIP: null
+2025-06-13T05:04:19.884Z                         hostPort: null
+2025-06-13T05:04:19.884Z                         name: null
+2025-06-13T05:04:19.884Z                         protocol: TCP
+2025-06-13T05:04:19.884Z                     }]
+2025-06-13T05:04:19.884Z                     readinessProbe: class V1Probe {
+2025-06-13T05:04:19.884Z                         exec: null
+2025-06-13T05:04:19.884Z                         failureThreshold: 3
+2025-06-13T05:04:19.884Z                         grpc: null
+2025-06-13T05:04:19.884Z                         ht...
+2025-06-13T05:04:20.031Z Current state of resource: agile-service 
+2025-06-13T05:04:20.031Z  class V1Service {
+2025-06-13T05:04:20.031Z     apiVersion: v1
+2025-06-13T05:04:20.031Z     kind: Service
+2025-06-13T05:04:20.031Z     metadata: class V1ObjectMeta {
+2025-06-13T05:04:20.031Z         annotations: {kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"v1","kind":"Service","metadata":{"name":"agile-service"},"spec":{"ports":[{"port":80,"protocol":"TCP","targetPort":8080}],"selector":{"app":"agile-app"},"type":"LoadBalancer"}}
+2025-06-13T05:04:20.031Z         , oci.oraclecloud.com/loadbalancer-policy=IP_HASH}
+2025-06-13T05:04:20.031Z         creationTimestamp: 2025-06-07T07:44:36Z
+2025-06-13T05:04:20.031Z         deletionGracePeriodSeconds: null
+2025-06-13T05:04:20.031Z         deletionTimestamp: null
+2025-06-13T05:04:20.031Z         finalizers: [service.kubernetes.io/load-balancer-cleanup]
+2025-06-13T05:04:20.031Z         generateName: null
+2025-06-13T05:04:20.031Z         generation: null
+2025-06-13T05:04:20.031Z         labels: null
+2025-06-13T05:04:20.031Z         managedFields: [class V1ManagedFieldsEntry {
+2025-06-13T05:04:20.031Z             apiVersion: v1
+2025-06-13T05:04:20.031Z             fieldsType: FieldsV1
+2025-06-13T05:04:20.031Z             fieldsV1: {f:spec={f:ports={k:{"port":80,"protocol":"TCP"}={.={}, f:port={}, f:protocol={}, f:targetPort={}}}, f:selector={}, f:type={}}}
+2025-06-13T05:04:20.031Z             manager: kubectl
+2025-06-13T05:04:20.031Z             operation: Apply
+2025-06-13T05:04:20.031Z             subresource: null
+2025-06-13T05:04:20.031Z             time: 2025-06-10T02:18:51Z
+2025-06-13T05:04:20.031Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:20.031Z             apiVersion: v1
+2025-06-13T05:04:20.031Z             fieldsType: FieldsV1
+2025-06-13T05:04:20.031Z             fieldsV1: {f:metadata={f:finalizers={.={}, v:"service.kubernetes.io/load-balancer-cleanup"={}}}, f:status={f:loadBalancer={f:ingress={}}}}
+2025-06-13T05:04:20.031Z             manager: cloud-provider-oci
+2025-06-13T05:04:20.031Z             operation: Update
+2025-06-13T05:04:20.031Z             subresource: status
+2025-06-13T05:04:20.031Z             time: 2025-06-07T07:45:08Z
+2025-06-13T05:04:20.031Z         }, class V1ManagedFieldsEntry {
+2025-06-13T05:04:20.031Z             apiVersion: v1
+2025-06-13T05:04:20.031Z             fieldsType: FieldsV1
+2025-06-13T05:04:20.031Z             fieldsV1: {f:metadata={f:annotations={.={}, f:kubectl.kubernetes.io/last-applied-configuration={}, f:oci.oraclecloud.com/loadbalancer-policy={}}}}
+2025-06-13T05:04:20.031Z             manager: kubectl-client-side-apply
+2025-06-13T05:04:20.031Z             operation: Update
+2025-06-13T05:04:20.031Z             subresource: null
+2025-06-13T05:04:20.031Z             time: 2025-06-08T22:49:59Z
+2025-06-13T05:04:20.031Z         }]
+2025-06-13T05:04:20.031Z         name: agile-service
+2025-06-13T05:04:20.031Z         namespace: default
+2025-06-13T05:04:20.031Z         ownerReferences: null
+2025-06-13T05:04:20.031Z         resourceVersion: 2813296
+2025-06-13T05:04:20.031Z         selfLink: null
+2025-06-13T05:04:20.031Z         uid: cfa32511-699e-4dea-9780-dc8ce31818ef
+2025-06-13T05:04:20.031Z     }
+2025-06-13T05:04:20.031Z     spec: class V1ServiceSpec {
+2025-06-13T05:04:20.031Z         allocateLoadBalancerNodePorts: true
+2025-06-13T05:04:20.031Z         clusterIP: 10.96.156.113
+2025-06-13T05:04:20.031Z         clusterIPs: [10.96.156.113]
+2025-06-13T05:04:20.031Z         externalIPs: null
+2025-06-13T05:04:20.031Z         externalName: null
+2025-06-13T05:04:20.031Z         externalTrafficPolicy: Cluster
+2025-06-13T05:04:20.031Z         healthCheckNodePort: null
+2025-06-13T05:04:20.031Z         internalTrafficPolicy: Cluster
+2025-06-13T05:04:20.031Z         ipFamilies: [IPv4]
+2025-06-13T05:04:20.031Z         ipFamilyPolicy: SingleStack
+2025-06-13T05:04:20.031Z         loadBalancerClass: null
+2025-06-13T05:04:20.031Z         loadBalancerIP: null
+2025-06-13T05:04:20.031Z         loadBalancerSourceRanges: null
+2025-06-13T05:04:20.031Z         ports: [class V1ServicePort {
+2025-06-13T05:04:20.031Z             appProtocol: null
+2025-06-13T05:04:20.031Z             name: null
+2025-06-13T05:04:20.031Z             nodePort: 31046
+2025-06-13T05:04:20.031Z             port: 80
+2025-06-13T05:04:20.031Z             protocol: TCP
+2025-06-13T05:04:20.031Z             targetPort: 8080
+2025-06-13T05:04:20.031Z         }]
+2025-06-13T05:04:20.031Z         publishNotReadyAddresses: null
+2025-06-13T05:04:20.031Z         selector: {app=agile-app}
+2025-06-13T05:04:20.031Z         sessionAffinity: None
+2025-06-13T05:04:20.031Z         sessionAffinityConfig: null
+2025-06-13T05:04:20.031Z         type: LoadBalancer
+2025-06-13T05:04:20.031Z     }
+2025-06-13T05:04:20.031Z     status: class V1ServiceStatus {
+2025-06-13T05:04:20.031Z         conditions: null
+2025-06-13T05:04:20.031Z         loadBalancer: class V1LoadBalancerStatus {
+2025-06-13T05:04:20.031Z             ingress: [class V1LoadBalancerIngress {
+2025-06-13T05:04:20.031Z                 hostname: null
+2025-06-13T05:04:20.031Z                 ip: 220.158.67.237
+2025-06-13T05:04:20.031Z                 ports: null
+2025-06-13T05:04:20.031Z             }]
+2025-06-13T05:04:20.031Z         }
+2025-06-13T05:04:20.031Z     }
+2025-06-13T05:04:20.031Z }
+2025-06-13T05:04:20.031Z OKE deployment rollback succeeded
+2025-06-13T05:04:32.838Z All stages complete. 1 were successful and 0 failed
