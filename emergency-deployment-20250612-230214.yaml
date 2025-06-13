@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: agile-deployment
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: agile-container
-          image: "${IMAGE_FULL_NAME}"
+          image: mx-queretaro-1.ocir.io/axvteqzybmr1/taskmanager/todolistapp-springboot:latest
           imagePullPolicy: Always
           env:
             - name: db_user
@@ -32,7 +32,7 @@ spec:
             - name: driver_class_name
               value: "oracle.jdbc.OracleDriver"
             - name: OCI_REGION
-              value: "%REGION%"
+              value: "mx-queretaro-1"
             - name: dbpassword
               valueFrom:
                 secretKeyRef:
@@ -40,7 +40,7 @@ spec:
                   key: dbpassword
                   optional: true
             - name: ui_username
-              value: "%UI_USERNAME%"
+              value: "admin"
             - name: ui_password
               valueFrom:
                 secretKeyRef:
@@ -56,38 +56,31 @@ spec:
             httpGet:
               path: /test-simple
               port: 8080
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 3
+            initialDelaySeconds: 5
+            periodSeconds: 3
+            timeoutSeconds: 2
             failureThreshold: 2
           livenessProbe:
             httpGet:
               path: /health
               port: 8080
-            initialDelaySeconds: 30
-            periodSeconds: 15
-            timeoutSeconds: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 2
             failureThreshold: 2
           startupProbe:
             httpGet:
               path: /test-simple
               port: 8080
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 12
+            initialDelaySeconds: 2
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 15
       restartPolicy: Always
       volumes:
         - name: creds
           secret:
             secretName: db-wallet-secret
-      topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname 
-          whenUnsatisfiable: DoNotSchedule
-          labelSelector:
-            matchLabels:
-              app: agile-app
 ---
 apiVersion: v1
 kind: Service
@@ -97,24 +90,10 @@ metadata:
     oci.oraclecloud.com/loadbalancer-policy: "IP_HASH"
 spec:
   type: LoadBalancer
-  # Remove hardcoded IP - let OCI assign dynamically
   externalTrafficPolicy: Cluster
   ports:
-    - port: 80          # Puerto a exponer externamente
+    - port: 80
       protocol: TCP
-      targetPort: 8080  # Puerto interno del contenedor
+      targetPort: 8080
   selector:
     app: agile-app
----
-#this is new stuff for hosting on the load balancer
-apiVersion: v1
-kind: Service
-metadata:
-  name: agile-backend-router
-spec:
-  selector:
-    app: agile-app
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: http
